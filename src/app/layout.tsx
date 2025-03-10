@@ -30,7 +30,7 @@ export default function RootLayout({
       >
         <Providers>
           <div className="w-screen border-b">
-            <div className="container mx-auto px-4 md:px-0 h-16 flex items-center md:justify-between">
+            <div className="container mx-auto px-4 lg:px-0 h-16 flex items-center md:justify-between">
               <div className="hidden md:block w-9 h-9" />
 
               <Link
