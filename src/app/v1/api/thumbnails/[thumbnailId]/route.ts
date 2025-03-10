@@ -1,12 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
-  _: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ thumbnailId: string }> }
 ) {
   const { thumbnailId } = await params;
+  const type = req.nextUrl.searchParams.get("type");
+  console.log(type);
+
   const response = await fetch(
-    `https://storage.shngm.id/low/unsafe/filters:format(webp):quality(70)/thumbnail/image/${thumbnailId}`
+    type === "potrait"
+      ? `https://storage.shngm.id/low/unsafe/filters:format(webp):quality(70)/thumbnail/image/${thumbnailId}`
+      : `https://storage.shngm.id/thumbnail/cover/${thumbnailId}`
   );
 
   const blob = await response.blob();
