@@ -3,21 +3,12 @@
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
+import { MangaType } from "~/types/manga";
+import { ListResponseType } from "~/types/response";
 
 export function MangaList() {
-  const { data } = useQuery<{
-    data: {
-      cover_image_url: string;
-      cover_portrait_url: string;
-      manga_id: string;
-    }[];
-  }>({
-    queryKey: ["mangas", "list"],
-    queryFn: async () => {
-      const response = await fetch("https://api.shngm.io/v1/manga/list");
-      return await response.json();
-    },
-  });
+  const queryKey = ["mangas"];
+  const { data } = useQuery<ListResponseType<MangaType>>({ queryKey });
 
   return (
     <div className="container mx-auto grid grid-cols-4 gap-4 my-12">

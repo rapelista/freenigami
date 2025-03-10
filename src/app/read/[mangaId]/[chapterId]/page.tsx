@@ -1,4 +1,4 @@
-import { ChapterDetail } from "~/components/mangas/chapters/detail";
+import { ChapterImages } from "~/components/mangas/chapters/images";
 
 export default async function Page({
   params,
@@ -7,5 +7,5 @@ export default async function Page({
 }) {
   const chapterId = (await params).chapterId;
 
-  return <ChapterDetail {...{ chapterId }} />;
+  return <ChapterImages {...{ chapterId }} />;
 }

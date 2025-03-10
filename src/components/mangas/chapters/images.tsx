@@ -2,27 +2,15 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
+import { ChapterImageType } from "~/types/chapter-image";
+import { ResponseType } from "~/types/response";
 
-export function ChapterDetail({ chapterId }: { chapterId: string }) {
+export function ChapterImages({ chapterId }: { chapterId: string }) {
   const { mangaId } = useParams();
+  const queryKey = ["mangas", mangaId, "chapters", chapterId];
 
-  const { data } = useQuery<{
-    data: {
-      base_url: string;
-      chapter: {
-        path: string;
-        data: string[];
-      };
-    };
-  }>({
-    queryKey: ["chapters", chapterId],
-    queryFn: async ({ queryKey }) => {
-      const response = await fetch(
-        `https://api.shngm.io/v1/chapter/detail/${queryKey[1]}`
-      );
-
-      return await response.json();
-    },
+  const { data } = useQuery<ResponseType<ChapterImageType>>({
+    queryKey,
   });
 
   return (

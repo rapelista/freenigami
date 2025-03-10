@@ -5,6 +5,27 @@ function makeQueryClient() {
     defaultOptions: {
       queries: {
         staleTime: 60 * 1000,
+        queryFn: async ({ queryKey }) => {
+          const paths = queryKey.filter((key) => typeof key === "string");
+          const url = paths.join("/");
+
+          const search = new URLSearchParams();
+          const params = queryKey.filter((key) => typeof key === "object");
+          params.forEach((param) => {
+            if (param) {
+              Object.entries(param).forEach(([key, value]) => {
+                search.append(key, String(value));
+              });
+            }
+          });
+
+          const searchParams = search.toString();
+
+          const response = await fetch(
+            "/v1/api/" + url + (searchParams ? "?" + searchParams : "")
+          );
+          return await response.json();
+        },
       },
     },
   });
