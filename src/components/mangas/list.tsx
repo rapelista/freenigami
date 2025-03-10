@@ -8,6 +8,7 @@ export function MangaList() {
   const { data } = useQuery<{
     data: {
       cover_image_url: string;
+      cover_portrait_url: string;
       manga_id: string;
     }[];
   }>({
@@ -20,16 +21,20 @@ export function MangaList() {
 
   return (
     <div className="container mx-auto grid grid-cols-4 gap-4 my-12">
-      {data?.data.map((manga, key) => (
-        <Link key={key} href={`/read/${manga.manga_id}`}>
-          <Image
-            alt={manga.cover_image_url}
-            src={manga.cover_image_url}
-            height={467}
-            width={350}
-          />
-        </Link>
-      ))}
+      {data?.data.map((manga, key) => {
+        const thumbnail = manga.cover_portrait_url.split("/").pop();
+
+        return (
+          <Link key={key} href={`/read/${manga.manga_id}`}>
+            <Image
+              alt={thumbnail || key.toString()}
+              src={`/v1/api/thumbnails/${thumbnail}`}
+              height={467}
+              width={350}
+            />
+          </Link>
+        );
+      })}
     </div>
   );
 }
