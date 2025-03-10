@@ -7,12 +7,20 @@ export async function GET(
   const { thumbnailId } = await params;
 
   const urls = [
-    `https://storage.shngm.id/low/unsafe/filters:format(webp):quality(70)/thumbnail/image/`,
     `https://storage.shngm.id/thumbnail/cover/`,
+    `https://storage.shngm.id/low/unsafe/filters:format(webp):quality(70)/thumbnail/image/`,
   ];
 
   const response = await Promise.any(
-    urls.map((url) => fetch(`${url}${thumbnailId}`))
+    urls.map((url) =>
+      fetch(`${url}${thumbnailId}`).then((res) => {
+        if (!res.ok) {
+          throw new Error();
+        }
+
+        return res;
+      })
+    )
   );
 
   const blob = await response.blob();
