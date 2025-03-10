@@ -1,6 +1,7 @@
 import "~/styles/globals.css";
 
 import { Geist, Geist_Mono } from "next/font/google";
+import Link from "next/link";
 import { Providers } from "~/components/providers";
 
 const geistSans = Geist({
@@ -26,7 +27,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Providers>{children}</Providers>
+        <Providers>
+          <div className="text-center w-screen h-16 flex items-center justify-center border-b">
+            <Link href={"/"} className="text-3xl font-semibold">
+              Freenigami
+            </Link>
+          </div>
+          <div>{children}</div>
+        </Providers>
       </body>
     </html>
   );
