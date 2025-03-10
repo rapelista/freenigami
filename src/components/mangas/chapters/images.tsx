@@ -64,7 +64,7 @@ export function ChapterImages({ chapterId }: { chapterId: string }) {
 
       <div className="flex flex-col justify-center min-h-screen">
         {isFetchingImages ? (
-          <Skeleton className="h-screen w-full" />
+          <Skeleton className="rounded-none h-screen w-full" />
         ) : (
           images?.data.chapter.data.map((imageId, key) => {
             return (

@@ -75,8 +75,9 @@ export function MangaList() {
                   <Skeleton className="h-full w-full" />
                 </AspectRatio>
               </CardContent>
-              <CardFooter className="p-2">
-                <Skeleton className="h-6 w-3/4" />
+              <CardFooter className="p-2 gap-x-4">
+                <Skeleton className="h-6 flex-1" />
+                <Skeleton className="w-9 h-9 md:w-[114.7px]" />
               </CardFooter>
             </Card>
           ))
@@ -103,8 +104,12 @@ export function MangaList() {
                       />
                     </AspectRatio>
                   </CardContent>
-                  <CardFooter className="p-2">
-                    <span className="font-semibold">{manga.title}</span>
+                  <CardFooter className="p-2 gap-x-2">
+                    <span className="overflow-ellipsis line-clamp-1 flex-1 font-semibold">
+                      {manga.title}
+                    </span>
+
+                    {/* <MangaBookmark /> */}
                   </CardFooter>
                 </Card>
               </Link>

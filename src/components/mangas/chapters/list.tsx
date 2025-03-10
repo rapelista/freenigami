@@ -82,7 +82,7 @@ export function ChapterList({ mangaId }: { mangaId: string }) {
               key={key}
               className="flex flex-row p-0 gap-x-2 overflow-hidden"
             >
-              <Skeleton className="w-[140] h-[84]" />
+              <Skeleton className="rounded-r-none w-[140] h-[84]" />
 
               <div className="flex-1 p-2">
                 <Skeleton className="w-11/12 h-6" />
