@@ -97,7 +97,7 @@ export function ChapterList({ mangaId }: { mangaId: string }) {
                 <Card className="flex flex-row p-0 gap-x-2 overflow-hidden">
                   <Image
                     alt={thumbnail || key.toString()}
-                    src={`/v1/api/thumbnails/${thumbnail}?type=potrait`}
+                    src={`/v1/api/thumbnails/${thumbnail}`}
                     width={140}
                     height={84}
                   />

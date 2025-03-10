@@ -90,8 +90,6 @@ export function MangaList() {
               .split("/")
               .pop();
 
-            const type = manga.cover_portrait_url ? "potrait" : "image";
-
             return (
               <Link key={key} href={`/read/${manga.manga_id}`}>
                 <Card className="hover:bg-card-foreground/5 relative p-2 px-0 pt-0 gap-y-2 overflow-hidden h-full">
@@ -110,7 +108,7 @@ export function MangaList() {
                     <AspectRatio ratio={9 / 16}>
                       <Image
                         alt={manga.title}
-                        src={`/v1/api/thumbnails/${thumbnail}?type=${type}`}
+                        src={`/v1/api/thumbnails/${thumbnail}`}
                         height={467}
                         width={350}
                         className="h-full w-full"

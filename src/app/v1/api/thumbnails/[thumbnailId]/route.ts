@@ -1,16 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
-  req: NextRequest,
+  _: NextRequest,
   { params }: { params: Promise<{ thumbnailId: string }> }
 ) {
   const { thumbnailId } = await params;
-  const type = req.nextUrl.searchParams.get("type");
 
-  const response = await fetch(
-    type === "potrait"
-      ? `https://storage.shngm.id/low/unsafe/filters:format(webp):quality(70)/thumbnail/image/${thumbnailId}`
-      : `https://storage.shngm.id/thumbnail/cover/${thumbnailId}`
+  const urls = [
+    `https://storage.shngm.id/low/unsafe/filters:format(webp):quality(70)/thumbnail/image/`,
+    `https://storage.shngm.id/thumbnail/cover/`,
+  ];
+
+  const response = await Promise.any(
+    urls.map((url) => fetch(`${url}${thumbnailId}`))
   );
 
   const blob = await response.blob();
