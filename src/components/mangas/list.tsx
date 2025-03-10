@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { Skeleton } from "../ui/skeleton";
 
 export function MangaList() {
   const [page, setPage] = useState(1);
@@ -32,14 +33,16 @@ export function MangaList() {
 
   const queryKey = ["mangas", { q: search, page_size: Number(limit), page }];
 
-  const { data: mangas } = useQuery<ListResponseType<MangaType>>({ queryKey });
+  const { data: mangas, isFetching } = useQuery<ListResponseType<MangaType>>({
+    queryKey,
+  });
 
   return (
-    <div className="container px-4 md:px-0 mx-auto grid grid-cols-2 lg:grid-cols-4 gap-4 my-12">
+    <div className="container px-4 lg:px-0 mx-auto grid grid-cols-2 lg:grid-cols-4 gap-4 my-12">
       <div className="col-[1/-1]">
-        <div className="flex gap-x-2">
+        <div className="flex gap-y-4 gap-x-2 flex-wrap">
           <Input
-            className="flex-1"
+            className="w-full md:flex-1"
             placeholder="Cari manga/manhwa/manhua&hellip;"
             type="search"
             value={search}
@@ -47,7 +50,7 @@ export function MangaList() {
           />
 
           <Select value={limit} onValueChange={setLimit}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-full md:w-[180px]">
               <SelectValue placeholder="Tampilkan" />
             </SelectTrigger>
             <SelectContent>
@@ -61,34 +64,52 @@ export function MangaList() {
         </div>
       </div>
 
-      {mangas?.data.map((manga, key) => {
-        const thumbnail = (manga.cover_portrait_url || manga.cover_image_url)
-          .split("/")
-          .pop();
-
-        const type = manga.cover_portrait_url ? "potrait" : "image";
-
-        return (
-          <Link key={key} href={`/read/${manga.manga_id}`}>
-            <Card className="p-2 px-0 pt-0 gap-y-2 overflow-hidden h-full">
+      {isFetching
+        ? Array.from({ length: Number(limit) }).map((_, key) => (
+            <Card
+              key={key}
+              className="p-2 px-0 pt-0 gap-y-2 overflow-hidden h-full"
+            >
               <CardContent className="p-0">
                 <AspectRatio ratio={9 / 16}>
-                  <Image
-                    alt={manga.title}
-                    src={`/v1/api/thumbnails/${thumbnail}?type=${type}`}
-                    height={467}
-                    width={350}
-                    className="h-full"
-                  />
+                  <Skeleton className="h-full w-full" />
                 </AspectRatio>
               </CardContent>
               <CardFooter className="p-2">
-                <span className="font-semibold">{manga.title}</span>
+                <Skeleton className="h-6 w-3/4" />
               </CardFooter>
             </Card>
-          </Link>
-        );
-      })}
+          ))
+        : mangas?.data.map((manga, key) => {
+            const thumbnail = (
+              manga.cover_portrait_url || manga.cover_image_url
+            )
+              .split("/")
+              .pop();
+
+            const type = manga.cover_portrait_url ? "potrait" : "image";
+
+            return (
+              <Link key={key} href={`/read/${manga.manga_id}`}>
+                <Card className="p-2 px-0 pt-0 gap-y-2 overflow-hidden h-full">
+                  <CardContent className="p-0">
+                    <AspectRatio ratio={9 / 16}>
+                      <Image
+                        alt={manga.title}
+                        src={`/v1/api/thumbnails/${thumbnail}?type=${type}`}
+                        height={467}
+                        width={350}
+                        className="h-full"
+                      />
+                    </AspectRatio>
+                  </CardContent>
+                  <CardFooter className="p-2">
+                    <span className="font-semibold">{manga.title}</span>
+                  </CardFooter>
+                </Card>
+              </Link>
+            );
+          })}
 
       <div className="col-[1/-1]">
         <Pagination>
