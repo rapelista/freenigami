@@ -6,7 +6,6 @@ export async function GET(
 ) {
   const { thumbnailId } = await params;
   const type = req.nextUrl.searchParams.get("type");
-  console.log(type);
 
   const response = await fetch(
     type === "potrait"

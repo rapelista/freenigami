@@ -11,7 +11,7 @@ export function ChapterList({ mangaId }: { mangaId: string }) {
     "mangas",
     mangaId,
     "chapters",
-    { page_size: 12, sort_order: "asc" },
+    { page_size: 50, sort_order: "desc" },
   ];
 
   const { data } = useQuery<ListResponseType<ChapterType>>({ queryKey });
@@ -29,7 +29,7 @@ export function ChapterList({ mangaId }: { mangaId: string }) {
           >
             <Image
               alt={thumbnail || key.toString()}
-              src={`/v1/api/thumbnails/${thumbnail}`}
+              src={`/v1/api/thumbnails/${thumbnail}?type=potrait`}
               width={140}
               height={84}
             />
