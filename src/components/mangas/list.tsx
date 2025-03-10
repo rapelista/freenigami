@@ -14,6 +14,7 @@ import {
 } from "~/components/ui/pagination";
 import { MangaType } from "~/types/manga";
 import { ListResponseType } from "~/types/response";
+import { AspectRatio } from "../ui/aspect-ratio";
 import { Card, CardContent, CardFooter } from "../ui/card";
 import { Input } from "../ui/input";
 import {
@@ -71,13 +72,15 @@ export function MangaList() {
           <Link key={key} href={`/read/${manga.manga_id}`}>
             <Card className="p-2 px-0 pt-0 gap-y-2 overflow-hidden h-full">
               <CardContent className="p-0">
-                <Image
-                  alt={manga.title}
-                  src={`/v1/api/thumbnails/${thumbnail}?type=${type}`}
-                  height={467}
-                  width={350}
-                  className="h-full"
-                />
+                <AspectRatio ratio={9 / 16}>
+                  <Image
+                    alt={manga.title}
+                    src={`/v1/api/thumbnails/${thumbnail}?type=${type}`}
+                    height={467}
+                    width={350}
+                    className="h-full"
+                  />
+                </AspectRatio>
               </CardContent>
               <CardFooter className="p-2">
                 <span className="font-semibold">{manga.title}</span>

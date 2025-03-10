@@ -33,7 +33,7 @@ export function ChapterImages({ chapterId }: { chapterId: string }) {
           >
             {manga?.data.title}
           </Link>{" "}
-          - Chapter {images?.data.chapter_number}
+          {images && `- Chapter ${images?.data.chapter_number}`}
         </h1>
       </div>
 
@@ -49,7 +49,7 @@ export function ChapterImages({ chapterId }: { chapterId: string }) {
         })}
       </div>
 
-      <div className="flex justify-between mt-12">
+      <div className="px-4 md:px-0 flex justify-between mt-12">
         {images?.data.prev_chapter_id && (
           <Button
             variant="outline"
