@@ -113,7 +113,7 @@ export function MangaList() {
                         src={`/v1/api/thumbnails/${thumbnail}?type=${type}`}
                         height={467}
                         width={350}
-                        className="h-full"
+                        className="h-full w-full"
                       />
                     </AspectRatio>
                   </CardContent>
