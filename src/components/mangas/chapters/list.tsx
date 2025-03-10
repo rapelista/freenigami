@@ -25,26 +25,30 @@ export function ChapterList({ mangaId }: { mangaId: string }) {
 
   return (
     <div className="container mx-auto grid grid-cols-3 gap-4 my-12">
-      {data?.data.map((chapter, key) => (
-        <Link
-          key={key}
-          href={`/read/${mangaId}/${chapter.chapter_id}`}
-          className="border border-gray-200 flex"
-        >
-          <Image
-            alt={chapter.thumbnail_image_url}
-            src={chapter.thumbnail_image_url}
-            width={140}
-            height={84}
-          />
+      {data?.data.map((chapter, key) => {
+        const thumbnail = chapter.thumbnail_image_url.split("/").pop();
 
-          <div className="flex-1 p-2">
-            <span className="font-semibold">
-              Chapter {chapter.chapter_number}
-            </span>
-          </div>
-        </Link>
-      ))}
+        return (
+          <Link
+            key={key}
+            href={`/read/${mangaId}/${chapter.chapter_id}`}
+            className="border border-gray-200 flex"
+          >
+            <Image
+              alt={thumbnail || key.toString()}
+              src={`/v1/api/thumbnails/${thumbnail}`}
+              width={140}
+              height={84}
+            />
+
+            <div className="flex-1 p-2">
+              <span className="font-semibold">
+                Chapter {chapter.chapter_number}
+              </span>
+            </div>
+          </Link>
+        );
+      })}
     </div>
   );
 }
