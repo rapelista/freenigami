@@ -5,4 +5,5 @@ export const metadata: Metadata = {
     default: "Freenigami",
     template: "%s | Freenigami",
   },
+  description: "Malas login dulu.",
 };
