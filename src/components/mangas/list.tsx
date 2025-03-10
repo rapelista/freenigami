@@ -29,7 +29,7 @@ export function MangaList() {
           .split("/")
           .pop();
 
-        const type = manga.cover_portrait_url ? "portrait" : "image";
+        const type = manga.cover_portrait_url ? "potrait" : "image";
 
         return (
           <Link key={key} href={`/read/${manga.manga_id}`}>
