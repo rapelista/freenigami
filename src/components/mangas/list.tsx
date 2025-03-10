@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { StarIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -15,6 +16,7 @@ import {
 import { MangaType } from "~/types/manga";
 import { ListResponseType } from "~/types/response";
 import { AspectRatio } from "../ui/aspect-ratio";
+import { Button } from "../ui/button";
 import { Card, CardContent, CardFooter } from "../ui/card";
 import { Input } from "../ui/input";
 import {
@@ -92,7 +94,18 @@ export function MangaList() {
 
             return (
               <Link key={key} href={`/read/${manga.manga_id}`}>
-                <Card className="p-2 px-0 pt-0 gap-y-2 overflow-hidden h-full">
+                <Card className="hover:bg-card-foreground/5 relative p-2 px-0 pt-0 gap-y-2 overflow-hidden h-full">
+                  <Button
+                    size="sm"
+                    className="absolute top-2 right-2 z-10 bg-secondary/50 hover:bg-secondary/60 text-secondary-foreground"
+                  >
+                    {manga.user_rate}
+                    <StarIcon
+                      color="var(--color-yellow-500)"
+                      fill="var(--color-yellow-500)"
+                    />
+                  </Button>
+
                   <CardContent className="p-0">
                     <AspectRatio ratio={9 / 16}>
                       <Image
