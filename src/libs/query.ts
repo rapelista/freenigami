@@ -5,7 +5,7 @@ function makeQueryClient() {
     defaultOptions: {
       queries: {
         staleTime: 60 * 1000,
-        queryFn: async ({ queryKey }) => {
+        queryFn: async ({ queryKey, signal }) => {
           const paths = queryKey.filter((key) => typeof key === "string");
           const url = paths.join("/");
 
@@ -22,8 +22,10 @@ function makeQueryClient() {
           const searchParams = search.toString();
 
           const response = await fetch(
-            "/v1/api/" + url + (searchParams ? "?" + searchParams : "")
+            "/v1/api/" + url + (searchParams ? "?" + searchParams : ""),
+            { signal }
           );
+
           return await response.json();
         },
       },
