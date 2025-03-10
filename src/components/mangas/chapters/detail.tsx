@@ -30,7 +30,11 @@ export function ChapterDetail({ chapterId }: { chapterId: string }) {
       <div className="flex flex-col justify-center">
         {data?.data.chapter.data.map((imageId, key) => {
           return (
-            <img key={key} src={`/v1/api/${mangaId}/${chapterId}/${imageId}`} />
+            <img
+              key={key}
+              alt={imageId}
+              src={`/v1/api/${mangaId}/${chapterId}/${imageId}`}
+            />
           );
         })}
       </div>
