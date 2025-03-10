@@ -50,31 +50,29 @@ export function ChapterImages({ chapterId }: { chapterId: string }) {
       </div>
 
       <div className="px-4 md:px-0 flex justify-between mt-12">
-        {images?.data.prev_chapter_id && (
-          <Button
-            variant="outline"
-            onClick={() => {
-              if (images?.data.prev_chapter_id) {
-                router.replace(images.data.prev_chapter_id);
-              }
-            }}
-          >
-            Chapter Sebelumnya
-          </Button>
-        )}
+        <Button
+          disabled={!images?.data.prev_chapter_id}
+          variant="outline"
+          onClick={() => {
+            if (images?.data.prev_chapter_id) {
+              router.replace(images.data.prev_chapter_id);
+            }
+          }}
+        >
+          Chapter Sebelumnya
+        </Button>
 
-        {images?.data.next_chapter_id && (
-          <Button
-            variant="outline"
-            onClick={() => {
-              if (images?.data.next_chapter_id) {
-                router.replace(images.data.next_chapter_id);
-              }
-            }}
-          >
-            Chapter Selanjutnya
-          </Button>
-        )}
+        <Button
+          disabled={!images?.data.next_chapter_id}
+          variant="outline"
+          onClick={() => {
+            if (images?.data.next_chapter_id) {
+              router.replace(images.data.next_chapter_id);
+            }
+          }}
+        >
+          Chapter Selanjutnya
+        </Button>
       </div>
     </div>
   );
