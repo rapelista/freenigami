@@ -33,7 +33,16 @@ export function MangaList() {
   const [limit, setLimit] = useState("20");
   const [search, setSearch] = useState("");
 
-  const queryKey = ["mangas", { q: search, page_size: Number(limit), page }];
+  const queryKey = [
+    "mangas",
+    {
+      q: search,
+      page_size: Number(limit),
+      page,
+      sort: "latest",
+      sort_order: "desc",
+    },
+  ];
 
   const { data: mangas, isFetching } = useQuery<ListResponseType<MangaType>>({
     queryKey,
