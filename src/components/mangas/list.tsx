@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { StarIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   Pagination,
   PaginationContent,
@@ -33,6 +33,8 @@ export function MangaList() {
   const [limit, setLimit] = useState("20");
   const [search, setSearch] = useState("");
 
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
   const queryKey = [
     "mangas",
     {
@@ -48,8 +50,20 @@ export function MangaList() {
     queryKey,
   });
 
+  const scrollIntoTopRef = () => {
+    if (wrapperRef) {
+      const height = wrapperRef.current?.getBoundingClientRect().height;
+      if (height) {
+        window.scrollTo({ top: 75, behavior: "smooth" });
+      }
+    }
+  };
+
   return (
-    <div className="container px-4 lg:px-0 mx-auto grid grid-cols-2 lg:grid-cols-4 gap-4 my-12">
+    <div
+      ref={wrapperRef}
+      className="container px-4 lg:px-0 mx-auto grid grid-cols-2 lg:grid-cols-4 gap-4 my-12"
+    >
       <div className="col-[1/-1]">
         <div className="flex gap-y-4 gap-x-2 flex-wrap">
           <Input
@@ -88,7 +102,8 @@ export function MangaList() {
               </CardContent>
               <CardFooter className="p-2 gap-x-4">
                 <Skeleton className="h-6 flex-1" />
-                <Skeleton className="w-9 h-9 md:w-[114.7px]" />
+
+                {/* <Skeleton className="w-9 h-9 md:w-[114.7px]" /> */}
               </CardFooter>
             </Card>
           ))
@@ -145,6 +160,7 @@ export function MangaList() {
                   if (mangas) {
                     if (mangas?.meta.page > 1) {
                       setPage(mangas.meta.page - 1);
+                      scrollIntoTopRef();
                     }
                   }
                 }}
@@ -159,6 +175,7 @@ export function MangaList() {
                 onClick={() => {
                   if (mangas) {
                     setPage(mangas.meta.page + 1);
+                    scrollIntoTopRef();
                   }
                 }}
               />

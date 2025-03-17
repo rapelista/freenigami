@@ -30,7 +30,7 @@ export function ChapterImages({ chapterId }: { chapterId: string }) {
   });
 
   return (
-    <div className="container mx-auto my-12">
+    <div className="container mx-auto my-12 relative">
       <div className="mb-12 px-4 lg:px-0">
         {isFetchingManga ? (
           <>
@@ -78,7 +78,7 @@ export function ChapterImages({ chapterId }: { chapterId: string }) {
         )}
       </div>
 
-      <div className="px-4 lg:px-0 flex justify-between mt-12">
+      <div className="sticky bottom-4 px-4 lg:px-0 flex justify-between mt-12">
         <Button
           disabled={!images?.data.prev_chapter_id}
           variant="outline"
@@ -89,7 +89,7 @@ export function ChapterImages({ chapterId }: { chapterId: string }) {
           }}
         >
           <ChevronLeftIcon />
-          Chapter Sebelumnya
+          <span className="hidden md:inline">Chapter</span> Sebelumnya
         </Button>
 
         <Button
@@ -101,7 +101,7 @@ export function ChapterImages({ chapterId }: { chapterId: string }) {
             }
           }}
         >
-          Chapter Selanjutnya
+          <span className="hidden md:inline">Chapter</span> Selanjutnya
           <ChevronRightIcon />
         </Button>
       </div>
