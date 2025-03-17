@@ -130,6 +130,7 @@ export function MangaList() {
                 key={key}
                 className="flex-1 md:flex-none"
                 variant={format === value ? "default" : "outline"}
+                size="sm"
                 onClick={() => {
                   setFormat(value);
                 }}
@@ -139,9 +140,9 @@ export function MangaList() {
             ))}
           </div>
 
-          <div className="flex gap-x-4 w-full md:w-fit">
+          <div className="grid grid-cols-4 gap-x-4 w-full md:flex md:w-fit">
             <Select value={sort} onValueChange={setSort}>
-              <SelectTrigger className="flex-1 md:flex-none md:w-[130px]">
+              <SelectTrigger className="col-span-2 w-full md:w-[130px]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -154,7 +155,7 @@ export function MangaList() {
             </Select>
 
             <Select value={ordering} onValueChange={setOrdering}>
-              <SelectTrigger className="flex-1 md:flex-none md:w-[100px]">
+              <SelectTrigger className="w-full md:w-[100px]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -167,7 +168,7 @@ export function MangaList() {
             </Select>
 
             <Select value={limit} onValueChange={setLimit}>
-              <SelectTrigger className="flex-1 md:flex-none md:w-[100px]">
+              <SelectTrigger className="w-full md:w-[100px]">
                 <SelectValue placeholder="Tampilkan" />
               </SelectTrigger>
               <SelectContent>
