@@ -140,9 +140,9 @@ export function MangaList() {
             ))}
           </div>
 
-          <div className="grid grid-cols-4 gap-x-4 w-full md:flex md:w-fit">
+          <div className="grid grid-cols-8 gap-x-4 w-full md:flex md:w-fit">
             <Select value={sort} onValueChange={setSort}>
-              <SelectTrigger className="col-span-2 w-full md:w-[130px]">
+              <SelectTrigger className="col-span-3 w-full md:w-[130px]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -155,7 +155,7 @@ export function MangaList() {
             </Select>
 
             <Select value={ordering} onValueChange={setOrdering}>
-              <SelectTrigger className="w-full md:w-[100px]">
+              <SelectTrigger className="col-span-3 w-full md:w-[100px]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -168,7 +168,7 @@ export function MangaList() {
             </Select>
 
             <Select value={limit} onValueChange={setLimit}>
-              <SelectTrigger className="w-full md:w-[100px]">
+              <SelectTrigger className="col-span-2 w-full md:w-[100px]">
                 <SelectValue placeholder="Tampilkan" />
               </SelectTrigger>
               <SelectContent>
