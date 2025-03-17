@@ -28,10 +28,59 @@ import {
 } from "../ui/select";
 import { Skeleton } from "../ui/skeleton";
 
+const formats = [
+  {
+    label: "Semua",
+    value: "",
+  },
+  {
+    label: "Manhwa",
+    value: "manhwa",
+  },
+  {
+    label: "Manga",
+    value: "manga",
+  },
+  {
+    label: "Manhua",
+    value: "manhua",
+  },
+];
+
+const orderings = [
+  {
+    label: "ASC",
+    value: "asc",
+  },
+  {
+    label: "DESC",
+    value: "desc",
+  },
+];
+
+const sorts = [
+  {
+    label: "Popularitas",
+    value: "popularity",
+  },
+  {
+    label: "Terbaru",
+    value: "latest",
+  },
+
+  {
+    label: "Rating",
+    value: "rating",
+  },
+];
+
 export function MangaList() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState("20");
   const [search, setSearch] = useState("");
+  const [format, setFormat] = useState("manhwa");
+  const [ordering, setOrdering] = useState("desc");
+  const [sort, setSort] = useState("latest");
 
   const wrapperRef = useRef<HTMLDivElement>(null);
 
@@ -41,8 +90,9 @@ export function MangaList() {
       q: search,
       page_size: Number(limit),
       page,
-      sort: "latest",
-      sort_order: "desc",
+      sort,
+      sort_order: ordering,
+      format,
     },
   ];
 
@@ -65,27 +115,70 @@ export function MangaList() {
       className="container px-4 lg:px-0 mx-auto grid grid-cols-2 lg:grid-cols-4 gap-4 my-12"
     >
       <div className="col-[1/-1]">
-        <div className="flex gap-y-4 gap-x-2 flex-wrap">
+        <div className="flex gap-y-4 gap-x-2 justify-between flex-wrap">
           <Input
-            className="w-full md:flex-1"
+            className="w-full"
             placeholder="Cari manga/manhwa/manhua&hellip;"
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
 
-          <Select value={limit} onValueChange={setLimit}>
-            <SelectTrigger className="w-full md:w-[180px]">
-              <SelectValue placeholder="Tampilkan" />
-            </SelectTrigger>
-            <SelectContent>
-              {[10, 20, 50, 100].map(String).map((value) => (
-                <SelectItem value={value} key={value}>
-                  {value}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex gap-x-2 w-full md:w-fit">
+            {formats.map(({ value, label }, key) => (
+              <Button
+                key={key}
+                className="flex-1 md:flex-none"
+                variant={format === value ? "default" : "outline"}
+                onClick={() => {
+                  setFormat(value);
+                }}
+              >
+                {label}
+              </Button>
+            ))}
+          </div>
+
+          <div className="flex gap-x-4 w-full md:w-fit">
+            <Select value={sort} onValueChange={setSort}>
+              <SelectTrigger className="flex-1 md:flex-none md:w-[130px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {sorts.map(({ label, value }) => (
+                  <SelectItem value={value} key={value}>
+                    {label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={ordering} onValueChange={setOrdering}>
+              <SelectTrigger className="flex-1 md:flex-none md:w-[100px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {orderings.map(({ label, value }) => (
+                  <SelectItem value={value} key={value}>
+                    {label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={limit} onValueChange={setLimit}>
+              <SelectTrigger className="flex-1 md:flex-none md:w-[100px]">
+                <SelectValue placeholder="Tampilkan" />
+              </SelectTrigger>
+              <SelectContent>
+                {[10, 20, 50, 100].map(String).map((value) => (
+                  <SelectItem value={value} key={value}>
+                    {value}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 

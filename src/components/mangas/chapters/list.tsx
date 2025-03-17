@@ -26,15 +26,27 @@ import { ChapterType } from "~/types/chapter";
 import { MangaType } from "~/types/manga";
 import { ListResponseType, ResponseType } from "~/types/response";
 
+const orderings = [
+  {
+    label: "ASC",
+    value: "asc",
+  },
+  {
+    label: "DESC",
+    value: "desc",
+  },
+];
+
 export function ChapterList({ mangaId }: { mangaId: string }) {
   const [limit, setLimit] = useState("100");
   const [page, setPage] = useState(1);
+  const [ordering, setOrdering] = useState("desc");
 
   const queryKey = [
     "mangas",
     mangaId,
     "chapters",
-    { page_size: Number(limit), sort_order: "desc", page },
+    { page_size: Number(limit), sort_order: ordering, page },
   ];
 
   const { data: chapters, isFetching: isFetchingChapters } = useQuery<
@@ -60,10 +72,23 @@ export function ChapterList({ mangaId }: { mangaId: string }) {
           )}
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex justify-between gap-x-4">
+          <Select value={ordering} onValueChange={setOrdering}>
+            <SelectTrigger className="w-[100px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {orderings.map(({ label, value }) => (
+                <SelectItem value={value} key={value}>
+                  {label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
           <Select value={limit} onValueChange={setLimit}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Tampilkan" />
+            <SelectTrigger className="w-[100px]">
+              <SelectValue />
             </SelectTrigger>
             <SelectContent>
               {[50, 100, 200, 500].map(String).map((value) => (
@@ -132,11 +157,14 @@ export function ChapterList({ mangaId }: { mangaId: string }) {
                 {chapters?.meta.page || 1}
               </PaginationLink>
             </PaginationItem>
+
             <PaginationItem>
               <PaginationNext
                 onClick={() => {
                   if (chapters) {
-                    setPage(chapters.meta.page + 1);
+                    if (chapters.meta.total_page > chapters.meta.page) {
+                      setPage(chapters.meta.page + 1);
+                    }
                   }
                 }}
               />
