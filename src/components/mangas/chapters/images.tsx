@@ -21,6 +21,10 @@ export function ChapterImages({ chapterId }: { chapterId: string }) {
     ResponseType<MangaType>
   >({
     queryKey: ["mangas", mangaId],
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    staleTime: Infinity,
   });
 
   const { data: images, isFetching: isFetchingImages } = useQuery<
