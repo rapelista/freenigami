@@ -1,6 +1,7 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
-import { Button, Skeleton, Tabs } from '@heroui/react';
+import { Button, Card, Tabs } from '@heroui/react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 
@@ -22,40 +23,51 @@ export function Latest() {
       </Tabs>
 
       <div className="grid gap-4 grid-cols-2 md:grid-cols-4 xl:grid-cols-6">
-        {data?.data.map((series) => (
-          <div
-            key={series.manga_id}
-            className="aspect-[5/11] flex flex-col gap-2 justify-end"
-          >
-            <Skeleton className="flex-1" />
+        {data?.data.map((series) => {
+          const image = series.cover_image_url || series.cover_portrait_url;
 
-            <div className="flex items-center justify-center p-2 min-h-16">
-              <Link
-                className="line-clamp-2 text-center"
-                href={`/series/${series.manga_id}`}
-              >
-                {series.title}
+          return (
+            <Card
+              key={series.manga_id}
+              className="p-0 aspect-[5/11] flex flex-col gap-2 justify-end"
+              variant="flat"
+            >
+              <Link className="flex-1" href={`/series/${series.manga_id}`}>
+                <img
+                  alt={series.title}
+                  className="object-cover h-full w-full"
+                  src={`/api/proxy/thumbnails/${image.split('/').pop()}`}
+                />
               </Link>
-            </div>
 
-            <div className="grid gap-2">
-              {series.chapters.slice(0, 2).map((chapter) => (
-                <Button
-                  key={chapter.chapter_id}
-                  asChild
-                  size="sm"
-                  variant="secondary"
+              <div className="flex items-center justify-center p-2 min-h-16">
+                <Link
+                  className="line-clamp-2 text-center"
+                  href={`/series/${series.manga_id}`}
                 >
-                  <Link
-                    href={`/series/${series.manga_id}/chapters/${chapter.chapter_id}`}
+                  {series.title}
+                </Link>
+              </div>
+
+              <Card.Footer className="grid gap-2">
+                {series.chapters.slice(0, 2).map((chapter) => (
+                  <Button
+                    key={chapter.chapter_id}
+                    asChild
+                    size="sm"
+                    variant="secondary"
                   >
-                    Chapter {chapter.chapter_number}
-                  </Link>
-                </Button>
-              ))}
-            </div>
-          </div>
-        ))}
+                    <Link
+                      href={`/series/${series.manga_id}/chapters/${chapter.chapter_id}`}
+                    >
+                      Chapter {chapter.chapter_number}
+                    </Link>
+                  </Button>
+                ))}
+              </Card.Footer>
+            </Card>
+          );
+        })}
       </div>
     </div>
   );
