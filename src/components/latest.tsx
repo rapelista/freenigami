@@ -48,7 +48,7 @@ export function Latest() {
                     <img
                       alt={series.title}
                       className="object-cover h-full w-full"
-                      src={`/api/proxy/thumbnails/${image.split('/').pop()}`}
+                      src={`/api/proxy/image/${image.split('/').pop()}`}
                     />
                   </Link>
 

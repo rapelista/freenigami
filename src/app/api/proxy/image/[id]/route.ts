@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
   _: NextRequest,
-  { params }: { params: Promise<{ thumbnailId: string }> },
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const { thumbnailId } = await params;
+  const { id } = await params;
 
   const urls = [
     `https://storage.shngm.id/thumbnail/cover/`,
@@ -13,7 +13,7 @@ export async function GET(
 
   const response = await Promise.any(
     urls.map((url) =>
-      fetch(`${url}${thumbnailId}`).then((res) => {
+      fetch(`${url}${id}`).then((res) => {
         if (!res.ok) {
           throw new Error();
         }
