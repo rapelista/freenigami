@@ -1,7 +1,16 @@
+import { Inter } from 'next/font/google';
+import Link from 'next/link';
+
 import { Providers } from '~/components/providers';
+import { cn } from '~/lib/utils';
+
 import '~/styles/globals.css';
 
 export { metadata } from '~/configs/site';
+
+const inter = Inter({
+  subsets: ['latin'],
+});
 
 export default function RootLayout({
   children,
@@ -9,9 +18,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html className={cn('dark', inter.className)} lang="en">
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          <header className="border-b-[0.5px] border-dashed">
+            <div className="max-w-[1440px] mx-auto p-4 md:p-6 grid md:grid-cols-3">
+              <Link
+                className="capitalize font-medium md:text-xl md:col-start-2 md:place-self-center"
+                href="/"
+              >
+                FREENIGAMI
+              </Link>
+            </div>
+          </header>
+
+          {children}
+        </Providers>
       </body>
     </html>
   );
