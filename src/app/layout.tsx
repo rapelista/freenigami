@@ -1,3 +1,4 @@
+import { Providers } from '~/components/providers';
 import '~/styles/globals.css';
 
 export { metadata } from '~/configs/site';
@@ -9,7 +10,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }
