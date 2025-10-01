@@ -15,7 +15,7 @@ export function Latest() {
         </Tabs.ListWrapper>
       </Tabs>
 
-      <div className="grid gap-4 grid-cols-2 md:grid-cols-4 xl:grid-cols-8">
+      <div className="grid gap-4 grid-cols-2 md:grid-cols-4 xl:grid-cols-6">
         {Array.from({ length: 24 }, (_, i) => (
           <div key={i}>
             <Skeleton className="w-full aspect-[5/9]" />
