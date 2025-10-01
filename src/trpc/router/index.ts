@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 import { appProcedure, router } from '~/trpc/init';
 
-const schema = z.object({
+const listSchema = z.object({
   data: z.array(
     z.object({
       manga_id: z.string(),
@@ -23,8 +23,45 @@ const schema = z.object({
   ),
 });
 
+const recommendationSchema = z.object({
+  data: z.array(
+    z.object({
+      manga_id: z.string(),
+      title: z.string(),
+      alternative_title: z.string(),
+      country_id: z.string(),
+      cover_image_url: z.string(),
+      cover_portrait_url: z.string(),
+    }),
+  ),
+});
+
 export const appRouter = router({
   series: router({
+    recommendation: appProcedure.query(async () => {
+      const url = new URL(
+        'https://api.shngm.io/v1/manga/list?format=manhwa&page=1&page_size=8&is_recommended=true&sort=latest&sort_order=desc',
+      );
+
+      const response = await fetch(url.toString());
+
+      if (!response.ok) {
+        throw new TRPCError({
+          code: 'BAD_GATEWAY',
+        });
+      }
+
+      const data = await response.json();
+
+      try {
+        return recommendationSchema.parse(data);
+      } catch {
+        throw new TRPCError({
+          code: 'BAD_GATEWAY',
+        });
+      }
+    }),
+
     list: appProcedure.query(async () => {
       const url = new URL(
         'https://api.shngm.io/v1/manga/list?type=project&page=1&page_size=24&is_update=true&sort=latest&sort_order=desc',
@@ -41,7 +78,7 @@ export const appRouter = router({
       const data = await response.json();
 
       try {
-        return schema.parse(data);
+        return listSchema.parse(data);
       } catch {
         throw new TRPCError({
           code: 'BAD_GATEWAY',

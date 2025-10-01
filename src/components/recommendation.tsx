@@ -1,8 +1,15 @@
+/* eslint-disable @next/next/no-img-element */
 'use client';
 
-import { Skeleton, Tabs } from '@heroui/react';
+import { Card, Tabs } from '@heroui/react';
+import { useQuery } from '@tanstack/react-query';
+import Link from 'next/link';
+
+import { trpc } from '~/trpc/client';
 
 export function Recommendation() {
+  const { data } = useQuery(trpc.series.recommendation.queryOptions());
+
   return (
     <div className="space-y-4">
       <Tabs className="w-full max-w-md">
@@ -17,11 +24,29 @@ export function Recommendation() {
       </Tabs>
 
       <div className="grid gap-4 grid-cols-2 md:grid-cols-4 xl:grid-cols-8">
-        {Array.from({ length: 8 }, (_, i) => (
-          <div key={i}>
-            <Skeleton className="w-full aspect-[5/9]" />
-          </div>
-        ))}
+        {data?.data.map((series) => {
+          const image = series.cover_portrait_url || series.cover_image_url;
+
+          return (
+            <Card
+              key={series.manga_id}
+              asChild
+              className="p-0 relative aspect-[5/10]"
+              variant="flat"
+            >
+              <Link
+                className="h-full w-full"
+                href={`/series/${series.manga_id}`}
+              >
+                <img
+                  alt={series.title}
+                  className="object-cover h-full w-full"
+                  src={`/api/proxy/thumbnails/${image.split('/').pop()}`}
+                />
+              </Link>
+            </Card>
+          );
+        })}
       </div>
     </div>
   );
