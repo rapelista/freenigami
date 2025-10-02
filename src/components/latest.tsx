@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { trpc } from '~/trpc/client';
 
 export function Latest() {
-  const { data, isLoading } = useQuery(trpc.series.list.queryOptions());
+  const { data, isLoading } = useQuery(trpc.series.latest.queryOptions());
 
   return (
     <div className="space-y-4">

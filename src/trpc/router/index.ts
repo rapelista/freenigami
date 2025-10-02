@@ -62,7 +62,7 @@ export const appRouter = router({
       }
     }),
 
-    list: appProcedure.query(async () => {
+    latest: appProcedure.query(async () => {
       const url = new URL(
         'https://api.shngm.io/v1/manga/list?type=project&page=1&page_size=24&is_update=true&sort=latest&sort_order=desc',
       );
