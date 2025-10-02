@@ -1,43 +1,33 @@
 import { TRPCError } from '@trpc/server';
-import { z } from 'zod';
+import { z, ZodError } from 'zod';
 
+import { generateListSchema } from '~/schema/list';
+import { SeriesSchema } from '~/schema/series';
 import { appProcedure, router } from '~/trpc/init';
-
-const listSchema = z.object({
-  data: z.array(
-    z.object({
-      manga_id: z.string(),
-      title: z.string(),
-      alternative_title: z.string(),
-      country_id: z.string(),
-      cover_image_url: z.string(),
-      cover_portrait_url: z.string(),
-      chapters: z.array(
-        z.object({
-          chapter_id: z.string(),
-          chapter_number: z.number(),
-          created_at: z.string(),
-        }),
-      ),
-    }),
-  ),
-});
-
-const recommendationSchema = z.object({
-  data: z.array(
-    z.object({
-      manga_id: z.string(),
-      title: z.string(),
-      alternative_title: z.string(),
-      country_id: z.string(),
-      cover_image_url: z.string(),
-      cover_portrait_url: z.string(),
-    }),
-  ),
-});
 
 export const appRouter = router({
   series: router({
+    list: appProcedure.query(async () => {
+      try {
+        const url = new URL('https://api.shngm.io/v1/manga/list');
+        const response = await fetch(url.toString());
+
+        if (!response.ok) {
+          throw new Error();
+        }
+
+        const data = await response.json();
+
+        return generateListSchema(SeriesSchema).parse(data);
+      } catch (error) {
+        console.log(error);
+
+        throw new TRPCError({
+          code: 'BAD_GATEWAY',
+        });
+      }
+    }),
+
     recommendation: appProcedure.query(async () => {
       const url = new URL(
         'https://api.shngm.io/v1/manga/list?format=manhwa&page=1&page_size=8&is_recommended=true&sort=latest&sort_order=desc',
@@ -54,7 +44,7 @@ export const appRouter = router({
       const data = await response.json();
 
       try {
-        return recommendationSchema.parse(data);
+        return generateListSchema(SeriesSchema).parse(data);
       } catch {
         throw new TRPCError({
           code: 'BAD_GATEWAY',
@@ -78,8 +68,22 @@ export const appRouter = router({
       const data = await response.json();
 
       try {
-        return listSchema.parse(data);
-      } catch {
+        return generateListSchema(
+          SeriesSchema.omit({ taxonomy: true }).extend({
+            chapters: z.array(
+              z.object({
+                chapter_id: z.string(),
+                chapter_number: z.number(),
+                created_at: z.string(),
+              }),
+            ),
+          }),
+        ).parse(data);
+      } catch (error) {
+        if (error instanceof ZodError) {
+          console.log(error.issues);
+        }
+
         throw new TRPCError({
           code: 'BAD_GATEWAY',
         });
