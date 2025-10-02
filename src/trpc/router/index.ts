@@ -1,5 +1,5 @@
 import { TRPCError } from '@trpc/server';
-import { z, ZodError } from 'zod';
+import { z } from 'zod';
 
 import { generateListSchema } from '~/schema/list';
 import { SeriesSchema } from '~/schema/series';
@@ -19,9 +19,7 @@ export const appRouter = router({
         const data = await response.json();
 
         return generateListSchema(SeriesSchema).parse(data);
-      } catch (error) {
-        console.log(error);
-
+      } catch {
         throw new TRPCError({
           code: 'BAD_GATEWAY',
         });
@@ -79,11 +77,7 @@ export const appRouter = router({
             ),
           }),
         ).parse(data);
-      } catch (error) {
-        if (error instanceof ZodError) {
-          console.log(error.issues);
-        }
-
+      } catch {
         throw new TRPCError({
           code: 'BAD_GATEWAY',
         });
