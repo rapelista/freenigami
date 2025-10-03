@@ -209,7 +209,7 @@ export function PaginationInfo({
     <div
       aria-atomic="true"
       aria-live="polite"
-      className={`text-center text-sm text-default-600 ${className}`}
+      className={`text-center text-sm text-default-foreground/90 ${className}`}
     >
       Halaman <span className="font-semibold">{currentPage}</span> dari{' '}
       <span className="font-semibold">{totalPages}</span>

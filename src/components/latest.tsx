@@ -6,6 +6,7 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { parseAsStringEnum, useQueryStates } from 'nuqs';
 
+import { Pagination, PaginationInfo } from '~/components/ui/pagination';
 import { PublishType } from '~/lib/enum';
 import { paginationParser } from '~/lib/parser';
 import { trpc } from '~/trpc/client';
@@ -30,6 +31,8 @@ export function Latest() {
       },
     ),
   );
+
+  const totalPages = data?.meta.total_page || 1;
 
   return (
     <div className="space-y-4">
@@ -109,6 +112,18 @@ export function Latest() {
                 </Card>
               );
             })}
+      </div>
+
+      <div>
+        <div className="space-y-4">
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={(page) => setParams({ page })}
+          />
+
+          <PaginationInfo currentPage={page} totalPages={totalPages} />
+        </div>
       </div>
     </div>
   );
