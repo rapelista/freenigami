@@ -1,2 +1,4 @@
 @import 'tailwindcss';
 @import '@heroui/styles';
+
+@import './ui/index.css' layer(components);

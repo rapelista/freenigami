@@ -33,7 +33,7 @@ export const appRouter = router({
           const response = await fetch(url.toString());
 
           if (!response.ok) {
-            throw new Error();
+            throw new Error('Failed to fetch data', { cause: response });
           }
 
           const data = await response.json();
