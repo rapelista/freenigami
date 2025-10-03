@@ -13,7 +13,7 @@ import { paginationParser, searchParser } from '~/lib/parser';
 import { trpc } from '~/trpc/client';
 
 export function Explore() {
-  const [{ page, search }, setParams] = useQueryStates({
+  const [{ page, page_size, search }, setParams] = useQueryStates({
     ...paginationParser,
     ...searchParser,
   });
@@ -24,6 +24,7 @@ export function Explore() {
     trpc.series.list.queryOptions(
       {
         page,
+        page_size,
         q: debouncedSearch,
       },
       {
@@ -38,11 +39,11 @@ export function Explore() {
     <div className="space-y-6">
       <div className="grid gap-4 grid-cols-2 md:grid-cols-4 xl:grid-cols-8">
         {isLoading
-          ? Array.from({ length: 8 }, (_, i) => {
+          ? Array.from({ length: 24 }, (_, i) => {
               return (
                 <Card
                   key={i}
-                  className="p-0 relative aspect-[5/10]"
+                  className="p-0 relative aspect-[5/11]"
                   variant="flat"
                 >
                   <Skeleton className="w-full h-full" />
@@ -55,20 +56,25 @@ export function Explore() {
               return (
                 <Card
                   key={series.manga_id}
-                  asChild
-                  className="p-0 relative aspect-[5/10]"
+                  className="p-0 aspect-[5/11] flex flex-col gap-2 justify-end"
                   variant="flat"
                 >
-                  <Link
-                    className="h-full w-full"
-                    href={`/series/${series.manga_id}`}
-                  >
+                  <Link className="flex-1" href={`/series/${series.manga_id}`}>
                     <img
                       alt={series.title}
                       className="object-cover h-full w-full"
                       src={`/api/proxy/image/${image.split('/').pop()}`}
                     />
                   </Link>
+
+                  <div className="flex items-center justify-center p-2 min-h-16">
+                    <Link
+                      className="line-clamp-2 text-center"
+                      href={`/series/${series.manga_id}`}
+                    >
+                      {series.title}
+                    </Link>
+                  </div>
                 </Card>
               );
             })}
