@@ -1,3 +1,5 @@
+import { Suspense } from 'react';
+
 import { Latest } from '~/components/latest';
 import { Recommendation } from '~/components/recommendation';
 
@@ -13,7 +15,9 @@ export default function Home() {
       <div className="space-y-4">
         <h1 className="text-2xl font-semibold">Update Terbaru</h1>
 
-        <Latest />
+        <Suspense>
+          <Latest />
+        </Suspense>
       </div>
     </main>
   );

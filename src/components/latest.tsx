@@ -2,17 +2,47 @@
 'use client';
 
 import { Button, Card, Skeleton, Tabs } from '@heroui/react';
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
+import { parseAsStringEnum, useQueryStates } from 'nuqs';
 
+import { PublishType } from '~/lib/enum';
+import { paginationParser } from '~/lib/parser';
 import { trpc } from '~/trpc/client';
 
 export function Latest() {
-  const { data, isLoading } = useQuery(trpc.series.latest.queryOptions());
+  const [{ page, page_size, type }, setParams] = useQueryStates({
+    ...paginationParser,
+    type: parseAsStringEnum<PublishType>(
+      Object.values(PublishType),
+    ).withDefault(PublishType.PROJECT),
+  });
+
+  const { data, isLoading } = useQuery(
+    trpc.series.latest.queryOptions(
+      {
+        page,
+        page_size,
+        type,
+      },
+      {
+        placeholderData: keepPreviousData,
+      },
+    ),
+  );
 
   return (
     <div className="space-y-4">
-      <Tabs className="w-full max-w-md">
+      <Tabs
+        className="w-full max-w-md"
+        onSelectionChange={(key) => {
+          const value = key.toString();
+
+          if (value !== type) {
+            setParams({ type: value as PublishType, page: 1 });
+          }
+        }}
+      >
         <Tabs.ListWrapper>
           <Tabs.List aria-label="Options" className="w-fit *:w-fit">
             <Tabs.Tab id="project">Project</Tabs.Tab>
