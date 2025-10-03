@@ -38,7 +38,14 @@ export const appRouter = router({
 
           const data = await response.json();
 
-          return generateListSchema(SeriesSchema).parse(data);
+          return generateListSchema(
+            SeriesSchema.pick({
+              manga_id: true,
+              title: true,
+              cover_image_url: true,
+              cover_portrait_url: true,
+            }),
+          ).parse(data);
         } catch {
           throw new TRPCError({
             code: 'BAD_GATEWAY',
@@ -67,7 +74,14 @@ export const appRouter = router({
       const data = await response.json();
 
       try {
-        return generateListSchema(SeriesSchema).parse(data);
+        return generateListSchema(
+          SeriesSchema.pick({
+            manga_id: true,
+            title: true,
+            cover_image_url: true,
+            cover_portrait_url: true,
+          }),
+        ).parse(data);
       } catch {
         throw new TRPCError({
           code: 'BAD_GATEWAY',
@@ -119,7 +133,12 @@ export const appRouter = router({
 
         try {
           return generateListSchema(
-            SeriesSchema.omit({ taxonomy: true }).extend({
+            SeriesSchema.pick({
+              manga_id: true,
+              title: true,
+              cover_image_url: true,
+              cover_portrait_url: true,
+            }).extend({
               chapters: z.array(
                 z.object({
                   chapter_id: z.string(),
