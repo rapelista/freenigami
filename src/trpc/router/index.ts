@@ -23,13 +23,14 @@ export const appRouter = router({
       .query(async ({ input }) => {
         try {
           const url = new URL('https://api.shngm.io/v1/manga/list');
-          const response = await fetch(url.toString());
 
           Object.entries(input).forEach(([key, value]) => {
             if (value) {
               url.searchParams.set(key, String(value));
             }
           });
+
+          const response = await fetch(url.toString());
 
           if (!response.ok) {
             throw new Error();
