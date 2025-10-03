@@ -11,9 +11,9 @@ import { paginationParser } from '~/lib/parser';
 import { trpc } from '~/trpc/client';
 
 export function Latest() {
-  const [{ page, page_size, type }, setParams] = useQueryStates({
+  const [{ page, page_size, publishType }, setParams] = useQueryStates({
     ...paginationParser,
-    type: parseAsStringEnum<PublishType>(
+    publishType: parseAsStringEnum<PublishType>(
       Object.values(PublishType),
     ).withDefault(PublishType.PROJECT),
   });
@@ -23,7 +23,7 @@ export function Latest() {
       {
         page,
         page_size,
-        type,
+        type: publishType,
       },
       {
         placeholderData: keepPreviousData,
@@ -35,11 +35,12 @@ export function Latest() {
     <div className="space-y-4">
       <Tabs
         className="w-full max-w-md"
+        defaultSelectedKey={publishType}
         onSelectionChange={(key) => {
-          const value = key.toString();
+          const value = key.toString() as PublishType;
 
-          if (value !== type) {
-            setParams({ type: value as PublishType, page: 1 });
+          if (value !== publishType) {
+            setParams({ publishType: value, page: 1 });
           }
         }}
       >

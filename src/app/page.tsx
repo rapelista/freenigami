@@ -9,7 +9,9 @@ export default function Home() {
       <div className="space-y-4">
         <h1 className="text-2xl font-semibold">Rekomendasi</h1>
 
-        <Recommendation />
+        <Suspense>
+          <Recommendation />
+        </Suspense>
       </div>
 
       <div className="space-y-4">

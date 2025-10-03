@@ -4,17 +4,36 @@
 import { Card, Skeleton, Tabs } from '@heroui/react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
+import { parseAsStringEnum, useQueryState } from 'nuqs';
 
+import { SeriesType } from '~/lib/enum';
 import { trpc } from '~/trpc/client';
 
 export function Recommendation() {
+  const [type, setType] = useQueryState(
+    'recommendationType',
+    parseAsStringEnum<SeriesType>(Object.values(SeriesType)).withDefault(
+      SeriesType.MANHWA,
+    ),
+  );
+
   const { data, isLoading } = useQuery(
     trpc.series.recommendation.queryOptions(),
   );
 
   return (
     <div className="space-y-4">
-      <Tabs className="w-full max-w-md">
+      <Tabs
+        className="w-full max-w-md"
+        defaultSelectedKey={type}
+        onSelectionChange={(key) => {
+          const value = key.toString() as SeriesType;
+
+          if (value !== type) {
+            setType(value);
+          }
+        }}
+      >
         <Tabs.ListWrapper>
           <Tabs.List aria-label="Options" className="w-fit *:w-fit">
             <Tabs.Tab id="manhwa">Manhwa</Tabs.Tab>
