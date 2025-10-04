@@ -5,6 +5,7 @@ import { Button, Card, Skeleton, Tabs } from '@heroui/react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { parseAsStringEnum, useQueryStates } from 'nuqs';
+import { useRef } from 'react';
 
 import { Pagination, PaginationInfo } from '~/components/ui/pagination';
 import { PublishType } from '~/lib/enum';
@@ -12,6 +13,8 @@ import { paginationParser } from '~/lib/parser';
 import { trpc } from '~/trpc/client';
 
 export function Latest() {
+  const ref = useRef<HTMLDivElement>(null);
+
   const [{ page, page_size, publishType }, setParams] = useQueryStates({
     ...paginationParser,
     publishType: parseAsStringEnum<PublishType>(
@@ -34,8 +37,16 @@ export function Latest() {
 
   const totalPages = data?.meta.total_page || 1;
 
+  const scrollToTop = () => {
+    if (ref.current) {
+      const top = ref.current.getBoundingClientRect().top;
+
+      window.scrollBy({ top: top - 64, behavior: 'smooth' });
+    }
+  };
+
   return (
-    <div className="space-y-4">
+    <div ref={ref} className="space-y-4">
       <Tabs
         className="w-full max-w-md"
         defaultSelectedKey={publishType}
@@ -119,7 +130,10 @@ export function Latest() {
           <Pagination
             currentPage={page}
             totalPages={totalPages}
-            onPageChange={(page) => setParams({ page })}
+            onPageChange={(page) => {
+              setParams({ page });
+              scrollToTop();
+            }}
           />
 
           <PaginationInfo currentPage={page} totalPages={totalPages} />
