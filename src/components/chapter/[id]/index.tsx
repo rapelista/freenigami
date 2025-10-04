@@ -14,6 +14,7 @@ import { trpc } from '~/trpc/client';
 export function ChapterDetail() {
   const topRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const chapterRef = useRef<HTMLDivElement>(null);
 
   const { id } = useParams<{ id: string }>();
   const { data } = useQuery(trpc.chapter.byId.queryOptions({ id }));
@@ -98,7 +99,10 @@ export function ChapterDetail() {
         </div>
       </div>
 
-      <div className="container max-w-[800px] mx-auto min-h-[calc(100svh-144px)] md:min-h-[100svh-212px]">
+      <div
+        ref={chapterRef}
+        className="container max-w-[800px] mx-auto min-h-[calc(100svh-144px)] md:min-h-[100svh-212px] h-fit"
+      >
         {data?.data.chapter.data.map((image) => {
           const url = new URL(data.data.base_url);
 
