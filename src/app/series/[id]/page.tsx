@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 
-import { SeriesDetail } from '~/components/series/[id]';
-import { Chapters } from '~/components/series/[id]/chapters';
+import { SeriesChapters } from '~/components/series/[id]/chapters';
+import { SeriesDetail } from '~/components/series/[id]/detail';
 
 export default function Page() {
   return (
@@ -11,7 +11,7 @@ export default function Page() {
       </Suspense>
 
       <Suspense>
-        <Chapters />
+        <SeriesChapters />
       </Suspense>
     </main>
   );

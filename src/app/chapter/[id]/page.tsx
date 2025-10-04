@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 
-import { ChapterDetail } from '~/components/chapter/[id]';
+import { ChapterDetail } from '~/components/chapter/[id]/detail';
 
 export default function Page() {
   return (

@@ -13,7 +13,7 @@ import { SearchInput } from '~/components/ui/search-input';
 import { paginationParser, searchParser } from '~/lib/parser';
 import { trpc } from '~/trpc/client';
 
-export function Chapters() {
+export function SeriesChapters() {
   const ref = useRef<HTMLDivElement>(null);
 
   const { id } = useParams<{ id: string }>();
