@@ -1,7 +1,7 @@
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 
-import { generateListSchema } from '~/schema/list';
+import { generateListSchema } from '~/lib/utils';
 import { PaginationSchema } from '~/schema/pagination';
 import { SeriesSchema } from '~/schema/series';
 import { appProcedure, router } from '~/trpc/init';

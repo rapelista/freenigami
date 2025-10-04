@@ -2,6 +2,9 @@ import type { ClassValue } from 'clsx';
 
 import clsx from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { z } from 'zod';
+
+import { MetaSchema } from '~/schema/meta';
 
 /**
  * Combine class names into a single string
@@ -22,4 +25,17 @@ export function range(start: number, end: number): number[] {
   const length = end - start + 1;
 
   return Array.from({ length }, (_, idx) => idx + start);
+}
+
+export function generateListSchema<T extends z.ZodType>(itemSchema: T) {
+  return z.object({
+    meta: MetaSchema,
+    data: z.array(itemSchema),
+  });
+}
+
+export function generateDataSchema<T extends z.ZodType>(itemSchema: T) {
+  return z.object({
+    data: itemSchema,
+  });
 }

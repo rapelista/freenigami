@@ -1,7 +1,13 @@
+import { Suspense } from 'react';
+
+import { ChapterDetail } from '~/components/chapter/[id]';
+
 export default function Page() {
   return (
-    <main className="container mx-auto p-4 md:p-6 space-y-6">
-      <h1>Chapter Page</h1>
+    <main className="w-full mx-auto h-full">
+      <Suspense>
+        <ChapterDetail />
+      </Suspense>
     </main>
   );
 }
