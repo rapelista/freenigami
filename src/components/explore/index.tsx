@@ -6,6 +6,7 @@ import { Card, Skeleton } from '@heroui/react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useQueryStates } from 'nuqs';
+import { useRef } from 'react';
 import { useDebounceValue } from 'usehooks-ts';
 
 import { Pagination, PaginationInfo } from '~/components/ui/pagination';
@@ -13,6 +14,8 @@ import { paginationParser, searchParser } from '~/lib/parser';
 import { trpc } from '~/trpc/client';
 
 export function Explore() {
+  const ref = useRef<HTMLDivElement>(null);
+
   const [{ page, page_size, search }, setParams] = useQueryStates({
     ...paginationParser,
     ...searchParser,
@@ -35,8 +38,16 @@ export function Explore() {
 
   const totalPages = data?.meta.total_page || 1;
 
+  const scrollToTop = () => {
+    if (ref.current) {
+      const top = ref.current.getBoundingClientRect().top;
+
+      window.scrollBy({ top: top - 80, behavior: 'smooth' });
+    }
+  };
+
   return (
-    <div className="space-y-6">
+    <div ref={ref} className="space-y-6">
       <div className="grid gap-4 grid-cols-2 md:grid-cols-4 xl:grid-cols-8">
         {isLoading
           ? Array.from({ length: 24 }, (_, i) => {
@@ -85,7 +96,10 @@ export function Explore() {
           <Pagination
             currentPage={page}
             totalPages={totalPages}
-            onPageChange={(page) => setParams({ page })}
+            onPageChange={(page) => {
+              setParams({ page });
+              scrollToTop();
+            }}
           />
 
           <PaginationInfo currentPage={page} totalPages={totalPages} />

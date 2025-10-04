@@ -6,6 +6,7 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useQueryStates } from 'nuqs';
+import { useRef } from 'react';
 
 import { Input } from '~/components/ui/input';
 import { Pagination, PaginationInfo } from '~/components/ui/pagination';
@@ -13,6 +14,8 @@ import { paginationParser, searchParser } from '~/lib/parser';
 import { trpc } from '~/trpc/client';
 
 export function Chapters() {
+  const ref = useRef<HTMLDivElement>(null);
+
   const { id } = useParams<{ id: string }>();
 
   const [{ page, search }, setParams] = useQueryStates({
@@ -35,8 +38,16 @@ export function Chapters() {
 
   const totalPages = data?.meta.total_page || 1;
 
+  const scrollToTop = () => {
+    if (ref.current) {
+      const top = ref.current.getBoundingClientRect().top;
+
+      window.scrollBy({ top: top - 16, behavior: 'smooth' });
+    }
+  };
+
   return (
-    <div className="space-y-4">
+    <div ref={ref} className="space-y-4">
       <h2 className="text-xl font-semibold">Semua Chapter</h2>
 
       <div>
@@ -82,7 +93,10 @@ export function Chapters() {
           <Pagination
             currentPage={page}
             totalPages={totalPages}
-            onPageChange={(page) => setParams({ page })}
+            onPageChange={(page) => {
+              setParams({ page });
+              scrollToTop();
+            }}
           />
 
           <PaginationInfo currentPage={page} totalPages={totalPages} />
