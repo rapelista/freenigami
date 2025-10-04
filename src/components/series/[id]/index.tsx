@@ -74,17 +74,24 @@ export function SeriesDetail() {
             </Chip>
             <Chip variant="secondary">{data.country_id.toUpperCase()}</Chip>
           </div>
+        </div>
+      </div>
 
-          {/* Taxonomy */}
-          {data.taxonomy && (
-            <div className="space-y-2">
-              <h3 className="text-sm font-semibold text-default-700">
-                Informasi:
-              </h3>
-              <div className="space-y-2">
+      {/* Description */}
+      <Card className="p-0">
+        <Accordion className="w-full">
+          <Accordion.Item key="information" isExpanded>
+            <Accordion.Heading>
+              <Accordion.Trigger>
+                Informasi
+                <Accordion.Indicator />
+              </Accordion.Trigger>
+            </Accordion.Heading>
+            <Accordion.Panel className="border-t">
+              <Accordion.Body className="pt-4 space-y-2">
                 {data.taxonomy.Type?.length > 0 && (
-                  <div className="flex flex-wrap gap-1 justify-center md:justify-start">
-                    <span className="text-sm font-medium">Tipe:</span>
+                  <div className="flex flex-wrap gap-1 justify-start">
+                    <span className="">Tipe:</span>
                     {data.taxonomy.Type.map((type) => (
                       <Chip key={type.slug} variant="secondary">
                         {type.name}
@@ -93,8 +100,8 @@ export function SeriesDetail() {
                   </div>
                 )}
                 {data.taxonomy.Genre?.length > 0 && (
-                  <div className="flex flex-wrap gap-1 justify-center md:justify-start">
-                    <span className="text-sm font-medium">Genre:</span>
+                  <div className="flex flex-wrap gap-1 justify-start">
+                    <span className="">Genre:</span>
                     {data.taxonomy.Genre.map((genre) => (
                       <Chip key={genre.slug} variant="secondary">
                         {genre.name}
@@ -103,8 +110,8 @@ export function SeriesDetail() {
                   </div>
                 )}
                 {data.taxonomy.Author?.length > 0 && (
-                  <div className="flex flex-wrap gap-1 justify-center md:justify-start">
-                    <span className="text-sm font-medium">Penulis:</span>
+                  <div className="flex flex-wrap gap-1 justify-start">
+                    <span className="">Penulis:</span>
                     {data.taxonomy.Author.map((author) => (
                       <Chip key={author.slug} variant="secondary">
                         {author.name}
@@ -113,8 +120,8 @@ export function SeriesDetail() {
                   </div>
                 )}
                 {data.taxonomy.Artist?.length > 0 && (
-                  <div className="flex flex-wrap gap-1 justify-center md:justify-start">
-                    <span className="text-sm font-medium">Artis:</span>
+                  <div className="flex flex-wrap gap-1 justify-start">
+                    <span className="">Artis:</span>
                     {data.taxonomy.Artist.map((artist) => (
                       <Chip key={artist.slug} variant="secondary">
                         {artist.name}
@@ -122,19 +129,14 @@ export function SeriesDetail() {
                     ))}
                   </div>
                 )}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
+              </Accordion.Body>
+            </Accordion.Panel>
+          </Accordion.Item>
 
-      {/* Description */}
-      <Card className="p-0">
-        <Accordion className="w-full">
           <Accordion.Item key="synopsis" isExpanded>
             <Accordion.Heading>
               <Accordion.Trigger>
-                Lihat Sinopsis Lengkap
+                Sinopsis Lengkap
                 <Accordion.Indicator />
               </Accordion.Trigger>
             </Accordion.Heading>
