@@ -164,4 +164,46 @@ export const seriesRouter = router({
         });
       }
     }),
+
+  detail: appProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    )
+    .query(async ({ input }) => {
+      const url = new URL(`https://api.shngm.io/v1/manga/detail/${input.id}`);
+
+      const response = await fetch(url.toString());
+
+      if (!response.ok) {
+        throw new TRPCError({
+          code: 'BAD_GATEWAY',
+        });
+      }
+
+      const data = await response.json();
+
+      try {
+        return SeriesSchema.pick({
+          title: true,
+          alternative_title: true,
+          description: true,
+          cover_image_url: true,
+          cover_portrait_url: true,
+          view_count: true,
+          user_rate: true,
+          bookmark_count: true,
+          rank: true,
+          release_year: true,
+          status: true,
+          country_id: true,
+          taxonomy: true,
+        }).parse(data.data);
+      } catch {
+        throw new TRPCError({
+          code: 'BAD_GATEWAY',
+        });
+      }
+    }),
 });
