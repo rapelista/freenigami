@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import { useEffect } from 'react';
 
 import { cn } from '~/lib/utils';
 import { trpc } from '~/trpc/client';
@@ -18,17 +19,26 @@ export function ChapterDetail() {
   const hasNextChapter = Boolean(data?.data.next_chapter_id);
   const hasPrevChapter = Boolean(data?.data.prev_chapter_id);
 
+  useEffect(() => {
+    const resetScroll = () => {
+      window.scrollTo(0, 0);
+    };
+
+    return () => {
+      resetScroll();
+    };
+  }, [id]);
+
   return (
     <>
       <div className="sticky top-0 border-y bg-surface-2 z-10">
         <div className="container mx-auto px-4 py-2.5 md:px-0 md:py-5 flex justify-between gap-6">
-          <div className="flex-1">
-            {data?.data.manga_id ? (
-              <SeriesDetail seriesId={data?.data.manga_id || ''} />
-            ) : null}
-          </div>
-
-          <h2 className="md:text-lg font-medium">
+          <h2
+            className={cn(
+              'md:text-lg font-medium',
+              data ? 'opacity-100' : 'opacity-0',
+            )}
+          >
             Chapter {data?.data.chapter_number}
           </h2>
         </div>
@@ -77,21 +87,5 @@ export function ChapterDetail() {
         </div>
       </div>
     </>
-  );
-}
-
-function SeriesDetail({ seriesId }: { seriesId: string }) {
-  const { data } = useQuery(trpc.series.detail.queryOptions({ id: seriesId }));
-
-  return (
-    <Link
-      className={cn(
-        'w-fit md:text-lg font-medium line-clamp-1',
-        data ? 'opacity-100' : 'opacity-0 pointer-events-none',
-      )}
-      href={`/series/${seriesId}`}
-    >
-      {data?.title}
-    </Link>
   );
 }
