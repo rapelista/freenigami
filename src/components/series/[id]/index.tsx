@@ -79,7 +79,7 @@ export function SeriesDetail() {
 
       {/* Description */}
       <Card className="p-0">
-        <Accordion className="w-full">
+        <Accordion allowsMultipleExpanded className="w-full">
           <Accordion.Item key="information" isExpanded>
             <Accordion.Heading>
               <Accordion.Trigger>
