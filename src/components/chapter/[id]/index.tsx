@@ -84,7 +84,7 @@ export function ChapterDetail() {
     <>
       <div
         ref={topRef}
-        className="sticky opacity-100 top-0 border-y bg-surface-2 z-10"
+        className="sticky transition-opacity duration-250 ease-smooth opacity-100 top-0 border-y bg-surface-2 z-10"
       >
         <div className="container mx-auto px-4 py-2.5 md:px-0 md:py-5 flex justify-between gap-6">
           <h2
@@ -117,7 +117,7 @@ export function ChapterDetail() {
 
       <div
         ref={bottomRef}
-        className="sticky opacity-100 bottom-0 border-y bg-surface-2 z-10"
+        className="sticky transition-opacity duration-250 ease-smooth opacity-100 bottom-0 border-y bg-surface-2 z-10"
       >
         <div className="container mx-auto px-4 py-2.5 md:px-0 md:py-5 flex justify-between gap-6">
           <Link
