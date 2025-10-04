@@ -52,41 +52,52 @@ export const seriesRouter = router({
       }
     }),
 
-  recommendation: appProcedure.query(async () => {
-    const url = new URL('https://api.shngm.io/v1/manga/list');
-
-    url.searchParams.set('format', 'manhwa');
-    url.searchParams.set('page', '1');
-    url.searchParams.set('page_size', '8');
-    url.searchParams.set('is_recommended', 'true');
-    url.searchParams.set('sort', 'latest');
-    url.searchParams.set('sort_order', 'desc');
-
-    const response = await fetch(url.toString());
-
-    if (!response.ok) {
-      throw new TRPCError({
-        code: 'BAD_GATEWAY',
-      });
-    }
-
-    const data = await response.json();
-
-    try {
-      return generateListSchema(
-        SeriesSchema.pick({
-          manga_id: true,
-          title: true,
-          cover_image_url: true,
-          cover_portrait_url: true,
+  recommendation: appProcedure
+    .input(
+      z
+        .object({
+          format: z.string(),
+        })
+        .optional()
+        .default({
+          format: 'manhwa',
         }),
-      ).parse(data);
-    } catch {
-      throw new TRPCError({
-        code: 'BAD_GATEWAY',
-      });
-    }
-  }),
+    )
+    .query(async ({ input }) => {
+      const url = new URL('https://api.shngm.io/v1/manga/list');
+
+      url.searchParams.set('format', input.format);
+      url.searchParams.set('page', '1');
+      url.searchParams.set('page_size', '8');
+      url.searchParams.set('is_recommended', 'true');
+      url.searchParams.set('sort', 'latest');
+      url.searchParams.set('sort_order', 'desc');
+
+      const response = await fetch(url.toString());
+
+      if (!response.ok) {
+        throw new TRPCError({
+          code: 'BAD_GATEWAY',
+        });
+      }
+
+      const data = await response.json();
+
+      try {
+        return generateListSchema(
+          SeriesSchema.pick({
+            manga_id: true,
+            title: true,
+            cover_image_url: true,
+            cover_portrait_url: true,
+          }),
+        ).parse(data);
+      } catch {
+        throw new TRPCError({
+          code: 'BAD_GATEWAY',
+        });
+      }
+    }),
 
   latest: appProcedure
     .input(

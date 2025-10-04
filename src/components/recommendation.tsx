@@ -18,7 +18,9 @@ export function Recommendation() {
   );
 
   const { data, isLoading } = useQuery(
-    trpc.series.recommendation.queryOptions(),
+    trpc.series.recommendation.queryOptions({
+      format: type,
+    }),
   );
 
   return (
