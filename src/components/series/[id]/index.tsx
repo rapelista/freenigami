@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import { Accordion, Card, Chip, Skeleton } from '@heroui/react';
+import { Accordion, Card, Chip } from '@heroui/react';
 import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 
@@ -11,73 +11,16 @@ export function SeriesDetail() {
   const params = useParams();
   const id = params.id as string;
 
-  const { data, isLoading } = useQuery(trpc.series.detail.queryOptions({ id }));
-
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <div className="flex flex-col items-center md:flex-row gap-6">
-          <Skeleton className="w-[150px] h-[225px] rounded-lg flex-shrink-0" />
-          <div className="flex-1 space-y-4 w-full md:text-left text-center">
-            <Skeleton className="h-8 w-3/4 mx-auto md:mx-0" />
-            <Skeleton className="h-5 w-1/2 mx-auto md:mx-0" />
-            <div className="space-y-2">
-              <div className="flex gap-4 justify-center md:justify-start">
-                <Skeleton className="h-4 w-16" />
-                <Skeleton className="h-4 w-8" />
-              </div>
-              <div className="flex gap-4 justify-center md:justify-start">
-                <Skeleton className="h-4 w-16" />
-                <Skeleton className="h-4 w-20" />
-              </div>
-              <div className="flex gap-4 justify-center md:justify-start">
-                <Skeleton className="h-4 w-16" />
-                <Skeleton className="h-4 w-16" />
-              </div>
-              <div className="flex gap-4 justify-center md:justify-start">
-                <Skeleton className="h-4 w-16" />
-                <Skeleton className="h-4 w-12" />
-              </div>
-            </div>
-            <div className="flex gap-2 justify-center md:justify-start">
-              <Skeleton className="h-6 w-16 rounded-full" />
-              <Skeleton className="h-6 w-20 rounded-full" />
-              <Skeleton className="h-6 w-16 rounded-full" />
-            </div>
-            <div className="space-y-2">
-              <Skeleton className="h-4 w-20 mx-auto md:mx-0" />
-              <div className="flex flex-wrap gap-1 justify-center md:justify-start">
-                <Skeleton className="h-6 w-16 rounded-full" />
-                <Skeleton className="h-6 w-20 rounded-full" />
-                <Skeleton className="h-6 w-24 rounded-full" />
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="space-y-2">
-          <Card className="p-0">
-            <div className="p-4 border-b">
-              <Skeleton className="h-6 w-20" />
-            </div>
-          </Card>
-        </div>
-      </div>
-    );
-  }
+  const { data } = useQuery(trpc.series.detail.queryOptions({ id }));
 
   if (!data) {
-    return (
-      <div className="text-center py-12">
-        <p className="text-default-500">Series tidak ditemukan</p>
-      </div>
-    );
+    return null;
   }
 
   const image = data.cover_portrait_url || data.cover_image_url;
 
   return (
     <div className="space-y-6">
-      {/* Header with cover and basic info */}
       <div className="flex flex-col items-center md:flex-row gap-6">
         {/* Cover Image */}
         <div className="flex-shrink-0">
