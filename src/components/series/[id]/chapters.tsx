@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
 
-import { Card } from '@heroui/react';
+import { Card, Skeleton } from '@heroui/react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -23,7 +23,7 @@ export function SeriesChapters() {
     ...searchParser,
   });
 
-  const { data } = useQuery(
+  const { data, isLoading } = useQuery(
     trpc.chapter.listBySeriesId.queryOptions(
       {
         seriesId: id,
@@ -58,32 +58,39 @@ export function SeriesChapters() {
       />
 
       <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {data?.data.map((chapter) => (
-          <Card key={chapter.chapter_id} asChild>
-            <Link
-              className="p-0 gap-0 flex-row min-md:max-lg:flex-col"
-              href={`/chapter/${chapter.chapter_id}`}
-            >
-              <div className="aspect-video min-md:max-lg:h-30 h-20">
-                {chapter.thumbnail_image_url ? (
-                  <img
-                    alt={chapter.chapter_title}
-                    className="h-full w-full object-cover"
-                    src={`/api/proxy/image/${chapter.thumbnail_image_url.split('/').pop()}`}
-                  />
-                ) : (
-                  <div className="h-full w-full bg-default" />
-                )}
-              </div>
+        {isLoading
+          ? Array.from({ length: 24 }, (_, i) => (
+              <Skeleton
+                key={`skeleton-${i}`}
+                className="h-20 md:h-[162px] lg:h-[82px]"
+              />
+            ))
+          : data?.data.map((chapter) => (
+              <Card key={chapter.chapter_id} asChild>
+                <Link
+                  className="p-0 gap-0 flex-row min-md:max-lg:flex-col"
+                  href={`/chapter/${chapter.chapter_id}`}
+                >
+                  <div className="aspect-video min-md:max-lg:h-30 h-20">
+                    {chapter.thumbnail_image_url ? (
+                      <img
+                        alt={chapter.chapter_title}
+                        className="h-full w-full object-cover"
+                        src={`/api/proxy/image/${chapter.thumbnail_image_url.split('/').pop()}`}
+                      />
+                    ) : (
+                      <div className="h-full w-full bg-default" />
+                    )}
+                  </div>
 
-              <Card.Content className="p-2">
-                <span className="max-md:text-lg max-md:font-medium">
-                  Chapter {chapter.chapter_number}
-                </span>
-              </Card.Content>
-            </Link>
-          </Card>
-        ))}
+                  <Card.Content className="p-2">
+                    <span className="max-md:text-lg max-md:font-medium">
+                      Chapter {chapter.chapter_number}
+                    </span>
+                  </Card.Content>
+                </Link>
+              </Card>
+            ))}
       </div>
 
       <div>
