@@ -2,8 +2,9 @@
 
 import { useQueryStates } from 'nuqs';
 
-import { Input } from '~/components/ui/input';
 import { paginationParser, searchParser } from '~/lib/parser';
+
+import { SearchInput } from '../ui/search-input';
 
 export function ExploreSearch() {
   const [{ search }, setParams] = useQueryStates({
@@ -12,9 +13,9 @@ export function ExploreSearch() {
   });
 
   return (
-    <Input
-      className="w-full"
+    <SearchInput
       defaultValue={search}
+      placeholder="Cari berdasarkan judul manhwa, manga, atau manhua..."
       onChange={(e) => {
         setParams({ search: e.target.value, page: 1 });
       }}

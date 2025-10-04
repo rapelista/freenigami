@@ -1,3 +1,4 @@
+import { Library } from 'lucide-react';
 import { Inter } from 'next/font/google';
 import Link from 'next/link';
 
@@ -33,10 +34,13 @@ export default function RootLayout({
               <ul className="place-self-end">
                 <li>
                   <Link
-                    className="hover:underline underline-offset-4"
+                    className="group flex items-center gap-1"
                     href="/explore"
                   >
-                    Explore
+                    <Library />
+                    <span className="group-hover:underline underline-offset-4 max-md:hidden">
+                      Explore
+                    </span>
                   </Link>
                 </li>
               </ul>

@@ -8,8 +8,8 @@ import { useParams } from 'next/navigation';
 import { useQueryStates } from 'nuqs';
 import { useRef } from 'react';
 
-import { Input } from '~/components/ui/input';
 import { Pagination, PaginationInfo } from '~/components/ui/pagination';
+import { SearchInput } from '~/components/ui/search-input';
 import { paginationParser, searchParser } from '~/lib/parser';
 import { trpc } from '~/trpc/client';
 
@@ -50,14 +50,12 @@ export function Chapters() {
     <div ref={ref} className="space-y-4">
       <h2 className="text-xl font-semibold">Semua Chapter</h2>
 
-      <div>
-        <Input
-          className="w-full"
-          defaultValue={search}
-          placeholder='Cari chapter, misal: "1" atau "10"'
-          onChange={(e) => setParams({ search: e.target.value, page: 1 })}
-        />
-      </div>
+      <SearchInput
+        className="w-full"
+        defaultValue={search}
+        placeholder='Cari chapter, misal: "1" atau "10"'
+        onChange={(e) => setParams({ search: e.target.value, page: 1 })}
+      />
 
       <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
         {data?.data.map((chapter) => (
