@@ -86,7 +86,7 @@ export function SeriesDetail() {
 
           {/* Metadata */}
           {isLoading ? (
-            <Skeleton className="h-[26px] w-1/2 mx-auto" />
+            <Skeleton className="h-[26px] w-1/2 max-md:mx-auto" />
           ) : (
             <div className="flex flex-wrap gap-2 justify-center md:justify-start">
               <Chip variant="secondary">{data?.release_year}</Chip>
@@ -101,80 +101,90 @@ export function SeriesDetail() {
 
       {/* Description */}
       <Card className="p-0">
-        <Accordion allowsMultipleExpanded className="w-full">
-          <Accordion.Item key="information" isExpanded>
-            <Accordion.Heading>
-              <Accordion.Trigger>
-                Informasi
-                <Accordion.Indicator />
-              </Accordion.Trigger>
-            </Accordion.Heading>
-            <Accordion.Panel className="border-t">
-              <Accordion.Body className="pt-4 space-y-2">
-                {data ? (
-                  <>
-                    {data?.taxonomy.Type?.length > 0 && (
-                      <div className="flex flex-wrap gap-1 justify-start">
-                        <span className="">Tipe:</span>
-                        {data?.taxonomy.Type.map((type) => (
-                          <Chip key={type.slug} variant="secondary">
-                            {type.name}
-                          </Chip>
-                        ))}
-                      </div>
-                    )}
-                    {data?.taxonomy.Genre?.length > 0 && (
-                      <div className="flex flex-wrap gap-1 justify-start">
-                        <span className="">Genre:</span>
-                        {data?.taxonomy.Genre.map((genre) => (
-                          <Chip key={genre.slug} variant="secondary">
-                            {genre.name}
-                          </Chip>
-                        ))}
-                      </div>
-                    )}
-                    {data?.taxonomy.Author?.length > 0 && (
-                      <div className="flex flex-wrap gap-1 justify-start">
-                        <span className="">Penulis:</span>
-                        {data?.taxonomy.Author.map((author) => (
-                          <Chip key={author.slug} variant="secondary">
-                            {author.name}
-                          </Chip>
-                        ))}
-                      </div>
-                    )}
-                    {data?.taxonomy.Artist?.length > 0 && (
-                      <div className="flex flex-wrap gap-1 justify-start">
-                        <span className="">Artis:</span>
-                        {data?.taxonomy.Artist.map((artist) => (
-                          <Chip key={artist.slug} variant="secondary">
-                            {artist.name}
-                          </Chip>
-                        ))}
-                      </div>
-                    )}
-                  </>
-                ) : null}
-              </Accordion.Body>
-            </Accordion.Panel>
-          </Accordion.Item>
+        {isLoading ? (
+          <Skeleton className="h-[115px]" />
+        ) : (
+          <Accordion
+            allowsMultipleExpanded
+            className="w-full"
+            isDisabled={isLoading}
+          >
+            <Accordion.Item key="information">
+              <Accordion.Heading>
+                <Accordion.Trigger>
+                  Informasi
+                  <Accordion.Indicator />
+                </Accordion.Trigger>
+              </Accordion.Heading>
+              <Accordion.Panel className="border-t">
+                <Accordion.Body className="pt-4 space-y-2">
+                  {isLoading ? (
+                    <p>Loading...</p>
+                  ) : data ? (
+                    <>
+                      {data?.taxonomy.Type?.length > 0 && (
+                        <div className="flex flex-wrap gap-1 justify-start">
+                          <span className="">Tipe:</span>
+                          {data?.taxonomy.Type.map((type) => (
+                            <Chip key={type.slug} variant="secondary">
+                              {type.name}
+                            </Chip>
+                          ))}
+                        </div>
+                      )}
+                      {data?.taxonomy.Genre?.length > 0 && (
+                        <div className="flex flex-wrap gap-1 justify-start">
+                          <span className="">Genre:</span>
+                          {data?.taxonomy.Genre.map((genre) => (
+                            <Chip key={genre.slug} variant="secondary">
+                              {genre.name}
+                            </Chip>
+                          ))}
+                        </div>
+                      )}
+                      {data?.taxonomy.Author?.length > 0 && (
+                        <div className="flex flex-wrap gap-1 justify-start">
+                          <span className="">Penulis:</span>
+                          {data?.taxonomy.Author.map((author) => (
+                            <Chip key={author.slug} variant="secondary">
+                              {author.name}
+                            </Chip>
+                          ))}
+                        </div>
+                      )}
+                      {data?.taxonomy.Artist?.length > 0 && (
+                        <div className="flex flex-wrap gap-1 justify-start">
+                          <span className="">Artis:</span>
+                          {data?.taxonomy.Artist.map((artist) => (
+                            <Chip key={artist.slug} variant="secondary">
+                              {artist.name}
+                            </Chip>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  ) : null}
+                </Accordion.Body>
+              </Accordion.Panel>
+            </Accordion.Item>
 
-          <Accordion.Item key="synopsis" isExpanded>
-            <Accordion.Heading>
-              <Accordion.Trigger>
-                Sinopsis Lengkap
-                <Accordion.Indicator />
-              </Accordion.Trigger>
-            </Accordion.Heading>
-            <Accordion.Panel className="border-t">
-              <Accordion.Body className="pt-4">
-                <p className="text-default-700 leading-relaxed whitespace-pre-wrap">
-                  {data?.description}
-                </p>
-              </Accordion.Body>
-            </Accordion.Panel>
-          </Accordion.Item>
-        </Accordion>
+            <Accordion.Item key="synopsis">
+              <Accordion.Heading>
+                <Accordion.Trigger>
+                  Sinopsis Lengkap
+                  <Accordion.Indicator />
+                </Accordion.Trigger>
+              </Accordion.Heading>
+              <Accordion.Panel className="border-t">
+                <Accordion.Body className="pt-4">
+                  <p className="text-default-700 leading-relaxed whitespace-pre-wrap">
+                    {data?.description}
+                  </p>
+                </Accordion.Body>
+              </Accordion.Panel>
+            </Accordion.Item>
+          </Accordion>
+        )}
       </Card>
       <div className="space-y-2" />
     </div>
