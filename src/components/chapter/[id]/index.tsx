@@ -6,14 +6,16 @@ import { useQuery } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { cn } from '~/lib/utils';
 import { trpc } from '~/trpc/client';
 
 export function ChapterDetail() {
-  const { id } = useParams<{ id: string }>();
+  const topRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
 
+  const { id } = useParams<{ id: string }>();
   const { data } = useQuery(trpc.chapter.byId.queryOptions({ id }));
 
   const hasNextChapter = Boolean(data?.data.next_chapter_id);
@@ -29,9 +31,61 @@ export function ChapterDetail() {
     };
   }, [id]);
 
+  useEffect(() => {
+    const handleClickOutside = (event: PointerEvent) => {
+      const bottom = bottomRef.current;
+      const top = topRef.current;
+
+      if (!top) return null;
+      if (!bottom) return null;
+
+      const isClickOutside =
+        !top.contains(event.target as Node) &&
+        !bottom.contains(event.target as Node);
+
+      if (isClickOutside) {
+        const hiddenClass = 'opacity-0';
+        const visibilityClass = 'opacity-100';
+        const pointerEventsNoneClass = 'pointer-events-none';
+
+        const isTopVisible = top.classList.contains(visibilityClass);
+        const isBottomVisible = bottom.classList.contains(visibilityClass);
+
+        if (isTopVisible) {
+          top.classList.add(pointerEventsNoneClass);
+          top.classList.remove(visibilityClass);
+          top.classList.add(hiddenClass);
+        } else {
+          top.classList.remove(hiddenClass);
+          top.classList.remove(pointerEventsNoneClass);
+          top.classList.add(visibilityClass);
+        }
+
+        if (isBottomVisible) {
+          bottom.classList.add(pointerEventsNoneClass);
+          bottom.classList.remove(visibilityClass);
+          bottom.classList.add(hiddenClass);
+        } else {
+          bottom.classList.remove(hiddenClass);
+          bottom.classList.add(visibilityClass);
+          bottom.classList.remove(pointerEventsNoneClass);
+        }
+      }
+    };
+
+    window.addEventListener('click', handleClickOutside);
+
+    return () => {
+      window.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
+
   return (
     <>
-      <div className="sticky top-0 border-y bg-surface-2 z-10">
+      <div
+        ref={topRef}
+        className="sticky opacity-100 top-0 border-y bg-surface-2 z-10"
+      >
         <div className="container mx-auto px-4 py-2.5 md:px-0 md:py-5 flex justify-between gap-6">
           <h2
             className={cn(
@@ -61,7 +115,10 @@ export function ChapterDetail() {
         })}
       </div>
 
-      <div className="sticky bottom-0 border-y bg-surface-2 z-10">
+      <div
+        ref={bottomRef}
+        className="sticky opacity-100 bottom-0 border-y bg-surface-2 z-10"
+      >
         <div className="container mx-auto px-4 py-2.5 md:px-0 md:py-5 flex justify-between gap-6">
           <Link
             className={cn(
