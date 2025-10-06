@@ -210,14 +210,16 @@
  * Select List Styles
  */
 
-/**
- * Select Item Styles
- */
+
+
 
 .select__list {
   @apply grid gap-1;
 }
 
+/**
+ * Select Item Styles
+ */
 .select__item {
   @apply relative isolate inline-flex h-10 origin-center transform-gpu select-none items-center justify-center gap-2 whitespace-nowrap rounded-lg border border-transparent px-4 font-medium md:h-9;
   transition:
