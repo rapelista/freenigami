@@ -1,9 +1,7 @@
-@layer components {
-  .input {
-    @apply inline-flex border border-border bg-default hover:bg-default-hover focus:outline-offset-4 outline-focus/80 rounded-lg h-10 px-4 md:h-9;
+.input {
+  @apply inline-flex border border-border bg-default hover:bg-default-hover focus:outline-offset-4 outline-focus/80 rounded-lg h-10 px-4 md:h-9;
 
-    transition:
-      transform 150ms var(--ease-smooth),
-      background-color 150ms var(--ease-smooth);
-  }
+  transition:
+    transform 150ms var(--ease-smooth),
+    background-color 150ms var(--ease-smooth);
 }

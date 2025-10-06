@@ -23,6 +23,7 @@ export function BookmarkList() {
     if (!result.data) {
       return <div key={key}>No data available.</div>;
     }
+
     return (
       <div key={key}>
         <Link href={`/series/${bookmarks[key]}`}>{result.data.title}</Link>

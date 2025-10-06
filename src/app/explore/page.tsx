@@ -2,12 +2,16 @@ import { Suspense } from 'react';
 
 import { Explore } from '~/components/explore';
 import { ExploreSearch } from '~/components/explore/search';
+import { ExploreSelect } from '~/components/explore/select';
 
 export default function Page() {
   return (
     <main className="container mx-auto p-4 md:p-6 space-y-6">
       <Suspense>
-        <ExploreSearch />
+        <div className="flex gap-4">
+          <ExploreSearch wrapperClassName="flex-1" />
+          <ExploreSelect />
+        </div>
 
         <Explore />
       </Suspense>

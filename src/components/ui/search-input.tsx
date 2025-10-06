@@ -4,11 +4,17 @@ import { cn } from '~/lib/utils';
 
 import { Input, type InputProps } from './input';
 
-interface SearchInputProps extends InputProps {}
+export interface SearchInputProps extends InputProps {
+  wrapperClassName?: string;
+}
 
-export function SearchInput({ className, ...props }: SearchInputProps) {
+export function SearchInput({
+  className,
+  wrapperClassName,
+  ...props
+}: SearchInputProps) {
   return (
-    <div className="relative">
+    <div className={cn('relative', wrapperClassName)}>
       <Input {...props} className={cn('ps-8 w-full', className)} />
 
       <div className="h-full absolute aspect-square left-0 top-0 flex items-center justify-center">
