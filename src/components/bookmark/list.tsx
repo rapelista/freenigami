@@ -17,10 +17,15 @@ export function BookmarkList() {
     if (result.isLoading) {
       return <div key={key}>Loading...</div>;
     }
-
+    if (result.isError) {
+      return <div key={key}>Error loading bookmark.</div>;
+    }
+    if (!result.data) {
+      return <div key={key}>No data available.</div>;
+    }
     return (
       <div key={key}>
-        <Link href={`/series/${bookmarks[key]}`}>{result.data?.title}</Link>
+        <Link href={`/series/${bookmarks[key]}`}>{result.data.title}</Link>
       </div>
     );
   });
