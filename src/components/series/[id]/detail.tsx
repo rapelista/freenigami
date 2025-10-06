@@ -7,6 +7,8 @@ import { useParams } from 'next/navigation';
 
 import { trpc } from '~/trpc/client';
 
+import { SeriesBookmark } from './bookmark';
+
 export function SeriesDetail() {
   const params = useParams();
   const id = params.id as string;
@@ -96,10 +98,13 @@ export function SeriesDetail() {
               <Chip variant="secondary">{data?.country_id.toUpperCase()}</Chip>
             </div>
           )}
+
+          <div>
+            <SeriesBookmark />
+          </div>
         </div>
       </div>
 
-      {/* Description */}
       <Card className="p-0">
         {isLoading ? (
           <Skeleton className="h-[115px]" />
