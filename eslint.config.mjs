@@ -113,6 +113,10 @@ const eslintConfig = [
       'react/self-closing-comp': 'warn',
     },
   },
+
+  {
+    ignores: ['.next'],
+  },
 ];
 
 export default eslintConfig;
