@@ -14,10 +14,10 @@ export function SeriesBookmark() {
   const isBookmarked = bookmarks.includes(id);
 
   const handleToggleBookmark = () => {
-    if (!bookmarks.includes(id)) {
-      addBookmark(id);
-    } else {
+    if (isBookmarked) {
       removeBookmark(id);
+    } else {
+      addBookmark(id);
     }
   };
 
