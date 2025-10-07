@@ -60,10 +60,15 @@ export function Latest() {
       >
         <Tabs.ListWrapper>
           <Tabs.List aria-label="Options" className="w-fit *:w-fit">
-            <Tabs.Tab id="project">Project</Tabs.Tab>
-            <Tabs.Tab id="mirror">Mirror</Tabs.Tab>
+            <Tabs.Tab id="project">
+              <Tabs.Indicator />
+              Project
+            </Tabs.Tab>
+            <Tabs.Tab id="mirror">
+              <Tabs.Indicator />
+              Mirror
+            </Tabs.Tab>
           </Tabs.List>
-          <Tabs.Indicator />
         </Tabs.ListWrapper>
       </Tabs>
 

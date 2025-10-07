@@ -38,11 +38,19 @@ export function Recommendation() {
       >
         <Tabs.ListWrapper>
           <Tabs.List aria-label="Options" className="w-fit *:w-fit">
-            <Tabs.Tab id="manhwa">Manhwa</Tabs.Tab>
-            <Tabs.Tab id="manga">Manga</Tabs.Tab>
-            <Tabs.Tab id="manhua">Manhua</Tabs.Tab>
+            <Tabs.Tab id="manhwa">
+              <Tabs.Indicator />
+              Manhwa
+            </Tabs.Tab>
+            <Tabs.Tab id="manga">
+              <Tabs.Indicator />
+              Manga
+            </Tabs.Tab>
+            <Tabs.Tab id="manhua">
+              <Tabs.Indicator />
+              Manhua
+            </Tabs.Tab>
           </Tabs.List>
-          <Tabs.Indicator />
         </Tabs.ListWrapper>
       </Tabs>
 
