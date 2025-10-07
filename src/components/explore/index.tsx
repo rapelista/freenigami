@@ -5,29 +5,33 @@
 import { Card, Skeleton } from '@heroui/react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
-import { useQueryStates } from 'nuqs';
+import { parseAsStringEnum, useQueryStates } from 'nuqs';
 import { useRef } from 'react';
 import { useDebounceValue } from 'usehooks-ts';
 
 import { Pagination, PaginationInfo } from '~/components/ui/pagination';
+import { SeriesType } from '~/lib/enum';
 import { paginationParser, searchParser } from '~/lib/parser';
 import { trpc } from '~/trpc/client';
 
 export function Explore() {
   const ref = useRef<HTMLDivElement>(null);
 
-  const [{ page, page_size, search }, setParams] = useQueryStates({
+  const [{ page, page_size, search, type }, setParams] = useQueryStates({
     ...paginationParser,
     ...searchParser,
+    type: parseAsStringEnum<SeriesType>(Object.values(SeriesType)),
   });
 
   const [debouncedSearch] = useDebounceValue(search, 500);
+  const format = type || undefined;
 
   const { data, isLoading } = useQuery(
     trpc.series.list.queryOptions(
       {
         page,
         page_size,
+        format,
         q: debouncedSearch,
       },
       {

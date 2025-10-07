@@ -11,6 +11,7 @@ export const seriesRouter = router({
     .input(
       PaginationSchema.extend({
         q: z.string(),
+        format: z.string().optional(),
       })
         .partial()
         .optional()
