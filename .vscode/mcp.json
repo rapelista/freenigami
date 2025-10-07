@@ -1,0 +1,8 @@
+{
+  "servers": {
+    "heroui-react": {
+      "command": "npx",
+      "args": ["-y", "@heroui/react-mcp@latest"]
+    }
+  }
+}
