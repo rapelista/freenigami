@@ -55,7 +55,7 @@ export const useAppStore = create<AppStore>()(
         })),
     }),
     {
-      name: 'freenigami-storage',
+      name: 'freenigami-storage-v2',
     },
   ),
 );
