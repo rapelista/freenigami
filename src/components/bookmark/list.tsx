@@ -6,6 +6,7 @@ import { useQueryStates } from 'nuqs';
 import type { BookmarkType } from '~/lib/enum';
 import { bookmarkTypeParser } from '~/lib/parser';
 
+import { BookmarkChapters } from './chapters';
 import { BookmarkSeries } from './series';
 
 export function BookmarkList() {
@@ -40,7 +41,7 @@ export function BookmarkList() {
       </Tabs.Panel>
 
       <Tabs.Panel className="pt-4" id="chapters">
-        <p>View your chapter bookmarks.</p>
+        <BookmarkChapters />
       </Tabs.Panel>
     </Tabs>
   );

@@ -89,7 +89,7 @@ export function ChapterDetail() {
         ref={topRef}
         className="sticky transition-opacity duration-250 ease-smooth opacity-100 top-0 border-y bg-surface-2 z-10"
       >
-        <div className="container mx-auto px-4 py-2.5 md:px-0 md:py-5 flex justify-between gap-6">
+        <div className="container mx-auto px-4 py-2.5 md:px-0 md:py-5 flex justify-between items-center gap-6">
           <h2
             className={cn(
               'md:text-lg font-medium',

@@ -27,7 +27,7 @@ export function ChapterBookmark() {
   };
 
   return (
-    <Button variant="ghost" onPress={handleToggleBookmark}>
+    <Button size="sm" variant="tertiary" onPress={handleToggleBookmark}>
       {isBookmarked ? <BookmarkCheck /> : <BookmarkPlus />}
       Bookmark
     </Button>
