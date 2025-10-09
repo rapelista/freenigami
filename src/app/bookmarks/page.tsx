@@ -1,3 +1,5 @@
+import { Suspense } from 'react';
+
 import { BookmarkList } from '~/components/bookmark/list';
 
 export default function Page() {
@@ -6,7 +8,9 @@ export default function Page() {
       <div className="space-y-4">
         <h1 className="text-2xl font-semibold">Bookmark</h1>
 
-        <BookmarkList />
+        <Suspense>
+          <BookmarkList />
+        </Suspense>
       </div>
     </main>
   );
