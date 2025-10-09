@@ -11,6 +11,8 @@ import { useEffect, useRef } from 'react';
 import { cn } from '~/lib/utils';
 import { trpc } from '~/trpc/client';
 
+import { ChapterBookmark } from './bookmark';
+
 export function ChapterDetail() {
   const topRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -96,6 +98,8 @@ export function ChapterDetail() {
           >
             Chapter {data?.data.chapter_number}
           </h2>
+
+          <ChapterBookmark />
         </div>
       </div>
 

@@ -8,3 +8,8 @@ export enum SeriesType {
   MANHWA = 'manhwa',
   MANHUA = 'manhua',
 }
+
+export enum BookmarkType {
+  SERIES = 'series',
+  CHAPTERS = 'chapters',
+}

@@ -9,15 +9,15 @@ import { useAppStore } from '~/stores/app';
 export function SeriesBookmark() {
   const { id } = useParams<{ id: string }>();
 
-  const { bookmarks, addBookmark, removeBookmark } = useAppStore();
+  const { bookmarks, bookmarkSeries, removeSeries } = useAppStore();
 
-  const isBookmarked = bookmarks.includes(id);
+  const isBookmarked = bookmarks.series.some((series) => series.id === id);
 
   const handleToggleBookmark = () => {
     if (isBookmarked) {
-      removeBookmark(id);
+      removeSeries(id);
     } else {
-      addBookmark(id);
+      bookmarkSeries({ id });
     }
   };
 

@@ -1,33 +1,47 @@
 'use client';
 
-import { useQueries } from '@tanstack/react-query';
-import Link from 'next/link';
+import { Tabs } from '@heroui/react';
+import { useQueryStates } from 'nuqs';
 
-import { useAppStore } from '~/stores/app';
-import { trpc } from '~/trpc/client';
+import type { BookmarkType } from '~/lib/enum';
+import { bookmarkTypeParser } from '~/lib/parser';
+
+import { BookmarkSeries } from './series';
 
 export function BookmarkList() {
-  const bookmarks = useAppStore((state) => state.bookmarks);
+  const [{ type }, setParams] = useQueryStates(bookmarkTypeParser);
 
-  const results = useQueries({
-    queries: bookmarks.map((id) => trpc.series.detail.queryOptions({ id })),
-  });
+  return (
+    <Tabs
+      defaultSelectedKey={type}
+      onSelectionChange={(key) => {
+        const value = key.toString() as BookmarkType;
 
-  return results.map((result, key) => {
-    if (result.isLoading) {
-      return <div key={key}>Loading...</div>;
-    }
-    if (result.isError) {
-      return <div key={key}>Error loading bookmark.</div>;
-    }
-    if (!result.data) {
-      return <div key={key}>No data available.</div>;
-    }
+        if (value !== type) {
+          setParams({ type: value });
+        }
+      }}
+    >
+      <Tabs.ListWrapper>
+        <Tabs.List aria-label="Bookmark Type" className="w-fit *:w-fit">
+          <Tabs.Tab id="series">
+            Series
+            <Tabs.Indicator />
+          </Tabs.Tab>
+          <Tabs.Tab id="chapters">
+            Chapters
+            <Tabs.Indicator />
+          </Tabs.Tab>
+        </Tabs.List>
+      </Tabs.ListWrapper>
 
-    return (
-      <div key={key}>
-        <Link href={`/series/${bookmarks[key]}`}>{result.data.title}</Link>
-      </div>
-    );
-  });
+      <Tabs.Panel className="pt-4" id="series">
+        <BookmarkSeries />
+      </Tabs.Panel>
+
+      <Tabs.Panel className="pt-4" id="chapters">
+        <p>View your chapter bookmarks.</p>
+      </Tabs.Panel>
+    </Tabs>
+  );
 }

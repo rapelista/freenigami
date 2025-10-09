@@ -1,24 +1,58 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+type BookmarkSeries = {
+  id: string;
+};
+
+type BookmarkChapter = {
+  id: string;
+  seriesId: string;
+};
+
 interface AppStore {
-  bookmarks: string[];
-  addBookmark: (id: string) => void;
-  removeBookmark: (id: string) => void;
+  bookmarks: {
+    series: BookmarkSeries[];
+    chapters: BookmarkChapter[];
+  };
+  bookmarkSeries: (series: BookmarkSeries) => void;
+  removeSeries: (id: string) => void;
+  bookmarkChapter: (chapter: BookmarkChapter) => void;
+  removeChapter: (id: string) => void;
 }
 
 export const useAppStore = create<AppStore>()(
   persist(
-    (set, get) => ({
-      bookmarks: [] as string[],
-      addBookmark: (id: string) => {
-        set({ bookmarks: [...get().bookmarks, id] });
-      },
-      removeBookmark: (id: string) => {
-        set({
-          bookmarks: get().bookmarks.filter((bookmark) => bookmark !== id),
-        });
-      },
+    (set) => ({
+      bookmarks: { series: [], chapters: [] },
+      bookmarkSeries: (series) =>
+        set((state) => ({
+          bookmarks: {
+            ...state.bookmarks,
+            series: [...state.bookmarks.series, series],
+          },
+        })),
+      removeSeries: (id) =>
+        set((state) => ({
+          bookmarks: {
+            ...state.bookmarks,
+            series: state.bookmarks.series.filter((s) => s.id !== id),
+          },
+        })),
+      bookmarkChapter: (chapter) =>
+        set((state) => ({
+          bookmarks: {
+            ...state.bookmarks,
+            chapters: [...state.bookmarks.chapters, chapter],
+          },
+        })),
+      removeChapter: (id) =>
+        set((state) => ({
+          bookmarks: {
+            ...state.bookmarks,
+            chapters: state.bookmarks.chapters.filter((c) => c.id !== id),
+          },
+        })),
     }),
     {
       name: 'freenigami-storage',

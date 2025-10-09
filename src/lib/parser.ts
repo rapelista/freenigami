@@ -1,4 +1,6 @@
-import { parseAsInteger, parseAsString } from 'nuqs';
+import { parseAsInteger, parseAsString, parseAsStringEnum } from 'nuqs';
+
+import { BookmarkType } from './enum';
 
 export const paginationParser = {
   page: parseAsInteger.withDefault(1),
@@ -7,4 +9,10 @@ export const paginationParser = {
 
 export const searchParser = {
   search: parseAsString.withDefault(''),
+};
+
+export const bookmarkTypeParser = {
+  type: parseAsStringEnum<BookmarkType>(
+    Object.values(BookmarkType),
+  ).withDefault(BookmarkType.SERIES),
 };
