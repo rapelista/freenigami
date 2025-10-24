@@ -1,18 +1,12 @@
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
-
-import { FlatCompat } from '@eslint/eslintrc';
 import pluginQuery from '@tanstack/eslint-plugin-query';
+import nextVitals from 'eslint-config-next/core-web-vitals';
+import { defineConfig, globalIgnores } from 'eslint/config';
+import tseslint from 'typescript-eslint';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+export default defineConfig([
+  ...nextVitals,
 
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
-
-const eslintConfig = [
-  ...compat.extends('next/core-web-vitals', 'next/typescript', 'prettier'),
+  ...tseslint.configs.recommended,
 
   {
     plugins: {
@@ -114,9 +108,11 @@ const eslintConfig = [
     },
   },
 
-  {
-    ignores: ['.next'],
-  },
-];
-
-export default eslintConfig;
+  globalIgnores([
+    // Default ignores of eslint-config-next:
+    '.next/**',
+    'out/**',
+    'build/**',
+    'next-env.d.ts',
+  ]),
+]);
