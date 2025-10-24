@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 
-import { ChapterDetail } from '~/components/chapter/[chapterId]/detail';
+import { ChapterDetail } from '~/components/read/[seriesId]/[chapterId]/detail';
 
 export default async function Page({
   params,
