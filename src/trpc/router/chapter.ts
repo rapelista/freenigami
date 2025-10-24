@@ -1,5 +1,5 @@
 import { TRPCError } from '@trpc/server';
-import z from 'zod';
+import z, { ZodError } from 'zod';
 
 import { generateDataSchema, generateListSchema } from '~/lib/utils';
 import { ChapterDetailSchema, ChapterSchema } from '~/schema/chapter';
@@ -40,9 +40,12 @@ export const chapterRouter = router({
 
       try {
         return generateListSchema(ChapterSchema).parse(data);
-      } catch {
+      } catch (e) {
+        const error = e as ZodError;
+
         throw new TRPCError({
           code: 'BAD_GATEWAY',
+          message: error.issues.map((issue) => issue.message).join(', '),
         });
       }
     }),
@@ -68,9 +71,12 @@ export const chapterRouter = router({
 
       try {
         return generateDataSchema(ChapterDetailSchema).parse(data);
-      } catch {
+      } catch (e) {
+        const error = e as ZodError;
+
         throw new TRPCError({
           code: 'BAD_GATEWAY',
+          message: error.issues.map((issue) => issue.message).join(', '),
         });
       }
     }),

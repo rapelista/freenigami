@@ -1,9 +1,10 @@
 import { TRPCError } from '@trpc/server';
-import { z } from 'zod';
+import { z, ZodError } from 'zod';
 
 import { generateListSchema } from '~/lib/utils';
 import { PaginationSchema } from '~/schema/pagination';
 import { SeriesSchema } from '~/schema/series';
+import { TaxonomySchema } from '~/schema/taxonomy';
 import { appProcedure, router } from '~/trpc/init';
 
 export const seriesRouter = router({
@@ -159,9 +160,12 @@ export const seriesRouter = router({
             ),
           }),
         ).parse(data);
-      } catch {
+      } catch (e) {
+        const error = e as ZodError;
+
         throw new TRPCError({
           code: 'BAD_GATEWAY',
+          message: error.issues.map((issue) => issue.message).join(', '),
         });
       }
     }),
@@ -199,11 +203,17 @@ export const seriesRouter = router({
           release_year: true,
           status: true,
           country_id: true,
-          taxonomy: true,
-        }).parse(data.data);
-      } catch {
+        })
+          .extend({
+            taxonomy: TaxonomySchema.partial(),
+          })
+          .parse(data.data);
+      } catch (e) {
+        const error = e as ZodError;
+
         throw new TRPCError({
           code: 'BAD_GATEWAY',
+          message: error.issues.map((issue) => issue.message).join(', '),
         });
       }
     }),

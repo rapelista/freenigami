@@ -127,7 +127,7 @@ export function SeriesDetail() {
                     <p>Loading...</p>
                   ) : data ? (
                     <>
-                      {data?.taxonomy.Type?.length > 0 && (
+                      {!!data?.taxonomy.Type?.length && (
                         <div className="flex flex-wrap gap-1 justify-start">
                           <span className="">Tipe:</span>
                           {data?.taxonomy.Type.map((type) => (
@@ -137,7 +137,8 @@ export function SeriesDetail() {
                           ))}
                         </div>
                       )}
-                      {data?.taxonomy.Genre?.length > 0 && (
+
+                      {!!data?.taxonomy.Genre?.length && (
                         <div className="flex flex-wrap gap-1 justify-start">
                           <span className="">Genre:</span>
                           {data?.taxonomy.Genre.map((genre) => (
@@ -147,7 +148,8 @@ export function SeriesDetail() {
                           ))}
                         </div>
                       )}
-                      {data?.taxonomy.Author?.length > 0 && (
+
+                      {!!data?.taxonomy.Author?.length && (
                         <div className="flex flex-wrap gap-1 justify-start">
                           <span className="">Penulis:</span>
                           {data?.taxonomy.Author.map((author) => (
@@ -157,7 +159,8 @@ export function SeriesDetail() {
                           ))}
                         </div>
                       )}
-                      {data?.taxonomy.Artist?.length > 0 && (
+
+                      {!!data?.taxonomy.Artist?.length && (
                         <div className="flex flex-wrap gap-1 justify-start">
                           <span className="">Artis:</span>
                           {data?.taxonomy.Artist.map((artist) => (
