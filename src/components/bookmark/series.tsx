@@ -1,7 +1,8 @@
 /* eslint-disable @next/next/no-img-element */
 
-import { Card, Skeleton } from '@heroui/react';
+import { Card, Separator, Skeleton } from '@heroui/react';
 import { useQueries } from '@tanstack/react-query';
+import { BookmarkX } from 'lucide-react';
 import Link from 'next/link';
 
 import { useAppStore } from '~/stores/app';
@@ -16,45 +17,83 @@ export function BookmarkSeries() {
     ),
   });
 
+  // Empty state
+  if (series.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 px-4">
+        <div className="p-4 rounded-full bg-muted/50 mb-4">
+          <BookmarkX className="w-12 h-12 text-muted-foreground" />
+        </div>
+        <h3 className="text-xl font-semibold mb-2">No Series Bookmarked</h3>
+        <p className="text-foreground-secondary text-center max-w-md mb-6">
+          Start exploring and bookmark your favorite series to keep track of
+          them here.
+        </p>
+        <Link
+          className="px-4 py-2 bg-accent text-accent-foreground rounded-lg hover:opacity-90 transition-opacity"
+          href="/explore"
+        >
+          Explore Series
+        </Link>
+      </div>
+    );
+  }
+
   return (
-    <div className="grid gap-4 grid-cols-2 md:grid-cols-4 xl:grid-cols-8">
-      {results.map((result, key) => {
-        if (result.isLoading) {
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-foreground-secondary">
+          {series.length} {series.length === 1 ? 'series' : 'series'} bookmarked
+        </p>
+      </div>
+
+      <Separator />
+
+      <div className="grid gap-4 grid-cols-2 md:grid-cols-4 xl:grid-cols-8">
+        {results.map((result, key) => {
+          if (result.isLoading) {
+            return (
+              <Card.Root
+                key={key}
+                className="p-0 relative aspect-5/10 overflow-hidden"
+                variant="flat"
+              >
+                <Skeleton className="w-full h-full" />
+              </Card.Root>
+            );
+          }
+
+          if (!result.data) return null;
+
+          const image =
+            result.data.cover_portrait_url || result.data.cover_image_url;
+
+          const seriesId = series.at(key)?.id;
+
           return (
             <Card.Root
-              key={key}
-              className="p-0 relative aspect-5/10"
+              key={seriesId}
+              asChild
+              className="p-0 relative aspect-5/10 overflow-hidden group"
               variant="flat"
             >
-              <Skeleton className="w-full h-full" />
+              <Link className="h-full w-full" href={`/series/${seriesId}`}>
+                <img
+                  alt={result.data.title}
+                  className="object-cover h-full w-full transition-transform duration-300 group-hover:scale-105"
+                  src={`/api/proxy/image/${image.split('/').pop()}`}
+                />
+                <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute bottom-0 left-0 right-0 p-3 text-white transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                  <p className="text-xs font-medium line-clamp-2">
+                    {result.data.title}
+                  </p>
+                </div>
+              </Link>
             </Card.Root>
           );
-        }
-
-        if (!result.data) return null;
-
-        const image =
-          result.data.cover_portrait_url || result.data.cover_image_url;
-
-        const seriesId = series.at(key)?.id;
-
-        return (
-          <Card.Root
-            key={seriesId}
-            asChild
-            className="p-0 relative aspect-5/10"
-            variant="flat"
-          >
-            <Link className="h-full w-full" href={`/series/${seriesId}`}>
-              <img
-                alt={result.data.title}
-                className="object-cover h-full w-full"
-                src={`/api/proxy/image/${image.split('/').pop()}`}
-              />
-            </Link>
-          </Card.Root>
-        );
-      })}
+        })}
+      </div>
     </div>
   );
 }

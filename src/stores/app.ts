@@ -26,12 +26,23 @@ export const useAppStore = create<AppStore>()(
     (set) => ({
       bookmarks: { series: [], chapters: [] },
       bookmarkSeries: (series) =>
-        set((state) => ({
-          bookmarks: {
-            ...state.bookmarks,
-            series: [...state.bookmarks.series, series],
-          },
-        })),
+        set((state) => {
+          // Prevent duplicate bookmarks
+          const isDuplicate = state.bookmarks.series.some(
+            (s) => s.id === series.id,
+          );
+
+          if (isDuplicate) {
+            return state;
+          }
+
+          return {
+            bookmarks: {
+              ...state.bookmarks,
+              series: [...state.bookmarks.series, series],
+            },
+          };
+        }),
       removeSeries: (id) =>
         set((state) => ({
           bookmarks: {
@@ -40,12 +51,23 @@ export const useAppStore = create<AppStore>()(
           },
         })),
       bookmarkChapter: (chapter) =>
-        set((state) => ({
-          bookmarks: {
-            ...state.bookmarks,
-            chapters: [...state.bookmarks.chapters, chapter],
-          },
-        })),
+        set((state) => {
+          // Prevent duplicate bookmarks
+          const isDuplicate = state.bookmarks.chapters.some(
+            (c) => c.id === chapter.id,
+          );
+
+          if (isDuplicate) {
+            return state;
+          }
+
+          return {
+            bookmarks: {
+              ...state.bookmarks,
+              chapters: [...state.bookmarks.chapters, chapter],
+            },
+          };
+        }),
       removeChapter: (id) =>
         set((state) => ({
           bookmarks: {
