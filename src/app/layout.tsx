@@ -1,4 +1,4 @@
-import { Bookmark, Library } from 'lucide-react';
+import { Bookmark, Search } from 'lucide-react';
 import { Inter } from 'next/font/google';
 import Link from 'next/link';
 
@@ -48,7 +48,7 @@ export default function RootLayout({
                     className="group flex items-center gap-1"
                     href="/explore"
                   >
-                    <Library />
+                    <Search />
                     <span className="group-hover:underline underline-offset-4 max-md:hidden">
                       Explore
                     </span>
