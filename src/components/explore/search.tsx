@@ -1,10 +1,11 @@
 'use client';
 
+import { Input } from '@heroui/react';
 import { useQueryStates } from 'nuqs';
 
 import { paginationParser, searchParser } from '~/lib/parser';
 
-import { SearchInput, type SearchInputProps } from '../ui/search-input';
+import { type SearchInputProps } from '../ui/search-input';
 
 interface ExploreSearchProps extends SearchInputProps {}
 
@@ -15,13 +16,14 @@ export function ExploreSearch(props: ExploreSearchProps) {
   });
 
   return (
-    <SearchInput
-      {...props}
-      defaultValue={search}
-      placeholder="Cari berdasarkan judul manhwa, manga, atau manhua..."
-      onChange={(e) => {
-        setParams({ search: e.target.value, page: 1 });
-      }}
-    />
+    // <SearchInput
+    //   {...props}
+    //   defaultValue={search}
+    //   placeholder="Cari berdasarkan judul manhwa, manga, atau manhua..."
+    //   onChange={(e) => {
+    //     setParams({ search: e.target.value, page: 1 });
+    //   }}
+    // />
+    <Input />
   );
 }

@@ -21,13 +21,13 @@ export function BookmarkSeries() {
       {results.map((result, key) => {
         if (result.isLoading) {
           return (
-            <Card
+            <Card.Root
               key={key}
-              className="p-0 relative aspect-[5/10]"
+              className="p-0 relative aspect-5/10"
               variant="flat"
             >
               <Skeleton className="w-full h-full" />
-            </Card>
+            </Card.Root>
           );
         }
 
@@ -39,10 +39,10 @@ export function BookmarkSeries() {
         const seriesId = series.at(key)?.id;
 
         return (
-          <Card
+          <Card.Root
             key={seriesId}
             asChild
-            className="p-0 relative aspect-[5/10]"
+            className="p-0 relative aspect-5/10"
             variant="flat"
           >
             <Link className="h-full w-full" href={`/series/${seriesId}`}>
@@ -52,7 +52,7 @@ export function BookmarkSeries() {
                 src={`/api/proxy/image/${image.split('/').pop()}`}
               />
             </Link>
-          </Card>
+          </Card.Root>
         );
       })}
     </div>

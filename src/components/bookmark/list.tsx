@@ -13,7 +13,7 @@ export function BookmarkList() {
   const [{ type }, setParams] = useQueryStates(bookmarkTypeParser);
 
   return (
-    <Tabs
+    <Tabs.Root
       defaultSelectedKey={type}
       onSelectionChange={(key) => {
         const value = key.toString() as BookmarkType;
@@ -43,6 +43,6 @@ export function BookmarkList() {
       <Tabs.Panel className="pt-4" id="chapters">
         <BookmarkChapters />
       </Tabs.Panel>
-    </Tabs>
+    </Tabs.Root>
   );
 }

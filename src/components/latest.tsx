@@ -47,7 +47,7 @@ export function Latest() {
 
   return (
     <div ref={ref} className="space-y-4">
-      <Tabs
+      <Tabs.Root
         className="w-full max-w-md"
         defaultSelectedKey={publishType}
         onSelectionChange={(key) => {
@@ -70,28 +70,28 @@ export function Latest() {
             </Tabs.Tab>
           </Tabs.List>
         </Tabs.ListWrapper>
-      </Tabs>
+      </Tabs.Root>
 
       <div className="grid gap-4 grid-cols-2 md:grid-cols-4 xl:grid-cols-6">
         {isLoading
           ? Array.from({ length: 24 }, (_, i) => {
               return (
-                <Card
+                <Card.Root
                   key={i}
-                  className="p-0 aspect-[5/11] flex flex-col gap-2 justify-end"
+                  className="p-0 aspect-5/11 flex flex-col gap-2 justify-end"
                   variant="flat"
                 >
                   <Skeleton className="w-full h-full" />
-                </Card>
+                </Card.Root>
               );
             })
           : data?.data.map((series) => {
               const image = series.cover_image_url || series.cover_portrait_url;
 
               return (
-                <Card
+                <Card.Root
                   key={series.manga_id}
-                  className="p-0 aspect-[5/11] flex flex-col gap-2 justify-end"
+                  className="p-0 aspect-5/11 flex flex-col gap-2 justify-end"
                   variant="flat"
                 >
                   <Link className="flex-1" href={`/series/${series.manga_id}`}>
@@ -125,7 +125,7 @@ export function Latest() {
                       </Button>
                     ))}
                   </Card.Footer>
-                </Card>
+                </Card.Root>
               );
             })}
       </div>

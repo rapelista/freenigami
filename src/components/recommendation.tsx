@@ -25,7 +25,7 @@ export function Recommendation() {
 
   return (
     <div className="space-y-4">
-      <Tabs
+      <Tabs.Root
         className="w-full max-w-md"
         defaultSelectedKey={type}
         onSelectionChange={(key) => {
@@ -52,29 +52,29 @@ export function Recommendation() {
             </Tabs.Tab>
           </Tabs.List>
         </Tabs.ListWrapper>
-      </Tabs>
+      </Tabs.Root>
 
       <div className="grid gap-4 grid-cols-2 md:grid-cols-4 xl:grid-cols-8">
         {isLoading
           ? Array.from({ length: 8 }, (_, i) => {
               return (
-                <Card
+                <Card.Root
                   key={i}
-                  className="p-0 relative aspect-[5/10]"
+                  className="p-0 relative aspect-5/10"
                   variant="flat"
                 >
                   <Skeleton className="w-full h-full" />
-                </Card>
+                </Card.Root>
               );
             })
           : data?.data.map((series) => {
               const image = series.cover_portrait_url || series.cover_image_url;
 
               return (
-                <Card
+                <Card.Root
                   key={series.manga_id}
                   asChild
-                  className="p-0 relative aspect-[5/10]"
+                  className="p-0 relative aspect-5/10"
                   variant="flat"
                 >
                   <Link
@@ -87,7 +87,7 @@ export function Recommendation() {
                       src={`/api/proxy/image/${image.split('/').pop()}`}
                     />
                   </Link>
-                </Card>
+                </Card.Root>
               );
             })}
       </div>

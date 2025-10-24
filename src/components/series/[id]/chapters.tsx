@@ -66,12 +66,12 @@ export function SeriesChapters() {
               />
             ))
           : data?.data.map((chapter) => (
-              <Card key={chapter.chapter_id} asChild>
+              <Card.Root key={chapter.chapter_id} asChild>
                 <Link
-                  className="p-0 gap-0 flex-row min-md:max-lg:flex-col"
+                  className="p-0 gap-0 flex-row md:max-lg:flex-col"
                   href={`/chapter/${chapter.chapter_id}`}
                 >
-                  <div className="aspect-video min-md:max-lg:h-30 h-20">
+                  <div className="aspect-video md:max-lg:h-30 h-20">
                     {chapter.thumbnail_image_url ? (
                       <img
                         alt={chapter.chapter_title}
@@ -89,7 +89,7 @@ export function SeriesChapters() {
                     </span>
                   </Card.Content>
                 </Link>
-              </Card>
+              </Card.Root>
             ))}
       </div>
 
