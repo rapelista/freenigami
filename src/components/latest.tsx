@@ -119,7 +119,9 @@ export function Latest() {
                         size="sm"
                         variant="secondary"
                       >
-                        <Link href={`/chapter/${chapter.chapter_id}`}>
+                        <Link
+                          href={`/read/${series.manga_id}/${chapter.chapter_id}`}
+                        >
                           Chapter {chapter.chapter_number}
                         </Link>
                       </Button>

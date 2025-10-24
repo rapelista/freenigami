@@ -4,7 +4,6 @@
 import { Card, Skeleton } from '@heroui/react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
 import { useQueryStates } from 'nuqs';
 import { useRef } from 'react';
 
@@ -13,10 +12,12 @@ import { SearchInput } from '~/components/ui/search-input';
 import { paginationParser, searchParser } from '~/lib/parser';
 import { trpc } from '~/trpc/client';
 
-export function SeriesChapters() {
-  const ref = useRef<HTMLDivElement>(null);
+interface SeriesChaptersProps {
+  seriesId: string;
+}
 
-  const { id } = useParams<{ id: string }>();
+export function SeriesChapters({ seriesId }: SeriesChaptersProps) {
+  const ref = useRef<HTMLDivElement>(null);
 
   const [{ page, search }, setParams] = useQueryStates({
     ...paginationParser,
@@ -26,7 +27,7 @@ export function SeriesChapters() {
   const { data, isLoading } = useQuery(
     trpc.chapter.listBySeriesId.queryOptions(
       {
-        seriesId: id,
+        seriesId,
         page,
         search,
       },
@@ -69,7 +70,7 @@ export function SeriesChapters() {
               <Card.Root key={chapter.chapter_id} asChild>
                 <Link
                   className="p-0 gap-0 flex-row md:max-lg:flex-col"
-                  href={`/chapter/${chapter.chapter_id}`}
+                  href={`/read/${seriesId}/${chapter.chapter_id}`}
                 >
                   <div className="aspect-video md:max-lg:h-30 h-20">
                     {chapter.thumbnail_image_url ? (

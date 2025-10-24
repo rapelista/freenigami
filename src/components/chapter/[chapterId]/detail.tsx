@@ -5,7 +5,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 
 import { cn } from '~/lib/utils';
@@ -13,13 +12,17 @@ import { trpc } from '~/trpc/client';
 
 import { ChapterBookmark } from './bookmark';
 
-export function ChapterDetail() {
+interface ChapterDetailProps {
+  chapterId: string;
+  seriesId?: string;
+}
+
+export function ChapterDetail({ chapterId }: ChapterDetailProps) {
   const topRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const chapterRef = useRef<HTMLDivElement>(null);
 
-  const { id } = useParams<{ id: string }>();
-  const { data } = useQuery(trpc.chapter.byId.queryOptions({ id }));
+  const { data } = useQuery(trpc.chapter.byId.queryOptions({ id: chapterId }));
 
   const hasNextChapter = Boolean(data?.data.next_chapter_id);
   const hasPrevChapter = Boolean(data?.data.prev_chapter_id);
@@ -32,7 +35,7 @@ export function ChapterDetail() {
     return () => {
       resetScroll();
     };
-  }, [id]);
+  }, [chapterId]);
 
   useEffect(() => {
     const handleClickOutside = (event: PointerEvent) => {
@@ -99,7 +102,7 @@ export function ChapterDetail() {
             Chapter {data?.data.chapter_number}
           </h2>
 
-          <ChapterBookmark />
+          <ChapterBookmark chapterId={chapterId} />
         </div>
       </div>
 

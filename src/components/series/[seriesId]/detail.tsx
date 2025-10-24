@@ -3,17 +3,19 @@
 
 import { Accordion, Card, Chip, Skeleton } from '@heroui/react';
 import { useQuery } from '@tanstack/react-query';
-import { useParams } from 'next/navigation';
 
 import { trpc } from '~/trpc/client';
 
 import { SeriesBookmark } from './bookmark';
 
-export function SeriesDetail() {
-  const params = useParams();
-  const id = params.id as string;
+interface SeriesDetailProps {
+  seriesId: string;
+}
 
-  const { data, isLoading } = useQuery(trpc.series.detail.queryOptions({ id }));
+export function SeriesDetail({ seriesId }: SeriesDetailProps) {
+  const { data, isLoading } = useQuery(
+    trpc.series.detail.queryOptions({ id: seriesId }),
+  );
 
   const image = data?.cover_portrait_url || data?.cover_image_url;
 
@@ -100,7 +102,7 @@ export function SeriesDetail() {
           )}
 
           <div>
-            <SeriesBookmark />
+            <SeriesBookmark seriesId={seriesId} />
           </div>
         </div>
       </div>
