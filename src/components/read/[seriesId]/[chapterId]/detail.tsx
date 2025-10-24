@@ -10,14 +10,14 @@ import { useEffect, useRef } from 'react';
 import { cn } from '~/lib/utils';
 import { trpc } from '~/trpc/client';
 
-import { ChapterBookmark } from './bookmark';
+import { ChapterMenu } from './menu';
 
 interface ChapterDetailProps {
   chapterId: string;
-  seriesId?: string;
+  seriesId: string;
 }
 
-export function ChapterDetail({ chapterId }: ChapterDetailProps) {
+export function ChapterDetail({ chapterId, seriesId }: ChapterDetailProps) {
   const topRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const chapterRef = useRef<HTMLDivElement>(null);
@@ -102,7 +102,7 @@ export function ChapterDetail({ chapterId }: ChapterDetailProps) {
             Chapter {data?.data.chapter_number}
           </h2>
 
-          <ChapterBookmark chapterId={chapterId} />
+          <ChapterMenu chapterId={chapterId} seriesId={seriesId} />
         </div>
       </div>
 

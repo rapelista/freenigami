@@ -31,7 +31,7 @@ export function ChapterBookmark({ chapterId }: ChapterBookmarkProps) {
   };
 
   return (
-    <Button size="sm" variant="tertiary" onPress={handleToggleBookmark}>
+    <Button size="sm" variant="secondary" onPress={handleToggleBookmark}>
       {isBookmarked ? <BookmarkCheck /> : <BookmarkPlus />}
       Bookmark
     </Button>
