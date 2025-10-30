@@ -5,35 +5,38 @@ import { useQueries } from '@tanstack/react-query';
 import { BookmarkX } from 'lucide-react';
 import Link from 'next/link';
 
-import { useAppStore } from '~/stores/app';
+import { BookmarkType } from '~/lib/enum';
+import { useBookmarkStore } from '~/stores/bookmark';
 import { trpc } from '~/trpc/client';
 
 export function BookmarkSeries() {
-  const series = useAppStore((state) => state.bookmarks.series);
+  const bookmarks = useBookmarkStore((state) => state.bookmarks);
+  const seriesBookmarks = bookmarks.filter(
+    (b) => b.type === BookmarkType.SERIES,
+  );
 
   const results = useQueries({
-    queries: series.map((series) =>
-      trpc.series.detail.queryOptions({ id: series.id }),
+    queries: seriesBookmarks.map((series) =>
+      trpc.series.detail.queryOptions({ id: series.value }),
     ),
   });
 
   // Empty state
-  if (series.length === 0) {
+  if (seriesBookmarks.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 px-4">
         <div className="p-4 rounded-full bg-muted/50 mb-4">
           <BookmarkX className="w-12 h-12 text-muted-foreground" />
         </div>
-        <h3 className="text-xl font-semibold mb-2">No Series Bookmarked</h3>
+        <h3 className="text-xl font-semibold mb-2">Kosong!</h3>
         <p className="text-foreground-secondary text-center max-w-md mb-6">
-          Start exploring and bookmark your favorite series to keep track of
-          them here.
+          Kamu belum menambahkan series apapun ke bookmarkmu.
         </p>
         <Link
           className="px-4 py-2 bg-accent text-accent-foreground rounded-lg hover:opacity-90 transition-opacity"
           href="/explore"
         >
-          Explore Series
+          Explore
         </Link>
       </div>
     );
@@ -43,7 +46,8 @@ export function BookmarkSeries() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm text-foreground-secondary">
-          {series.length} {series.length === 1 ? 'series' : 'series'} bookmarked
+          {seriesBookmarks.length}{' '}
+          {seriesBookmarks.length === 1 ? 'series' : 'series'} bookmarked
         </p>
       </div>
 
@@ -68,7 +72,7 @@ export function BookmarkSeries() {
           const image =
             result.data.cover_portrait_url || result.data.cover_image_url;
 
-          const seriesId = series.at(key)?.id;
+          const seriesId = seriesBookmarks.at(key)?.value;
 
           return (
             <Card.Root

@@ -3,24 +3,27 @@
 import { Button } from '@heroui/react';
 import { BookmarkCheck, BookmarkPlus } from 'lucide-react';
 
-import { useAppStore } from '~/stores/app';
+import { BookmarkType } from '~/lib/enum';
+import { checkIsBookmarked } from '~/lib/utils';
+import { useBookmarkStore, type Bookmark } from '~/stores/bookmark';
 
 interface SeriesBookmarkProps {
   seriesId: string;
 }
 
 export function SeriesBookmark({ seriesId }: SeriesBookmarkProps) {
-  const { bookmarks, bookmarkSeries, removeSeries } = useAppStore();
+  const bookmarks = useBookmarkStore((state) => state.bookmarks);
+  const addBookmark = useBookmarkStore((state) => state.addBookmark);
+  const removeBookmark = useBookmarkStore((state) => state.removeBookmark);
 
-  const isBookmarked = bookmarks.series.some(
-    (series) => series.id === seriesId,
-  );
+  const bookmark: Bookmark = { type: BookmarkType.SERIES, value: seriesId };
+  const isBookmarked = checkIsBookmarked(bookmarks, bookmark);
 
   const handleToggleBookmark = () => {
     if (isBookmarked) {
-      removeSeries(seriesId);
+      removeBookmark(bookmark);
     } else {
-      bookmarkSeries({ id: seriesId });
+      addBookmark(bookmark);
     }
   };
 

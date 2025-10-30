@@ -2,3 +2,9 @@
 @import '@heroui/styles';
 
 @import './ui/index.css' layer(components);
+
+@layer components {
+  .disclosure__body {
+    @apply px-0;
+  }
+}

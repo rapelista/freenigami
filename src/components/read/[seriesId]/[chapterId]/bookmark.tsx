@@ -2,33 +2,37 @@ import { Button } from '@heroui/react';
 import { useQuery } from '@tanstack/react-query';
 import { BookmarkCheck, BookmarkPlus, Loader2 } from 'lucide-react';
 
-import { useAppStore } from '~/stores/app';
+import { BookmarkType } from '~/lib/enum';
+import { checkIsBookmarked } from '~/lib/utils';
+import { useBookmarkStore, type Bookmark } from '~/stores/bookmark';
 import { trpc } from '~/trpc/client';
 
 interface ChapterBookmarkProps {
   chapterId: string;
+  seriesId: string;
 }
 
-export function ChapterBookmark({ chapterId }: ChapterBookmarkProps) {
+export function ChapterBookmark({ chapterId, seriesId }: ChapterBookmarkProps) {
+  const bookmarks = useBookmarkStore((state) => state.bookmarks);
+  const addBookmark = useBookmarkStore((state) => state.addBookmark);
+  const removeBookmark = useBookmarkStore((state) => state.removeBookmark);
+
+  const bookmark: Bookmark = {
+    type: BookmarkType.CHAPTERS,
+    value: { chapterId, seriesId },
+  };
+
+  const isBookmarked = checkIsBookmarked(bookmarks, bookmark);
+
   const { data, isLoading } = useQuery(
     trpc.chapter.byId.queryOptions({ id: chapterId }),
   );
 
-  const { bookmarks, bookmarkChapter, removeChapter } = useAppStore();
-
-  const isBookmarked = bookmarks.chapters.some(
-    (chapter) => chapter.id === chapterId,
-  );
-
   const handleToggleBookmark = () => {
     if (isBookmarked) {
-      removeChapter(chapterId);
+      removeBookmark(bookmark);
     } else {
-      if (data?.data) {
-        const seriesId = data.data.manga_id;
-
-        bookmarkChapter({ id: chapterId, seriesId });
-      }
+      addBookmark(bookmark);
     }
   };
 

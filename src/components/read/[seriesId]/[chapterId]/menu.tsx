@@ -25,10 +25,10 @@ export function ChapterMenu({ chapterId, seriesId }: ChapterMenuProps) {
           <div className="grid gap-2">
             <Button asChild size="sm" variant="secondary">
               <Link href={`/series/${seriesId}`}>
-                <ChevronLeft /> All Chapters
+                <ChevronLeft /> Semua Chapter
               </Link>
             </Button>
-            <ChapterBookmark chapterId={chapterId} />
+            <ChapterBookmark chapterId={chapterId} seriesId={seriesId} />
           </div>
         </Popover.Dialog>
       </Popover.Content>

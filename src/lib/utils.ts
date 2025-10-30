@@ -5,6 +5,9 @@ import { twMerge } from 'tailwind-merge';
 import { z } from 'zod';
 
 import { MetaSchema } from '~/schema/meta';
+import type { Bookmark } from '~/stores/bookmark';
+
+import { BookmarkType } from './enum';
 
 /**
  * Combine class names into a single string
@@ -38,4 +41,34 @@ export function generateDataSchema<T extends z.ZodType>(itemSchema: T) {
   return z.object({
     data: itemSchema,
   });
+}
+
+export function checkIsBookmarked(
+  bookmarks: Array<Bookmark>,
+  bookmark: Bookmark,
+) {
+  for (const b of bookmarks) {
+    if (b.type !== bookmark.type) continue;
+
+    if (
+      b.type === BookmarkType.SERIES &&
+      bookmark.type === BookmarkType.SERIES
+    ) {
+      if (b.value === bookmark.value) return true;
+    }
+
+    if (
+      b.type === BookmarkType.CHAPTERS &&
+      bookmark.type === BookmarkType.CHAPTERS
+    ) {
+      if (
+        b.value.seriesId === bookmark.value.seriesId &&
+        b.value.chapterId === bookmark.value.chapterId
+      ) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }

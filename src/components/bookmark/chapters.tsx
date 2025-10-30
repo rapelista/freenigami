@@ -6,12 +6,19 @@ import * as _ from 'lodash-es';
 import { BookmarkX, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 
-import { useAppStore } from '~/stores/app';
+import { BookmarkType } from '~/lib/enum';
+import { useBookmarkStore } from '~/stores/bookmark';
 import { trpc } from '~/trpc/client';
 
 export function BookmarkChapters() {
-  const chapters = useAppStore((state) => state.bookmarks.chapters);
-  const chaptersGroupedBySeries = _.groupBy(chapters, 'seriesId');
+  const bookmarks = useBookmarkStore((state) => state.bookmarks);
+  const chapterBookmarks = bookmarks.filter(
+    (b) => b.type === BookmarkType.CHAPTERS,
+  );
+  const chaptersGroupedBySeries = _.groupBy(
+    chapterBookmarks,
+    (c) => c.value.seriesId,
+  );
 
   const results = useQueries({
     queries: Object.entries(chaptersGroupedBySeries).map(
@@ -24,9 +31,11 @@ export function BookmarkChapters() {
             );
 
             const chaptersData = await Promise.all(
-              chapters.map(async ({ id }) => {
+              chapters.map(async (chapter) => {
                 const data = await client.fetchQuery(
-                  trpc.chapter.byId.queryOptions({ id }),
+                  trpc.chapter.byId.queryOptions({
+                    id: chapter.value.chapterId,
+                  }),
                 );
 
                 return data.data;
@@ -47,21 +56,21 @@ export function BookmarkChapters() {
   });
 
   // Empty state
-  if (chapters.length === 0) {
+  if (chapterBookmarks.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 px-4">
         <div className="p-4 rounded-full bg-muted/50 mb-4">
           <BookmarkX className="w-12 h-12 text-muted-foreground" />
         </div>
-        <h3 className="text-xl font-semibold mb-2">No Chapters Bookmarked</h3>
+        <h3 className="text-xl font-semibold mb-2">Kosong</h3>
         <p className="text-foreground-secondary text-center max-w-md mb-6">
-          Bookmark chapters while reading to easily continue where you left off.
+          Kamu belum menambahkan chapter apapun ke bookmarkmu.
         </p>
         <Link
           className="px-4 py-2 bg-accent text-accent-foreground rounded-lg hover:opacity-90 transition-opacity"
           href="/"
         >
-          Browse Manga
+          Browse
         </Link>
       </div>
     );
@@ -85,8 +94,8 @@ export function BookmarkChapters() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <p className="text-sm text-foreground-secondary">
-          {chapters.length} {chapters.length === 1 ? 'chapter' : 'chapters'}{' '}
-          bookmarked
+          {chapterBookmarks.length}{' '}
+          {chapterBookmarks.length === 1 ? 'chapter' : 'chapters'} bookmarked
         </p>
       </div>
 
