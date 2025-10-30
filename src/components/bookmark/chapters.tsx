@@ -106,7 +106,7 @@ export function BookmarkChapters() {
           if (!result.data) return null;
 
           return (
-            <Card.Root key={key} className="p-0" variant="outlined">
+            <Card.Root key={key} className="gap-0 p-0" variant="outlined">
               <Card.Header className="pb-3">
                 <div className="p-4 pb-0 flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
