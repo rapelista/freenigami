@@ -20,7 +20,9 @@ export function ChapterMenu({ chapterId, seriesId }: ChapterMenuProps) {
       <Popover.Content>
         <Popover.Arrow />
         <Popover.Dialog className="space-y-2 w-48">
-          <Popover.Heading>Menu</Popover.Heading>
+          <Popover.Heading className="pointer-events-none">
+            Menu
+          </Popover.Heading>
 
           <hr />
 

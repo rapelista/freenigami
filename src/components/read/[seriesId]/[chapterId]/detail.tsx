@@ -39,6 +39,8 @@ export function ChapterDetail({ chapterId, seriesId }: ChapterDetailProps) {
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+
       const bottom = bottomRef.current;
       const top = topRef.current;
 
@@ -46,8 +48,9 @@ export function ChapterDetail({ chapterId, seriesId }: ChapterDetailProps) {
       if (!bottom) return null;
 
       const isClickOutside =
-        !top.contains(event.target as Node) &&
-        !bottom.contains(event.target as Node);
+        !top.contains(target as Node) &&
+        !bottom.contains(target as Node) &&
+        !target.closest('[role="dialog"]');
 
       if (isClickOutside) {
         const hiddenClass = 'opacity-0';
