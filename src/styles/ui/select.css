@@ -208,9 +208,6 @@
  * Select List Styles
  */
 
-
-
-
 .select__list {
   @apply grid gap-1;
 }
