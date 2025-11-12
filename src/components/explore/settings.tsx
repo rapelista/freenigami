@@ -23,7 +23,12 @@ export function ExploreSettingsButton() {
   const { toggleSettings } = useExploreStore();
 
   return (
-    <Button isIconOnly variant="secondary" onClick={toggleSettings}>
+    <Button
+      isIconOnly
+      className="rounded-xl"
+      variant="tertiary"
+      onClick={toggleSettings}
+    >
       <Filter />
     </Button>
   );

@@ -21,13 +21,16 @@ export function ChapterMenu({ chapterId, seriesId }: ChapterMenuProps) {
         <Popover.Arrow />
         <Popover.Dialog className="space-y-2 w-48">
           <Popover.Heading>Menu</Popover.Heading>
+
           <hr />
+
           <div className="grid gap-2">
-            <Button asChild size="sm" variant="secondary">
+            <Button asChild className="w-full" size="sm" variant="tertiary">
               <Link href={`/series/${seriesId}`}>
                 <ChevronLeft /> Semua Chapter
               </Link>
             </Button>
+
             <ChapterBookmark chapterId={chapterId} seriesId={seriesId} />
           </div>
         </Popover.Dialog>

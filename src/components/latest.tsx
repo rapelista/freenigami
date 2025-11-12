@@ -116,8 +116,9 @@ export function Latest() {
                       <Button
                         key={chapter.chapter_id}
                         asChild
+                        className="w-full"
                         size="sm"
-                        variant="secondary"
+                        variant="tertiary"
                       >
                         <Link
                           href={`/read/${series.manga_id}/${chapter.chapter_id}`}

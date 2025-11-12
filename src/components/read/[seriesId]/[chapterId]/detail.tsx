@@ -38,7 +38,7 @@ export function ChapterDetail({ chapterId, seriesId }: ChapterDetailProps) {
   }, [chapterId]);
 
   useEffect(() => {
-    const handleClickOutside = (event: PointerEvent) => {
+    const handleClickOutside = (event: MouseEvent) => {
       const bottom = bottomRef.current;
       const top = topRef.current;
 
@@ -79,6 +79,7 @@ export function ChapterDetail({ chapterId, seriesId }: ChapterDetailProps) {
       }
     };
 
+    // window.addEventListener('click', handleClickOutside);
     window.addEventListener('click', handleClickOutside);
 
     return () => {
@@ -90,7 +91,7 @@ export function ChapterDetail({ chapterId, seriesId }: ChapterDetailProps) {
     <>
       <div
         ref={topRef}
-        className="sticky transition-opacity duration-250 ease-smooth opacity-100 top-0 border-y bg-surface-2 z-10"
+        className="sticky transition-opacity duration-250 ease-smooth opacity-100 top-0 border-y bg-black z-10"
       >
         <div className="container mx-auto px-4 py-2.5 md:px-0 md:py-5 flex justify-between items-center gap-6">
           <h2
@@ -128,7 +129,7 @@ export function ChapterDetail({ chapterId, seriesId }: ChapterDetailProps) {
 
       <div
         ref={bottomRef}
-        className="sticky transition-opacity duration-250 ease-smooth opacity-100 bottom-0 border-y bg-surface-2 z-10"
+        className="sticky transition-opacity duration-250 ease-smooth opacity-100 bottom-0 border-y bg-black z-10"
       >
         <div className="container mx-auto px-4 py-2.5 md:px-0 md:py-5 flex justify-between gap-6">
           <Link

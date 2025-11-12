@@ -38,9 +38,10 @@ export function ChapterBookmark({ chapterId, seriesId }: ChapterBookmarkProps) {
 
   return (
     <Button
+      className="w-full"
       isDisabled={isLoading || !data}
       size="sm"
-      variant="secondary"
+      variant="tertiary"
       onPress={handleToggleBookmark}
     >
       {isLoading ? (
