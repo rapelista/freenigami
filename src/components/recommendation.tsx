@@ -25,7 +25,7 @@ export function Recommendation() {
 
   return (
     <div className="space-y-4">
-      <Tabs.Root
+      <Tabs
         className="w-full max-w-md"
         defaultSelectedKey={type}
         onSelectionChange={(key) => {
@@ -36,7 +36,7 @@ export function Recommendation() {
           }
         }}
       >
-        <Tabs.ListWrapper>
+        <Tabs.ListContainer>
           <Tabs.List aria-label="Options" className="w-fit *:w-fit">
             <Tabs.Tab id="manhwa">
               <Tabs.Indicator />
@@ -51,31 +51,31 @@ export function Recommendation() {
               Manhua
             </Tabs.Tab>
           </Tabs.List>
-        </Tabs.ListWrapper>
-      </Tabs.Root>
+        </Tabs.ListContainer>
+      </Tabs>
 
       <div className="grid gap-4 grid-cols-2 md:grid-cols-4 xl:grid-cols-8">
         {isLoading
           ? Array.from({ length: 8 }, (_, i) => {
               return (
-                <Card.Root
+                <Card
                   key={i}
                   className="p-0 relative aspect-5/10"
-                  variant="flat"
+                  variant="transparent"
                 >
                   <Skeleton className="w-full h-full" />
-                </Card.Root>
+                </Card>
               );
             })
           : data?.data.map((series) => {
               const image = series.cover_portrait_url || series.cover_image_url;
 
               return (
-                <Card.Root
+                <Card
                   key={series.manga_id}
                   asChild
                   className="p-0 relative aspect-5/10"
-                  variant="flat"
+                  variant="transparent"
                 >
                   <Link
                     className="h-full w-full"
@@ -87,7 +87,7 @@ export function Recommendation() {
                       src={`/api/proxy/image/${image.split('/').pop()}`}
                     />
                   </Link>
-                </Card.Root>
+                </Card>
               );
             })}
       </div>

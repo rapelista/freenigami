@@ -67,7 +67,7 @@ export function SeriesChapters({ seriesId }: SeriesChaptersProps) {
               />
             ))
           : data?.data.map((chapter) => (
-              <Card.Root key={chapter.chapter_id} asChild>
+              <Card key={chapter.chapter_id} asChild>
                 <Link
                   className="p-0 gap-0 flex-row md:max-lg:flex-col"
                   href={`/read/${seriesId}/${chapter.chapter_id}`}
@@ -90,7 +90,7 @@ export function SeriesChapters({ seriesId }: SeriesChaptersProps) {
                     </span>
                   </Card.Content>
                 </Link>
-              </Card.Root>
+              </Card>
             ))}
       </div>
 

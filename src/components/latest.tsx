@@ -47,7 +47,7 @@ export function Latest() {
 
   return (
     <div ref={ref} className="space-y-4">
-      <Tabs.Root
+      <Tabs
         className="w-full max-w-md"
         defaultSelectedKey={publishType}
         onSelectionChange={(key) => {
@@ -58,7 +58,7 @@ export function Latest() {
           }
         }}
       >
-        <Tabs.ListWrapper>
+        <Tabs.ListContainer>
           <Tabs.List aria-label="Options" className="w-fit *:w-fit">
             <Tabs.Tab id="project">
               <Tabs.Indicator />
@@ -69,30 +69,30 @@ export function Latest() {
               Mirror
             </Tabs.Tab>
           </Tabs.List>
-        </Tabs.ListWrapper>
-      </Tabs.Root>
+        </Tabs.ListContainer>
+      </Tabs>
 
       <div className="grid gap-4 grid-cols-2 md:grid-cols-4 xl:grid-cols-6">
         {isLoading
           ? Array.from({ length: 24 }, (_, i) => {
               return (
-                <Card.Root
+                <Card
                   key={i}
                   className="p-0 aspect-5/11 flex flex-col gap-2 justify-end"
-                  variant="flat"
+                  variant="transparent"
                 >
                   <Skeleton className="w-full h-full" />
-                </Card.Root>
+                </Card>
               );
             })
           : data?.data.map((series) => {
               const image = series.cover_image_url || series.cover_portrait_url;
 
               return (
-                <Card.Root
+                <Card
                   key={series.manga_id}
                   className="p-0 aspect-5/11 flex flex-col gap-2 justify-end"
-                  variant="flat"
+                  variant="transparent"
                 >
                   <Link className="flex-1" href={`/series/${series.manga_id}`}>
                     <img
@@ -127,7 +127,7 @@ export function Latest() {
                       </Button>
                     ))}
                   </Card.Footer>
-                </Card.Root>
+                </Card>
               );
             })}
       </div>

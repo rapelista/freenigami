@@ -9,13 +9,13 @@ export function ExploreSettings() {
   const { isSettingsExpanded } = useExploreStore();
 
   return (
-    <Disclosure.Root isExpanded={isSettingsExpanded}>
+    <Disclosure isExpanded={isSettingsExpanded}>
       <Disclosure.Content>
-        <Disclosure.Body className="bg-panel shadow-panel rounded-panel p-2">
+        <Disclosure.Body className="bg-surface shadow-surface rounded-2xl p-2">
           <p className="text-sm text-center">Sedang dalam pengembangan...</p>
         </Disclosure.Body>
       </Disclosure.Content>
-    </Disclosure.Root>
+    </Disclosure>
   );
 }
 

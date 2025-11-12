@@ -21,7 +21,7 @@ export function BookmarkTabs() {
   ).length;
 
   return (
-    <Tabs.Root
+    <Tabs
       defaultSelectedKey={type}
       onSelectionChange={(key) => {
         const value = key.toString() as BookmarkType;
@@ -31,12 +31,12 @@ export function BookmarkTabs() {
         }
       }}
     >
-      <Tabs.ListWrapper>
+      <Tabs.ListContainer>
         <Tabs.List aria-label="Bookmark Type" className="w-fit">
           <Tabs.Tab className="gap-2" id="series">
             <span>Series</span>
             {seriesCount > 0 && (
-              <Chip className="text-xs" type="accent" variant="secondary">
+              <Chip className="text-xs" color="accent" variant="secondary">
                 {seriesCount}
               </Chip>
             )}
@@ -45,14 +45,14 @@ export function BookmarkTabs() {
           <Tabs.Tab className="gap-2" id="chapters">
             <span>Chapters</span>
             {chaptersCount > 0 && (
-              <Chip className="text-xs" type="accent" variant="secondary">
+              <Chip className="text-xs" color="accent" variant="secondary">
                 {chaptersCount}
               </Chip>
             )}
             <Tabs.Indicator />
           </Tabs.Tab>
         </Tabs.List>
-      </Tabs.ListWrapper>
-    </Tabs.Root>
+      </Tabs.ListContainer>
+    </Tabs>
   );
 }

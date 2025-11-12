@@ -24,7 +24,7 @@ export function SeriesDetail({ seriesId }: SeriesDetailProps) {
       <div className="flex flex-col items-center md:flex-row gap-6">
         {/* Cover Image */}
         <div className="shrink-0">
-          <Card.Root className="p-0 w-[150px] aspect-2/3 relative overflow-hidden">
+          <Card className="p-0 w-[150px] aspect-2/3 relative overflow-hidden">
             {isLoading ? (
               <Skeleton className="w-full h-full" />
             ) : (
@@ -34,7 +34,7 @@ export function SeriesDetail({ seriesId }: SeriesDetailProps) {
                 src={`/api/proxy/image/${image?.split('/').pop()}`}
               />
             )}
-          </Card.Root>
+          </Card>
         </div>
 
         {/* Series Information */}
@@ -107,11 +107,11 @@ export function SeriesDetail({ seriesId }: SeriesDetailProps) {
         </div>
       </div>
 
-      <Card.Root className="p-0">
+      <Card className="p-0">
         {isLoading ? (
           <Skeleton className="h-[115px]" />
         ) : (
-          <Accordion.Root
+          <Accordion
             allowsMultipleExpanded
             className="w-full"
             isDisabled={isLoading}
@@ -193,9 +193,9 @@ export function SeriesDetail({ seriesId }: SeriesDetailProps) {
                 </Accordion.Body>
               </Accordion.Panel>
             </Accordion.Item>
-          </Accordion.Root>
+          </Accordion>
         )}
-      </Card.Root>
+      </Card>
       <div className="space-y-2" />
     </div>
   );

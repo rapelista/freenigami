@@ -10,8 +10,8 @@
     "format": "prettier . --write"
   },
   "dependencies": {
-    "@heroui/react": "3.0.0-alpha.35",
-    "@heroui/styles": "3.0.0-alpha.35",
+    "@heroui/react": "3.0.0-beta.1",
+    "@heroui/styles": "3.0.0-beta.1",
     "@radix-ui/react-slot": "^1.2.3",
     "@tanstack/react-query": "^5.90.5",
     "@trpc/client": "^11.6.0",

@@ -56,23 +56,23 @@ export function Explore() {
         {isLoading
           ? Array.from({ length: 24 }, (_, i) => {
               return (
-                <Card.Root
+                <Card
                   key={i}
                   className="p-0 relative aspect-5/11"
-                  variant="flat"
+                  variant="transparent"
                 >
                   <Skeleton className="w-full h-full" />
-                </Card.Root>
+                </Card>
               );
             })
           : data?.data.map((series) => {
               const image = series.cover_portrait_url || series.cover_image_url;
 
               return (
-                <Card.Root
+                <Card
                   key={series.manga_id}
                   className="p-0 aspect-5/11 flex flex-col gap-2 justify-end"
-                  variant="flat"
+                  variant="transparent"
                 >
                   <Link className="flex-1" href={`/series/${series.manga_id}`}>
                     <img
@@ -90,7 +90,7 @@ export function Explore() {
                       {series.title}
                     </Link>
                   </div>
-                </Card.Root>
+                </Card>
               );
             })}
       </div>

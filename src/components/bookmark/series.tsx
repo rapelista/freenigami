@@ -57,13 +57,13 @@ export function BookmarkSeries() {
         {results.map((result, key) => {
           if (result.isLoading) {
             return (
-              <Card.Root
+              <Card
                 key={key}
                 className="p-0 relative aspect-5/10 overflow-hidden"
-                variant="flat"
+                variant="transparent"
               >
                 <Skeleton className="w-full h-full" />
-              </Card.Root>
+              </Card>
             );
           }
 
@@ -75,11 +75,11 @@ export function BookmarkSeries() {
           const seriesId = seriesBookmarks.at(key)?.value;
 
           return (
-            <Card.Root
+            <Card
               key={seriesId}
               asChild
               className="p-0 relative aspect-5/10 overflow-hidden group"
-              variant="flat"
+              variant="transparent"
             >
               <Link className="h-full w-full" href={`/series/${seriesId}`}>
                 <img
@@ -94,7 +94,7 @@ export function BookmarkSeries() {
                   </p>
                 </div>
               </Link>
-            </Card.Root>
+            </Card>
           );
         })}
       </div>
