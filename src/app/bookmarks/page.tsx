@@ -9,8 +9,8 @@ export default function Page() {
     <main className="container mx-auto p-4 md:p-6 space-y-8">
       <div className="space-y-3">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-accent/10">
-            <Bookmark className="w-6 h-6 text-accent" />
+          <div className="p-2 rounded-lg bg-surface-foreground/10">
+            <Bookmark className="w-6 h-6 text-surface-foreground" />
           </div>
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Bookmark Saya</h1>

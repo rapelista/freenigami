@@ -36,7 +36,7 @@ export function BookmarkTabs() {
           <Tabs.Tab className="gap-2" id="series">
             <span>Series</span>
             {seriesCount > 0 && (
-              <Chip className="text-xs" color="accent" variant="secondary">
+              <Chip className="text-xs" color="default" variant="secondary">
                 {seriesCount}
               </Chip>
             )}
@@ -45,7 +45,7 @@ export function BookmarkTabs() {
           <Tabs.Tab className="gap-2" id="chapters">
             <span>Chapters</span>
             {chaptersCount > 0 && (
-              <Chip className="text-xs" color="accent" variant="secondary">
+              <Chip className="text-xs" color="default" variant="secondary">
                 {chaptersCount}
               </Chip>
             )}

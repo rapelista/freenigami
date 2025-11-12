@@ -91,7 +91,7 @@ export function Latest() {
               return (
                 <Card
                   key={series.manga_id}
-                  className="p-0 aspect-5/11 flex flex-col gap-2 justify-end"
+                  className="p-0 aspect-5/11 flex flex-col gap-2 justify-end rounded-b-none"
                   variant="transparent"
                 >
                   <Link className="flex-1" href={`/series/${series.manga_id}`}>
