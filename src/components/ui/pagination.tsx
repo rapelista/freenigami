@@ -146,7 +146,7 @@ export function Pagination({
               aria-current={isCurrentPage ? 'page' : undefined}
               aria-label={`Go to page ${page}`}
               size="sm"
-              variant={isCurrentPage ? 'secondary' : 'ghost'}
+              variant={isCurrentPage ? 'tertiary' : 'ghost'}
               onPress={() => onPageChange(page)}
             >
               {page}

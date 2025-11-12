@@ -20,7 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html className={cn('dark', inter.className)} lang="en">
-      <body>
+      <body className="bg-background">
         <Providers>
           <header className="border-b-[0.5px] border-dashed">
             <div className="container mx-auto p-4 md:p-6 grid grid-cols-2 md:grid-cols-3">

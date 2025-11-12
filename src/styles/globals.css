@@ -2,6 +2,10 @@
 @import '@heroui/styles';
 
 @layer components {
+  .button {
+    @apply rounded-xl;
+  }
+
   .disclosure__body {
     @apply px-0;
   }

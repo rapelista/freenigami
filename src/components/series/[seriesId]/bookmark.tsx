@@ -28,11 +28,7 @@ export function SeriesBookmark({ seriesId }: SeriesBookmarkProps) {
   };
 
   return (
-    <Button
-      className="rounded-xl"
-      variant="tertiary"
-      onPress={handleToggleBookmark}
-    >
+    <Button variant="tertiary" onPress={handleToggleBookmark}>
       {isBookmarked ? <BookmarkCheck /> : <BookmarkPlus />}
       Bookmark
     </Button>

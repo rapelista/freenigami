@@ -25,7 +25,12 @@ export function ChapterMenu({ chapterId, seriesId }: ChapterMenuProps) {
           <hr />
 
           <div className="grid gap-2">
-            <Button asChild className="w-full" size="sm" variant="tertiary">
+            <Button
+              asChild
+              className="w-full justify-start"
+              size="sm"
+              variant="tertiary"
+            >
               <Link href={`/series/${seriesId}`}>
                 <ChevronLeft /> Semua Chapter
               </Link>

@@ -38,7 +38,7 @@ export function ChapterBookmark({ chapterId, seriesId }: ChapterBookmarkProps) {
 
   return (
     <Button
-      className="w-full"
+      className="w-full justify-start"
       isDisabled={isLoading || !data}
       size="sm"
       variant="tertiary"
