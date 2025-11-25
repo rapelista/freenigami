@@ -28,7 +28,7 @@ export function BookmarkSeries() {
         <div className="p-4 rounded-full bg-muted/50 mb-4">
           <BookmarkX className="w-12 h-12 text-muted-foreground" />
         </div>
-        <h3 className="text-xl font-semibold mb-2">Kosong!</h3>
+        <h3 className="text-xl font-semibold mb-2">Kosong</h3>
         <p className="text-foreground-secondary text-center max-w-md mb-6">
           Kamu belum menambahkan series apapun ke bookmarkmu.
         </p>

@@ -70,7 +70,7 @@ export function BookmarkChapters() {
           className="px-4 py-2 bg-accent text-accent-foreground rounded-lg hover:opacity-90 transition-opacity"
           href="/"
         >
-          Browse
+          Explore
         </Link>
       </div>
     );
