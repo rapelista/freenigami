@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 
-import { SeriesChapters } from '~/components/series/[seriesId]/chapters';
-import { SeriesDetail } from '~/components/series/[seriesId]/detail';
+import { SeriesChapters } from '~/components/(panel)/series/[seriesId]/chapters';
+import { SeriesDetail } from '~/components/(panel)/series/[seriesId]/detail';
 
 export default async function Page({
   params,

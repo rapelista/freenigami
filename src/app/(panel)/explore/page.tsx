@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 
-import { Explore } from '~/components/explore';
-import { ExploreSearch } from '~/components/explore/search';
+import { Explore } from '~/components/(panel)/explore';
+import { ExploreSearch } from '~/components/(panel)/explore/search';
 
 export default function Page() {
   return (

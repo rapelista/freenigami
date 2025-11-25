@@ -1,8 +1,8 @@
 import { Bookmark } from 'lucide-react';
 import { Suspense } from 'react';
 
-import { BookmarkList } from '~/components/bookmark/list';
-import { BookmarkTabs } from '~/components/bookmark/tabs';
+import { BookmarkList } from '~/components/(panel)/bookmark/list';
+import { BookmarkTabs } from '~/components/(panel)/bookmark/tabs';
 
 export default function Page() {
   return (

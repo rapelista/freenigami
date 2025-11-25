@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 
-import { Latest } from '~/components/latest';
-import { Recommendation } from '~/components/recommendation';
+import { Latest } from '~/components/(panel)/latest';
+import { Recommendation } from '~/components/(panel)/recommendation';
 
 export default function Home() {
   return (
