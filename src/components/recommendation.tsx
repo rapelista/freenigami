@@ -82,6 +82,7 @@ export function Recommendation() {
                       fill
                       alt={series.title}
                       className="group-hover:scale-105 transition-transform duration-200"
+                      loading="eager"
                       sizes="25vw"
                       src={`/api/proxy/image/${image.split('/').pop()}`}
                     />

@@ -1,8 +1,8 @@
-/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import { Button, Card, Skeleton, Tabs } from '@heroui/react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import Image from 'next/image';
 import Link from 'next/link';
 import { parseAsStringEnum, useQueryStates } from 'nuqs';
 import { useRef } from 'react';
@@ -94,10 +94,15 @@ export function Latest() {
                   className="p-0 aspect-5/11 flex flex-col gap-2 justify-end rounded-b-none"
                   variant="transparent"
                 >
-                  <Link className="flex-1" href={`/series/${series.manga_id}`}>
-                    <img
+                  <Link
+                    className="relative flex-1"
+                    href={`/series/${series.manga_id}`}
+                  >
+                    <Image
+                      fill
                       alt={series.title}
-                      className="object-cover h-full w-full"
+                      loading="eager"
+                      sizes="25vw"
                       src={`/api/proxy/image/${image.split('/').pop()}`}
                     />
                   </Link>
