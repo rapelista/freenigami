@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, Skeleton, Tabs } from '@heroui/react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Image from 'next/image';
 import Link from 'next/link';
 import { parseAsStringEnum, useQueryState } from 'nuqs';
@@ -22,6 +22,8 @@ export function Recommendation() {
       format: type,
     }),
   );
+
+  const queryClient = useQueryClient();
 
   return (
     <div className="space-y-4">
@@ -76,6 +78,13 @@ export function Recommendation() {
                   asChild
                   className="p-0 relative aspect-1/2 group"
                   variant="transparent"
+                  onPointerEnter={() => {
+                    queryClient.prefetchQuery(
+                      trpc.series.detail.queryOptions({
+                        id: series.manga_id,
+                      }),
+                    );
+                  }}
                 >
                   <Link href={`/series/${series.manga_id}`}>
                     <Image

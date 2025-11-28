@@ -1,7 +1,11 @@
 'use client';
 
 import { Button, Card, Skeleton, Tabs } from '@heroui/react';
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import {
+  keepPreviousData,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import Image from 'next/image';
 import Link from 'next/link';
 import { parseAsStringEnum, useQueryStates } from 'nuqs';
@@ -44,6 +48,8 @@ export function Latest() {
       window.scrollBy({ top: top - 64, behavior: 'smooth' });
     }
   };
+
+  const queryClient = useQueryClient();
 
   return (
     <div ref={ref} className="space-y-4">
@@ -104,10 +110,26 @@ export function Latest() {
                       loading="eager"
                       sizes="25vw"
                       src={`/api/proxy/image/${image.split('/').pop()}`}
+                      onPointerEnter={() => {
+                        queryClient.prefetchQuery(
+                          trpc.series.detail.queryOptions({
+                            id: series.manga_id,
+                          }),
+                        );
+                      }}
                     />
                   </Link>
 
-                  <div className="flex items-center justify-center p-2 min-h-16">
+                  <div
+                    className="flex items-center justify-center p-2 min-h-16"
+                    onPointerEnter={() => {
+                      queryClient.prefetchQuery(
+                        trpc.series.detail.queryOptions({
+                          id: series.manga_id,
+                        }),
+                      );
+                    }}
+                  >
                     <Link
                       className="line-clamp-2 text-center"
                       href={`/series/${series.manga_id}`}
@@ -124,6 +146,13 @@ export function Latest() {
                         className="w-full"
                         size="sm"
                         variant="tertiary"
+                        onPointerEnter={() => {
+                          queryClient.prefetchQuery(
+                            trpc.chapter.byId.queryOptions({
+                              id: chapter.chapter_id,
+                            }),
+                          );
+                        }}
                       >
                         <Link
                           href={`/read/${series.manga_id}/${chapter.chapter_id}`}
