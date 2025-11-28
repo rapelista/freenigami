@@ -72,6 +72,38 @@ export default function Layout({ children }: React.PropsWithChildren) {
     }
   }, [nextChapterId, prevChapterId, queryClient]);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const topBar = topBarRef.current;
+      const bottomBar = bottomBarRef.current;
+
+      if (
+        topBar &&
+        !topBar.contains(event.target as Node) &&
+        bottomBar &&
+        !bottomBar.contains(event.target as Node)
+      ) {
+        if (topBar.dataset.visible === 'true') {
+          topBar.dataset.visible = 'false';
+        } else {
+          topBar.dataset.visible = 'true';
+        }
+
+        if (bottomBar.dataset.visible === 'true') {
+          bottomBar.dataset.visible = 'false';
+        } else {
+          bottomBar.dataset.visible = 'true';
+        }
+      }
+    };
+
+    window.addEventListener('click', handleClickOutside);
+
+    return () => {
+      window.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
+
   return (
     <div className="relative">
       <div className={cn('fixed top-4 w-full px-4')}>
