@@ -97,10 +97,37 @@ export default function Layout({ children }: React.PropsWithChildren) {
       }
     };
 
+    let lastScrollY = window.scrollY;
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      if (currentScrollY > lastScrollY) {
+        const topBar = topBarRef.current;
+        const bottomBar = bottomBarRef.current;
+
+        if (topBar && topBar.dataset.visible === 'true') {
+          topBar.dataset.visible = 'false';
+        }
+
+        if (bottomBar && bottomBar.dataset.visible === 'true') {
+          bottomBar.dataset.visible = 'false';
+        }
+      }
+
+      // Use this if you want to show the bars when scrolling up
+      // else if (currentScrollY < lastScrollY) {
+      // }
+
+      lastScrollY = currentScrollY;
+    };
+
     window.addEventListener('click', handleClickOutside);
+    window.addEventListener('scroll', handleScroll);
 
     return () => {
       window.removeEventListener('click', handleClickOutside);
+      window.removeEventListener('scroll', handleScroll);
     };
   }, []);
 
