@@ -1,8 +1,8 @@
-/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import { Card, Skeleton } from '@heroui/react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useQueryStates } from 'nuqs';
 import { useRef } from 'react';
@@ -63,7 +63,7 @@ export function SeriesChapters({ seriesId }: SeriesChaptersProps) {
           ? Array.from({ length: 24 }, (_, i) => (
               <Skeleton
                 key={`skeleton-${i}`}
-                className="rounded-3xl h-20 md:h-[162px] lg:h-[82px]"
+                className="rounded-3xl h-20 md:h-40 lg:h-20"
               />
             ))
           : data?.data.map((chapter) => (
@@ -72,11 +72,13 @@ export function SeriesChapters({ seriesId }: SeriesChaptersProps) {
                   className="p-0 gap-0 flex-row md:max-lg:flex-col"
                   href={`/read/${seriesId}/${chapter.chapter_id}`}
                 >
-                  <div className="aspect-video md:max-lg:h-30 h-20">
+                  <div className="aspect-video md:max-lg:h-30 h-20 relative">
                     {chapter.thumbnail_image_url ? (
-                      <img
+                      <Image
+                        fill
                         alt={chapter.chapter_title}
-                        className="h-full w-full object-cover"
+                        loading="eager"
+                        sizes="300px"
                         src={`/api/proxy/image/${chapter.thumbnail_image_url.split('/').pop()}`}
                       />
                     ) : (

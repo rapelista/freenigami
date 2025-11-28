@@ -33,7 +33,6 @@ export function SeriesDetail({ seriesId }: SeriesDetailProps) {
                 alt={data?.title || 'Series Cover'}
                 loading="eager"
                 sizes="150px"
-                // className="object-cover w-full h-full absolute inset-0"
                 src={`/api/proxy/image/${image?.split('/').pop()}`}
               />
             )}
