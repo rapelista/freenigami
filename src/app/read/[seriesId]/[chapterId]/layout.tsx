@@ -74,21 +74,17 @@ export default function Layout({ children }: React.PropsWithChildren) {
 
   return (
     <div className="relative">
-      <div
-        ref={topBarRef}
-        className={cn(
-          'fixed top-4 w-full px-4',
-          'data-[visible="true"]:[&>div]:translate-y-0',
-          'data-[visible="true"]:[&>div]:opacity-100',
-        )}
-        data-visible={false}
-      >
+      <div className={cn('fixed top-4 w-full px-4')}>
         <Card
+          ref={topBarRef}
           className={cn(
             'flex-row max-w-6xl mx-auto',
             'transition-all duration-300 ease-in-out',
             '-translate-y-4 opacity-0',
+            'data-[visible="true"]:translate-y-0',
+            'data-[visible="true"]:opacity-100',
           )}
+          data-visible={false}
         >
           <Link href={`/series/${seriesId}`}>
             <ArrowLeft className="size-6" />
@@ -120,47 +116,53 @@ export default function Layout({ children }: React.PropsWithChildren) {
 
       {children}
 
-      <div
-        ref={bottomBarRef}
-        className={cn(
-          'flex justify-center gap-4 fixed bottom-6 w-full',
-          '[&>button]:inline-flex [&>button]:items-center [&>button]:justify-center [&>button]:bg-surface-tertiary [&>button]:rounded-full [&>button]:size-14 [&>button>svg]:size-6 [&>button]:disabled:opacity-50 [&>button]:disabled:cursor-progress [&>button]:transition-all [&>button]:duration-300 [&>button]:hover:bg-surface-secondary [&>button]:data-[visible="false"]:opacity-0',
-          'transition-all duration-300 ease-in-out',
-          'translate-y-4 opacity-0',
-          'data-[visible="true"]:opacity-100',
-          'data-[visible="true"]:translate-0',
-        )}
-        data-visible={false}
-      >
-        <button
-          data-visible={hasPrevChapter}
-          disabled={!hasLoaded}
-          onClick={() => {
-            if (hasPrevChapter) {
-              router.push(`/read/${seriesId}/${chapter.data.prev_chapter_id}`);
-            }
-          }}
+      <div className={cn('fixed bottom-6 w-full')}>
+        <div
+          ref={bottomBarRef}
+          className={cn(
+            'mx-auto flex w-fit justify-center gap-4',
+            '[&>button]:inline-flex [&>button]:items-center [&>button]:justify-center [&>button]:bg-surface-tertiary [&>button]:rounded-full [&>button]:size-14 [&>button>svg]:size-6 [&>button]:disabled:opacity-50 [&>button]:disabled:cursor-progress [&>button]:transition-all [&>button]:duration-300 [&>button]:hover:bg-surface-secondary [&>button]:data-[visible="false"]:opacity-0',
+            'transition-all duration-300 ease-in-out',
+            'translate-y-4 opacity-0',
+            'data-[visible="true"]:opacity-100',
+            'data-[visible="true"]:translate-0',
+          )}
+          data-visible={false}
         >
-          <ChevronLeft />
-        </button>
+          <button
+            data-visible={prevChapterId !== null}
+            disabled={!hasLoaded}
+            onClick={() => {
+              if (hasPrevChapter) {
+                router.push(
+                  `/read/${seriesId}/${chapter.data.prev_chapter_id}`,
+                );
+              }
+            }}
+          >
+            <ChevronLeft />
+          </button>
 
-        <button onClick={() => setIsBookmarked(!isBookmarked)}>
-          <Bookmark
-            className={cn(isBookmarked ? 'fill-current' : 'fill-none')}
-          />
-        </button>
+          <button onClick={() => setIsBookmarked(!isBookmarked)}>
+            <Bookmark
+              className={cn(isBookmarked ? 'fill-current' : 'fill-none')}
+            />
+          </button>
 
-        <button
-          data-visible={hasNextChapter}
-          disabled={!hasLoaded}
-          onClick={() => {
-            if (hasNextChapter) {
-              router.push(`/read/${seriesId}/${chapter.data.next_chapter_id}`);
-            }
-          }}
-        >
-          <ChevronRight />
-        </button>
+          <button
+            data-visible={nextChapterId !== null}
+            disabled={!hasLoaded}
+            onClick={() => {
+              if (hasNextChapter) {
+                router.push(
+                  `/read/${seriesId}/${chapter.data.next_chapter_id}`,
+                );
+              }
+            }}
+          >
+            <ChevronRight />
+          </button>
+        </div>
       </div>
     </div>
   );
