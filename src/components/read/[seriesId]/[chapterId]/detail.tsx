@@ -18,23 +18,21 @@ export function ChapterDetail({
   const { data } = useQuery(trpc.chapter.byId.queryOptions({ id: chapterId }));
 
   return (
-    <>
-      <div className="container max-w-[800px] mx-auto min-h-[calc(100svh-144px)] md:min-h-[100svh-212px] h-fit">
-        {data?.data.chapter.data.map((image) => {
-          const url = new URL(data.data.base_url);
+    <div className="container max-w-[800px] mx-auto min-h-[calc(100svh-144px)] md:min-h-[100svh-212px] h-fit">
+      {data?.data.chapter.data.map((image) => {
+        const url = new URL(data.data.base_url);
 
-          url.pathname = data.data.chapter.path + image;
+        url.pathname = data.data.chapter.path + image;
 
-          return (
-            <img
-              key={image}
-              alt={url.toString()}
-              className="w-full"
-              src={url.toString()}
-            />
-          );
-        })}
-      </div>
-    </>
+        return (
+          <img
+            key={image}
+            alt={url.toString()}
+            className="w-full"
+            src={url.toString()}
+          />
+        );
+      })}
+    </div>
   );
 }
