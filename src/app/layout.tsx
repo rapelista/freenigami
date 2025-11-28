@@ -20,6 +20,8 @@ export default function RootLayout({
   return (
     <html className={cn('dark', inter.className)} lang="en">
       <body className="bg-background">
+        <pre className="font-mono">{process.env.AUTH_URL}</pre>
+
         <Providers>{children}</Providers>
 
         <Anonymous />
