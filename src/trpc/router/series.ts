@@ -177,6 +177,8 @@ export const seriesRouter = router({
       }),
     )
     .query(async ({ input }) => {
+      await new Promise((resolve) => setTimeout(resolve, 1_400));
+
       const url = new URL(`https://api.shngm.io/v1/manga/detail/${input.id}`);
 
       const response = await fetch(url.toString());

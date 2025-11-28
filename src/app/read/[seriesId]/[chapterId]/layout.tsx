@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { cn } from '~/lib/utils';
 import { trpc } from '~/trpc/client';
@@ -19,12 +19,10 @@ import { trpc } from '~/trpc/client';
 export default function Layout({ children }: React.PropsWithChildren) {
   const router = useRouter();
 
-  const [isBookmarked, setIsBookmarked] = useState(false);
+  const topBarRef = useRef<HTMLDivElement>(null);
+  const bottomBarRef = useRef<HTMLDivElement>(null);
 
-  const [visibility, setVisibility] = useState({
-    topBar: false,
-    bottomBar: false,
-  });
+  const [isBookmarked, setIsBookmarked] = useState(false);
 
   const { seriesId, chapterId } = useParams();
 
@@ -45,11 +43,18 @@ export default function Layout({ children }: React.PropsWithChildren) {
   useEffect(() => {
     async function makeVisible() {
       await new Promise((resolve) => setTimeout(resolve, 300));
-      setVisibility({ topBar: true, bottomBar: true });
+
+      if (topBarRef.current) {
+        topBarRef.current.dataset.visible = 'true';
+      }
+
+      if (bottomBarRef.current) {
+        bottomBarRef.current.dataset.visible = 'true';
+      }
     }
 
     makeVisible();
-  }, [hasLoaded]);
+  }, []);
 
   const queryClient = useQueryClient();
 
@@ -69,14 +74,20 @@ export default function Layout({ children }: React.PropsWithChildren) {
 
   return (
     <div className="relative">
-      <div className="fixed top-4 w-full px-4">
+      <div
+        ref={topBarRef}
+        className={cn(
+          'fixed top-4 w-full px-4',
+          'data-[visible="true"]:[&>div]:translate-y-0',
+          'data-[visible="true"]:[&>div]:opacity-100',
+        )}
+        data-visible={false}
+      >
         <Card
           className={cn(
             'flex-row max-w-6xl mx-auto',
             'transition-all duration-300 ease-in-out',
-            visibility.topBar
-              ? 'translate-y-0 opacity-100'
-              : '-translate-y-4 opacity-0',
+            '-translate-y-4 opacity-0',
           )}
         >
           <Link href={`/series/${seriesId}`}>
@@ -110,14 +121,16 @@ export default function Layout({ children }: React.PropsWithChildren) {
       {children}
 
       <div
+        ref={bottomBarRef}
         className={cn(
           'flex justify-center gap-4 fixed bottom-6 w-full',
           '[&>button]:inline-flex [&>button]:items-center [&>button]:justify-center [&>button]:bg-surface-tertiary [&>button]:rounded-full [&>button]:size-14 [&>button>svg]:size-6 [&>button]:disabled:opacity-50 [&>button]:disabled:cursor-progress [&>button]:transition-all [&>button]:duration-300 [&>button]:hover:bg-surface-secondary [&>button]:data-[visible="false"]:opacity-0',
           'transition-all duration-300 ease-in-out',
-          visibility.bottomBar
-            ? 'translate-y-0 opacity-100'
-            : 'translate-y-4 opacity-0',
+          'translate-y-4 opacity-0',
+          'data-[visible="true"]:opacity-100',
+          'data-[visible="true"]:translate-0',
         )}
+        data-visible={false}
       >
         <button
           data-visible={hasPrevChapter}
