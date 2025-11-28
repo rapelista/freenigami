@@ -1,8 +1,8 @@
-/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import { Card, Skeleton, Tabs } from '@heroui/react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import Image from 'next/image';
 import Link from 'next/link';
 import { parseAsStringEnum, useQueryState } from 'nuqs';
 
@@ -22,6 +22,8 @@ export function Recommendation() {
       format: type,
     }),
   );
+
+  const queryClient = useQueryClient();
 
   return (
     <div className="space-y-4">
@@ -74,18 +76,36 @@ export function Recommendation() {
                 <Card
                   key={series.manga_id}
                   asChild
-                  className="p-0 relative aspect-5/10"
+                  className="p-0 relative aspect-1/2 group"
                   variant="transparent"
+                  onPointerEnter={() => {
+                    queryClient.prefetchQuery(
+                      trpc.series.detail.queryOptions({
+                        id: series.manga_id,
+                      }),
+                    );
+                  }}
                 >
-                  <Link
-                    className="h-full w-full"
-                    href={`/series/${series.manga_id}`}
-                  >
-                    <img
+                  <Link href={`/series/${series.manga_id}`}>
+                    <Image
+                      fill
                       alt={series.title}
-                      className="object-cover h-full w-full"
+                      className="group-hover:scale-105 transition-transform duration-200"
+                      loading="eager"
+                      sizes="25vw"
                       src={`/api/proxy/image/${image.split('/').pop()}`}
                     />
+
+                    <div
+                      className="absolute h-full w-full bg-linear-to-b from-0% to-black/90 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                      id="overlay"
+                    />
+
+                    <div className="absolute bottom-0 left-0 right-0 p-3 text-white transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                      <p className="text-xs font-medium line-clamp-2">
+                        {series.title}
+                      </p>
+                    </div>
                   </Link>
                 </Card>
               );

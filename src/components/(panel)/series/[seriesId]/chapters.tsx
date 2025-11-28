@@ -1,8 +1,12 @@
-/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import { Card, Skeleton } from '@heroui/react';
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import {
+  keepPreviousData,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useQueryStates } from 'nuqs';
 import { useRef } from 'react';
@@ -47,6 +51,8 @@ export function SeriesChapters({ seriesId }: SeriesChaptersProps) {
     }
   };
 
+  const queryClient = useQueryClient();
+
   return (
     <div ref={ref} className="space-y-4">
       <h2 className="text-xl font-semibold">Semua Chapter</h2>
@@ -63,20 +69,32 @@ export function SeriesChapters({ seriesId }: SeriesChaptersProps) {
           ? Array.from({ length: 24 }, (_, i) => (
               <Skeleton
                 key={`skeleton-${i}`}
-                className="h-20 md:h-[162px] lg:h-[82px]"
+                className="rounded-3xl h-20 md:h-40 lg:h-20"
               />
             ))
           : data?.data.map((chapter) => (
-              <Card key={chapter.chapter_id} asChild>
+              <Card
+                key={chapter.chapter_id}
+                asChild
+                onPointerEnter={() => {
+                  queryClient.prefetchQuery(
+                    trpc.chapter.byId.queryOptions({
+                      id: chapter.chapter_id,
+                    }),
+                  );
+                }}
+              >
                 <Link
                   className="p-0 gap-0 flex-row md:max-lg:flex-col"
                   href={`/read/${seriesId}/${chapter.chapter_id}`}
                 >
-                  <div className="aspect-video md:max-lg:h-30 h-20">
+                  <div className="aspect-video md:max-lg:h-30 h-20 relative">
                     {chapter.thumbnail_image_url ? (
-                      <img
+                      <Image
+                        fill
                         alt={chapter.chapter_title}
-                        className="h-full w-full object-cover"
+                        loading="eager"
+                        sizes="300px"
                         src={`/api/proxy/image/${chapter.thumbnail_image_url.split('/').pop()}`}
                       />
                     ) : (
