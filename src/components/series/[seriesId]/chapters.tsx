@@ -63,7 +63,7 @@ export function SeriesChapters({ seriesId }: SeriesChaptersProps) {
           ? Array.from({ length: 24 }, (_, i) => (
               <Skeleton
                 key={`skeleton-${i}`}
-                className="h-20 md:h-[162px] lg:h-[82px]"
+                className="rounded-3xl h-20 md:h-[162px] lg:h-[82px]"
               />
             ))
           : data?.data.map((chapter) => (

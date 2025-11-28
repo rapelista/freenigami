@@ -1,8 +1,8 @@
-/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import { Accordion, Card, Chip, Skeleton } from '@heroui/react';
 import { useQuery } from '@tanstack/react-query';
+import Image from 'next/image';
 
 import { trpc } from '~/trpc/client';
 
@@ -28,9 +28,12 @@ export function SeriesDetail({ seriesId }: SeriesDetailProps) {
             {isLoading ? (
               <Skeleton className="w-full h-full" />
             ) : (
-              <img
-                alt={data?.title}
-                className="object-cover w-full h-full absolute inset-0"
+              <Image
+                fill
+                alt={data?.title || 'Series Cover'}
+                loading="eager"
+                sizes="150px"
+                // className="object-cover w-full h-full absolute inset-0"
                 src={`/api/proxy/image/${image?.split('/').pop()}`}
               />
             )}
@@ -41,7 +44,7 @@ export function SeriesDetail({ seriesId }: SeriesDetailProps) {
         <div className="flex-1 space-y-4 w-full md:text-left text-center">
           <div>
             {isLoading ? (
-              <Skeleton className="w-1/2 h-8 mb-1 max-md:mx-auto " />
+              <Skeleton className="w-1/2 h-8 mb-1 max-md:mx-auto rounded-2xl" />
             ) : (
               <h1 className="text-3xl font-bold text-default-900">
                 {data?.title}
@@ -50,8 +53,8 @@ export function SeriesDetail({ seriesId }: SeriesDetailProps) {
 
             {isLoading ? (
               <div className="space-y-1">
-                <Skeleton className="mx-auto h-6.5 w-full" />
-                <Skeleton className="mx-auto h-6.5 w-2/3 md:hidden" />
+                <Skeleton className="rounded-2xl mx-auto h-6.5 w-full" />
+                <Skeleton className="rounded-2xl mx-auto h-6.5 w-2/3 md:hidden" />
               </div>
             ) : (
               data?.alternative_title && (
@@ -65,7 +68,7 @@ export function SeriesDetail({ seriesId }: SeriesDetailProps) {
           {/* Stats */}
           <div className="flex flex-wrap gap-4 text-sm justify-center md:justify-start">
             {isLoading ? (
-              <Skeleton className="h-5 w-full mb-1" />
+              <Skeleton className="h-5 w-full mb-1 rounded-2xl" />
             ) : (
               <>
                 <div className="flex items-center gap-1">
@@ -90,7 +93,7 @@ export function SeriesDetail({ seriesId }: SeriesDetailProps) {
 
           {/* Metadata */}
           {isLoading ? (
-            <Skeleton className="h-[26px] w-1/2 max-md:mx-auto" />
+            <Skeleton className="h-[26px] w-1/2 rounded-2xl max-md:mx-auto" />
           ) : (
             <div className="flex flex-wrap gap-2 justify-center md:justify-start">
               <Chip variant="secondary">{data?.release_year}</Chip>
@@ -109,7 +112,7 @@ export function SeriesDetail({ seriesId }: SeriesDetailProps) {
 
       <Card className="p-0">
         {isLoading ? (
-          <Skeleton className="h-[115px]" />
+          <Skeleton className="h-[106px]" />
         ) : (
           <Accordion
             allowsMultipleExpanded
