@@ -11,4 +11,9 @@ export const auth = betterAuth({
   }),
 
   plugins: [anonymous(), nextCookies()],
+
+  trustedOrigins: [
+    process.env.AUTH_URL,
+    process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined,
+  ].filter(Boolean) as string[],
 });
