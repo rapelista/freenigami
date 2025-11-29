@@ -24,7 +24,7 @@ export function SeriesDetail({ seriesId }: SeriesDetailProps) {
       <div className="flex flex-col items-center md:flex-row gap-6">
         {/* Cover Image */}
         <div className="shrink-0">
-          <Card className="p-0 w-[150px] aspect-2/3 relative overflow-hidden">
+          <Card className="p-0 w-[150px] aspect-1/2 relative overflow-hidden">
             {isLoading ? (
               <Skeleton className="w-full h-full" />
             ) : (
