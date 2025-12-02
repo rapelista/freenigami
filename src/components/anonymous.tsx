@@ -5,17 +5,17 @@ import { useEffect } from 'react';
 import { authClient } from '~/lib/auth/client';
 
 export function Anonymous() {
-  const { data: session } = authClient.useSession();
+  const { data: session, isPending } = authClient.useSession();
 
   useEffect(() => {
     const anonymousSignIn = async () => {
       await authClient.signIn.anonymous();
     };
 
-    if (session === null) {
+    if (isPending === false && session === null) {
       anonymousSignIn();
     }
-  }, [session]);
+  }, [session, isPending]);
 
   return null;
 }
