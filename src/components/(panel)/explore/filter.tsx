@@ -6,7 +6,7 @@ import { Filter, Rocket } from 'lucide-react';
 export function ExploreFilter() {
   return (
     <Modal>
-      <Button isIconOnly variant="secondary">
+      <Button isIconOnly variant="secondary" aria-label="Filter options">
         <Filter />
       </Button>
 
