@@ -19,7 +19,7 @@ export function ExploreSearch(props: ExploreSearchProps) {
   });
 
   return (
-    <TextField aria-labelledby="Search" className="w-full">
+    <TextField aria-label="Search series" className="w-full">
       <InputGroup>
         <InputGroup.Prefix>
           <Search className="size-4 text-muted" />
