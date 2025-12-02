@@ -2,17 +2,12 @@
 
 import { Card } from '@heroui/react';
 import { useQueries, useQueryClient } from '@tanstack/react-query';
-import {
-  ArrowLeft,
-  Bookmark,
-  ChevronLeft,
-  ChevronRight,
-  Home,
-} from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, Home } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
+import { ChapterBookmark } from '~/components/read/[seriesId]/[chapterId]/bookmark';
 import { cn } from '~/lib/utils';
 import { trpc } from '~/trpc/client';
 
@@ -22,9 +17,10 @@ export default function Layout({ children }: React.PropsWithChildren) {
   const topBarRef = useRef<HTMLDivElement>(null);
   const bottomBarRef = useRef<HTMLDivElement>(null);
 
-  const [isBookmarked, setIsBookmarked] = useState(false);
-
-  const { seriesId, chapterId } = useParams();
+  const { seriesId, chapterId } = useParams<{
+    seriesId: string;
+    chapterId: string;
+  }>();
 
   const [{ data: series }, { data: chapter }] = useQueries({
     queries: [
@@ -202,11 +198,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
             <ChevronLeft />
           </button>
 
-          <button onClick={() => setIsBookmarked(!isBookmarked)}>
-            <Bookmark
-              className={cn(isBookmarked ? 'fill-current' : 'fill-none')}
-            />
-          </button>
+          <ChapterBookmark chapterId={chapterId} seriesId={seriesId} />
 
           <button
             data-visible={nextChapterId !== null}
