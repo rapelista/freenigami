@@ -1,11 +1,13 @@
 'use client';
 
 import { Checkbox, Description, Label } from '@heroui/react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { BookmarkIcon } from 'lucide-react';
 
 import { BookmarkType } from '~/lib/enum';
 import { checkIsBookmarked, cn } from '~/lib/utils';
 import { useBookmarkStore, type Bookmark } from '~/stores/bookmark';
+import { trpc } from '~/trpc/client';
 
 interface SeriesBookmarkProps {
   seriesId: string;
@@ -19,7 +21,22 @@ export function SeriesBookmark({ seriesId }: SeriesBookmarkProps) {
   const bookmark: Bookmark = { type: BookmarkType.SERIES, value: seriesId };
   const isBookmarked = checkIsBookmarked(bookmarks, bookmark);
 
-  const handleToggleBookmark = () => {
+  const { mutate } = useMutation(trpc.bookmark.series.mutationOptions());
+  const queryClient = useQueryClient();
+
+  const handleToggleBookmark = async () => {
+    const series = await queryClient.ensureQueryData(
+      trpc.series.detail.queryOptions({ id: seriesId }),
+    );
+
+    const { title, cover_image_url, cover_portrait_url } = series;
+
+    mutate({
+      id: seriesId,
+      title: title,
+      thumbnailUrl: cover_portrait_url || cover_image_url || '#',
+    });
+
     if (isBookmarked) {
       removeBookmark(bookmark);
     } else {
@@ -51,11 +68,6 @@ export function SeriesBookmark({ seriesId }: SeriesBookmarkProps) {
           </div>
         </Checkbox.Content>
       </Checkbox>
-
-      {/* <Button variant="tertiary" onPress={handleToggleBookmark}>
-        {isBookmarked ? <BookmarkCheck /> : <BookmarkPlus />}
-        Bookmark
-      </Button> */}
     </>
   );
 }
