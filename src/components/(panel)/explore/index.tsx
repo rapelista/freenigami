@@ -4,7 +4,7 @@ import { Card, Skeleton } from '@heroui/react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import Image from 'next/image';
 import Link from 'next/link';
-import { parseAsStringEnum, useQueryStates } from 'nuqs';
+import { parseAsString, parseAsStringEnum, useQueryStates } from 'nuqs';
 import { useRef } from 'react';
 import { useDebounceValue } from 'usehooks-ts';
 
@@ -16,11 +16,14 @@ import { trpc } from '~/trpc/client';
 export function Explore() {
   const ref = useRef<HTMLDivElement>(null);
 
-  const [{ page, page_size, search, type }, setParams] = useQueryStates({
-    ...paginationParser,
-    ...searchParser,
-    type: parseAsStringEnum<SeriesType>(Object.values(SeriesType)),
-  });
+  const [{ page, page_size, search, type, sort, sort_order }, setParams] =
+    useQueryStates({
+      ...paginationParser,
+      ...searchParser,
+      type: parseAsStringEnum<SeriesType>(Object.values(SeriesType)),
+      sort: parseAsString.withDefault('latest'),
+      sort_order: parseAsString.withDefault('desc'),
+    });
 
   const [debouncedSearch] = useDebounceValue(search, 500);
   const format = type || undefined;
@@ -32,6 +35,8 @@ export function Explore() {
         page_size,
         format,
         q: debouncedSearch,
+        sort,
+        sort_order,
       },
       {
         placeholderData: keepPreviousData,

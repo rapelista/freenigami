@@ -13,12 +13,16 @@ export const seriesRouter = router({
       PaginationSchema.extend({
         q: z.string(),
         format: z.string().optional(),
+        sort: z.string().optional(),
+        sort_order: z.string().optional(),
       })
         .partial()
         .optional()
         .default({
           page: 1,
           page_size: 24,
+          sort: 'latest',
+          sort_order: 'desc',
         }),
     )
     .query(async ({ input }) => {
