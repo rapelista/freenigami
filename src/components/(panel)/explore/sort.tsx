@@ -18,7 +18,7 @@ export function ExploreSort() {
 
   return (
     <Dropdown>
-      <Button isIconOnly variant="secondary">
+      <Button isIconOnly aria-label="Sort options" variant="secondary">
         <ArrowDownWideNarrow
           className={cn(
             'transition-transform duration-500 ease-in-out',
@@ -32,28 +32,25 @@ export function ExploreSort() {
           selectedKeys={selected}
           selectionMode="multiple"
           onAction={(key) => {
-            const keys = Array.from(selected);
-
             if (
               Array.from(Object.values(SortOption)).includes(key as SortOption)
             ) {
-              if (keys[0] === key) return;
+              if (sort === key) return;
 
-              keys[0] = key as string;
+              setParams({
+                sort: key.toString(),
+              });
             }
 
             if (
               Array.from(Object.values(SortOrder)).includes(key as SortOrder)
             ) {
-              if (keys[1] === key) return;
+              if (sort_order === key) return;
 
-              keys[1] = key as string;
+              setParams({
+                sort_order: key.toString(),
+              });
             }
-
-            setParams({
-              sort: keys[0].toString(),
-              sort_order: keys[1].toString(),
-            });
           }}
         >
           <Dropdown.Section>
