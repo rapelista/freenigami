@@ -1,9 +1,8 @@
-/* eslint-disable @next/next/no-img-element */
-
 'use client';
 
 import { Card, Skeleton } from '@heroui/react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import Image from 'next/image';
 import Link from 'next/link';
 import { parseAsStringEnum, useQueryStates } from 'nuqs';
 import { useRef } from 'react';
@@ -74,10 +73,15 @@ export function Explore() {
                   className="p-0 aspect-5/11 flex flex-col gap-2 justify-end"
                   variant="transparent"
                 >
-                  <Link className="flex-1" href={`/series/${series.manga_id}`}>
-                    <img
+                  <Link
+                    className="flex-1 relative"
+                    href={`/series/${series.manga_id}`}
+                  >
+                    <Image
+                      fill
                       alt={series.title}
-                      className="object-cover h-full w-full"
+                      loading="eager"
+                      sizes="20vw"
                       src={`/api/proxy/image/${image.split('/').pop()}`}
                     />
                   </Link>
