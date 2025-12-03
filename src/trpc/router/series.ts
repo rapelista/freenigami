@@ -8,6 +8,7 @@ import {
   SeriesListSchema,
   SeriesRecommendationSchema,
 } from '~/schema/series';
+import { fetchSeriesList } from '~/services/series/list';
 import { appProcedure, router } from '~/trpc/init';
 
 export const seriesRouter = router({
@@ -29,31 +30,10 @@ export const seriesRouter = router({
         }),
     )
     .query(async ({ input }) => {
-      try {
-        const url = new URL('https://api.shngm.io/v1/manga/list');
+      const data = await fetchSeriesList(input);
+      const results = SeriesListSchema.parse(data);
 
-        Object.entries(input).forEach(([key, value]) => {
-          if (value) {
-            url.searchParams.set(key, String(value));
-          }
-        });
-
-        const response = await fetch(url.toString());
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch data', { cause: response });
-        }
-
-        const data = await response.json();
-
-        const results = SeriesListSchema.parse(data);
-
-        return results;
-      } catch {
-        throw new TRPCError({
-          code: 'BAD_GATEWAY',
-        });
-      }
+      return results;
     }),
 
   recommendation: appProcedure
