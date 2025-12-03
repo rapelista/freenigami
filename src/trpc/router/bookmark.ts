@@ -11,11 +11,11 @@ export const bookmarkRouter = router({
         thumbnailUrl: z.string(),
       }),
     )
-    .mutation(async ({ ctx, input: _ }) => {
-      const _userId = ctx.user.id;
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.user.id;
 
-      // console.log('Add Bookmark Series for', userId);
-      // console.log(input);
+      console.log('Add Bookmark Series for', userId);
+      console.log(input);
 
       return {
         ok: true,
