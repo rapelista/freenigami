@@ -9,6 +9,8 @@ export async function GET(
   const urls = [
     `https://storage.shngm.id/thumbnail/cover/`,
     `https://storage.shngm.id/low/unsafe/filters:format(webp):quality(70)/thumbnail/image/`,
+    `https://assets.shngm.id/thumbnail/image/`,
+    `https://assets.shngm.id/thumbnail/cover/`,
   ];
 
   const response = await Promise.any(
