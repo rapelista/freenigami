@@ -1,4 +1,5 @@
 import { Button, Popover } from '@heroui/react';
+import { buttonVariants } from '@heroui/styles';
 import { ChevronLeft, EllipsisVertical } from 'lucide-react';
 import Link from 'next/link';
 
@@ -27,16 +28,12 @@ export function ChapterMenu({ chapterId, seriesId }: ChapterMenuProps) {
           <hr />
 
           <div className="grid gap-2">
-            <Button
-              asChild
-              className="w-full justify-start"
-              size="sm"
-              variant="tertiary"
+            <Link
+              className={buttonVariants({ variant: 'tertiary', size: 'sm', class: 'w-full justify-start' })}
+              href={`/series/${seriesId}`}
             >
-              <Link href={`/series/${seriesId}`}>
-                <ChevronLeft /> Semua Chapter
-              </Link>
-            </Button>
+              <ChevronLeft /> Semua Chapter
+            </Link>
 
             <ChapterBookmark chapterId={chapterId} seriesId={seriesId} />
           </div>

@@ -1,6 +1,7 @@
 'use client';
 
-import { Button, Card, Skeleton, Tabs } from '@heroui/react';
+import { Card, Skeleton, Tabs } from '@heroui/react';
+import { buttonVariants } from '@heroui/styles';
 import {
   keepPreviousData,
   useQuery,
@@ -140,12 +141,10 @@ export function Latest() {
 
                   <Card.Footer className="grid gap-2">
                     {series.chapters.slice(0, 2).map((chapter) => (
-                      <Button
+                      <Link
                         key={chapter.chapter_id}
-                        asChild
-                        className="w-full"
-                        size="sm"
-                        variant="tertiary"
+                        className={buttonVariants({ variant: 'tertiary', size: 'sm', class: 'w-full' })}
+                        href={`/read/${series.manga_id}/${chapter.chapter_id}`}
                         onPointerEnter={() => {
                           queryClient.prefetchQuery(
                             trpc.chapter.byId.queryOptions({
@@ -154,12 +153,8 @@ export function Latest() {
                           );
                         }}
                       >
-                        <Link
-                          href={`/read/${series.manga_id}/${chapter.chapter_id}`}
-                        >
-                          Chapter {chapter.chapter_number}
-                        </Link>
-                      </Button>
+                        Chapter {chapter.chapter_number}
+                      </Link>
                     ))}
                   </Card.Footer>
                 </Card>

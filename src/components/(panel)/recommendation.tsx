@@ -73,11 +73,10 @@ export function Recommendation() {
               const image = series.cover_portrait_url || series.cover_image_url;
 
               return (
-                <Card
+                <Link
                   key={series.manga_id}
-                  asChild
-                  className="p-0 relative aspect-1/2 group"
-                  variant="transparent"
+                  className="card card--transparent p-0 relative aspect-1/2 group"
+                  href={`/series/${series.manga_id}`}
                   onPointerEnter={() => {
                     queryClient.prefetchQuery(
                       trpc.series.detail.queryOptions({
@@ -86,28 +85,26 @@ export function Recommendation() {
                     );
                   }}
                 >
-                  <Link href={`/series/${series.manga_id}`}>
-                    <Image
-                      fill
-                      alt={series.title}
-                      className="group-hover:scale-105 transition-transform duration-200"
-                      loading="eager"
-                      sizes="25vw"
-                      src={`/api/proxy/image/${image.split('/').pop()}`}
-                    />
+                  <Image
+                    fill
+                    alt={series.title}
+                    className="group-hover:scale-105 transition-transform duration-200"
+                    loading="eager"
+                    sizes="25vw"
+                    src={`/api/proxy/image/${image.split('/').pop()}`}
+                  />
 
-                    <div
-                      className="absolute h-full w-full bg-linear-to-b from-0% to-black/90 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                      id="overlay"
-                    />
+                  <div
+                    className="absolute h-full w-full bg-linear-to-b from-0% to-black/90 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                    id="overlay"
+                  />
 
-                    <div className="absolute bottom-0 left-0 right-0 p-3 text-white transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                      <p className="text-xs font-medium line-clamp-2">
-                        {series.title}
-                      </p>
-                    </div>
-                  </Link>
-                </Card>
+                  <div className="absolute bottom-0 left-0 right-0 p-3 text-white transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                    <p className="text-xs font-medium line-clamp-2">
+                      {series.title}
+                    </p>
+                  </div>
+                </Link>
               );
             })}
       </div>

@@ -75,26 +75,23 @@ export function BookmarkSeries() {
           const seriesId = seriesBookmarks.at(key)?.value;
 
           return (
-            <Card
+            <Link
               key={seriesId}
-              asChild
-              className="p-0 relative aspect-5/10 overflow-hidden group"
-              variant="transparent"
+              className="card card--transparent p-0 relative aspect-5/10 overflow-hidden group h-full w-full"
+              href={`/series/${seriesId}`}
             >
-              <Link className="h-full w-full" href={`/series/${seriesId}`}>
-                <img
-                  alt={result.data.title}
-                  className="object-cover h-full w-full transition-transform duration-300 group-hover:scale-105"
-                  src={`/api/proxy/image/${image.split('/').pop()}`}
-                />
-                <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="absolute bottom-0 left-0 right-0 p-3 text-white transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
-                  <p className="text-xs font-medium line-clamp-2">
-                    {result.data.title}
-                  </p>
-                </div>
-              </Link>
-            </Card>
+              <img
+                alt={result.data.title}
+                className="object-cover h-full w-full transition-transform duration-300 group-hover:scale-105"
+                src={`/api/proxy/image/${image.split('/').pop()}`}
+              />
+              <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute bottom-0 left-0 right-0 p-3 text-white transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
+                <p className="text-xs font-medium line-clamp-2">
+                  {result.data.title}
+                </p>
+              </div>
+            </Link>
           );
         })}
       </div>

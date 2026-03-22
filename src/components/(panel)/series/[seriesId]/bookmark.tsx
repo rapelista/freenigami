@@ -47,7 +47,6 @@ export function SeriesBookmark({ seriesId }: SeriesBookmarkProps) {
   return (
     <>
       <Checkbox
-        isOnSurface
         className={cn(
           'bg-surface group relative flex-col gap-4 rounded-3xl px-5 py-4 transition-all',
           'data-[selected=true]:bg-accent/10',

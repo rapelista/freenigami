@@ -73,9 +73,10 @@ export function SeriesChapters({ seriesId }: SeriesChaptersProps) {
               />
             ))
           : data?.data.map((chapter) => (
-              <Card
+              <Link
                 key={chapter.chapter_id}
-                asChild
+                className="card p-0 gap-0 flex-row md:max-lg:flex-col"
+                href={`/read/${seriesId}/${chapter.chapter_id}`}
                 onPointerEnter={() => {
                   queryClient.prefetchQuery(
                     trpc.chapter.byId.queryOptions({
@@ -84,10 +85,6 @@ export function SeriesChapters({ seriesId }: SeriesChaptersProps) {
                   );
                 }}
               >
-                <Link
-                  className="p-0 gap-0 flex-row md:max-lg:flex-col"
-                  href={`/read/${seriesId}/${chapter.chapter_id}`}
-                >
                   <div className="aspect-video md:max-lg:h-30 h-20 relative">
                     {chapter.thumbnail_image_url ? (
                       <Image
@@ -107,8 +104,7 @@ export function SeriesChapters({ seriesId }: SeriesChaptersProps) {
                       Chapter {chapter.chapter_number}
                     </span>
                   </Card.Content>
-                </Link>
-              </Card>
+              </Link>
             ))}
       </div>
 
