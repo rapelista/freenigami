@@ -1,10 +1,14 @@
 import { TRPCError } from '@trpc/server';
 import { z, ZodError } from 'zod';
 
-import { generateListSchema } from '~/lib/utils';
 import { PaginationSchema } from '~/schema/pagination';
-import { SeriesSchema } from '~/schema/series';
-import { TaxonomySchema } from '~/schema/taxonomy';
+import {
+  SeriesDetailSchema,
+  SeriesLatestSchema,
+  SeriesListSchema,
+  SeriesRecommendationSchema,
+} from '~/schema/series';
+import { fetchSeriesList } from '~/services/series/list';
 import { appProcedure, router } from '~/trpc/init';
 
 export const seriesRouter = router({
@@ -13,45 +17,23 @@ export const seriesRouter = router({
       PaginationSchema.extend({
         q: z.string(),
         format: z.string().optional(),
+        sort: z.string().optional(),
+        sort_order: z.string().optional(),
       })
         .partial()
         .optional()
         .default({
           page: 1,
           page_size: 24,
+          sort: 'latest',
+          sort_order: 'desc',
         }),
     )
     .query(async ({ input }) => {
-      try {
-        const url = new URL('https://api.shngm.io/v1/manga/list');
+      const data = await fetchSeriesList(input);
+      const results = SeriesListSchema.parse(data);
 
-        Object.entries(input).forEach(([key, value]) => {
-          if (value) {
-            url.searchParams.set(key, String(value));
-          }
-        });
-
-        const response = await fetch(url.toString());
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch data', { cause: response });
-        }
-
-        const data = await response.json();
-
-        return generateListSchema(
-          SeriesSchema.pick({
-            manga_id: true,
-            title: true,
-            cover_image_url: true,
-            cover_portrait_url: true,
-          }),
-        ).parse(data);
-      } catch {
-        throw new TRPCError({
-          code: 'BAD_GATEWAY',
-        });
-      }
+      return results;
     }),
 
   recommendation: appProcedure
@@ -86,14 +68,9 @@ export const seriesRouter = router({
       const data = await response.json();
 
       try {
-        return generateListSchema(
-          SeriesSchema.pick({
-            manga_id: true,
-            title: true,
-            cover_image_url: true,
-            cover_portrait_url: true,
-          }),
-        ).parse(data);
+        const results = SeriesRecommendationSchema.parse(data);
+
+        return results;
       } catch {
         throw new TRPCError({
           code: 'BAD_GATEWAY',
@@ -117,16 +94,10 @@ export const seriesRouter = router({
     .query(async ({ input }) => {
       const url = new URL('https://api.shngm.io/v1/manga/list');
 
-      /**
-       * Default Search Parameters
-       */
       url.searchParams.set('is_update', 'true');
       url.searchParams.set('sort', 'latest');
       url.searchParams.set('sort_order', 'desc');
 
-      /**
-       * Dynamic Search Parameters
-       */
       Object.entries(input).forEach(([key, value]) => {
         if (value) {
           url.searchParams.set(key, String(value));
@@ -144,22 +115,9 @@ export const seriesRouter = router({
       const data = await response.json();
 
       try {
-        return generateListSchema(
-          SeriesSchema.pick({
-            manga_id: true,
-            title: true,
-            cover_image_url: true,
-            cover_portrait_url: true,
-          }).extend({
-            chapters: z.array(
-              z.object({
-                chapter_id: z.string(),
-                chapter_number: z.number(),
-                created_at: z.string(),
-              }),
-            ),
-          }),
-        ).parse(data);
+        const results = SeriesLatestSchema.parse(data);
+
+        return results;
       } catch (e) {
         const error = e as ZodError;
 
@@ -177,6 +135,8 @@ export const seriesRouter = router({
       }),
     )
     .query(async ({ input }) => {
+      await new Promise((resolve) => setTimeout(resolve, 1_400));
+
       const url = new URL(`https://api.shngm.io/v1/manga/detail/${input.id}`);
 
       const response = await fetch(url.toString());
@@ -190,24 +150,9 @@ export const seriesRouter = router({
       const data = await response.json();
 
       try {
-        return SeriesSchema.pick({
-          title: true,
-          alternative_title: true,
-          description: true,
-          cover_image_url: true,
-          cover_portrait_url: true,
-          view_count: true,
-          user_rate: true,
-          bookmark_count: true,
-          rank: true,
-          release_year: true,
-          status: true,
-          country_id: true,
-        })
-          .extend({
-            taxonomy: TaxonomySchema.partial(),
-          })
-          .parse(data.data);
+        const series = SeriesDetailSchema.parse(data.data);
+
+        return series;
       } catch (e) {
         const error = e as ZodError;
 

@@ -10,21 +10,25 @@
     "format": "prettier . --write"
   },
   "dependencies": {
-    "@heroui/react": "3.0.0-beta.2",
-    "@heroui/styles": "3.0.0-beta.2",
+    "@heroui/react": "3.0.1",
+    "@heroui/styles": "3.0.1",
+    "@neondatabase/serverless": "^1.0.2",
     "@radix-ui/react-slot": "^1.2.3",
     "@tanstack/react-query": "^5.90.5",
     "@trpc/client": "^11.6.0",
     "@trpc/server": "^11.6.0",
     "@trpc/tanstack-react-query": "^11.6.0",
+    "better-auth": "^1.4.3",
     "clsx": "^2.1.1",
+    "dotenv": "^17.2.3",
+    "drizzle-orm": "^0.44.7",
     "lodash-es": "^4.17.21",
     "lucide-react": "^0.546.0",
-    "next": "16.0.0",
+    "next": "16.0.10",
     "nuqs": "^2.7.2",
-    "react": "19.2.0",
+    "react": "19.2.3",
     "react-aria-components": "^1.13.0",
-    "react-dom": "19.2.0",
+    "react-dom": "19.2.3",
     "tailwind-merge": "^3.3.1",
     "tailwind-variants": "^3.1.1",
     "usehooks-ts": "^3.1.1",
@@ -37,20 +41,22 @@
     "@tanstack/react-query-devtools": "^5.90.2",
     "@types/lodash-es": "^4.17.12",
     "@types/node": "^20",
-    "@types/react": "19.2.2",
-    "@types/react-dom": "19.2.2",
+    "@types/react": "19.2.7",
+    "@types/react-dom": "19.2.3",
+    "drizzle-kit": "^0.31.7",
     "eslint": "^9.38.0",
-    "eslint-config-next": "16.0.0",
+    "eslint-config-next": "16.0.10",
     "eslint-config-prettier": "^10.1.8",
     "prettier": "^3.6.2",
     "tailwindcss": "^4.1.16",
+    "tsx": "^4.20.6",
     "typescript": "^5"
   },
   "packageManager": "pnpm@10.17.1+sha512.17c560fca4867ae9473a3899ad84a88334914f379be46d455cbf92e5cf4b39d34985d452d2583baf19967fa76cb5c17bc9e245529d0b98745721aa7200ecaf7a",
   "pnpm": {
     "overrides": {
-      "@types/react": "19.2.2",
-      "@types/react-dom": "19.2.2"
+      "@types/react": "19.2.7",
+      "@types/react-dom": "19.2.3"
     }
   }
 }

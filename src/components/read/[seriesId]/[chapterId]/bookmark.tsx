@@ -1,9 +1,11 @@
-import { Button } from '@heroui/react';
-import { useQuery } from '@tanstack/react-query';
-import { BookmarkCheck, BookmarkPlus, Loader2 } from 'lucide-react';
+'use client';
 
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { BookmarkIcon } from 'lucide-react';
+
+import { authClient } from '~/lib/auth/client';
 import { BookmarkType } from '~/lib/enum';
-import { checkIsBookmarked } from '~/lib/utils';
+import { checkIsBookmarked, cn } from '~/lib/utils';
 import { useBookmarkStore, type Bookmark } from '~/stores/bookmark';
 import { trpc } from '~/trpc/client';
 
@@ -17,6 +19,9 @@ export function ChapterBookmark({ chapterId, seriesId }: ChapterBookmarkProps) {
   const addBookmark = useBookmarkStore((state) => state.addBookmark);
   const removeBookmark = useBookmarkStore((state) => state.removeBookmark);
 
+  const { data: session } = authClient.useSession();
+  const isNonAnonymous = session?.user && !session.user.isAnonymous;
+
   const bookmark: Bookmark = {
     type: BookmarkType.CHAPTERS,
     value: { chapterId, seriesId },
@@ -24,34 +29,36 @@ export function ChapterBookmark({ chapterId, seriesId }: ChapterBookmarkProps) {
 
   const isBookmarked = checkIsBookmarked(bookmarks, bookmark);
 
-  const { data, isLoading } = useQuery(
-    trpc.chapter.byId.queryOptions({ id: chapterId }),
-  );
+  const queryClient = useQueryClient();
+  const invalidateList = () =>
+    queryClient.invalidateQueries({
+      queryKey: trpc.bookmark.list.queryOptions().queryKey,
+    });
+
+  const addChapter = useMutation({
+    ...trpc.bookmark.addChapter.mutationOptions(),
+    onSuccess: invalidateList,
+  });
+  const removeChapter = useMutation({
+    ...trpc.bookmark.removeChapter.mutationOptions(),
+    onSuccess: invalidateList,
+  });
 
   const handleToggleBookmark = () => {
     if (isBookmarked) {
       removeBookmark(bookmark);
+      if (isNonAnonymous) removeChapter.mutate({ chapterId });
     } else {
       addBookmark(bookmark);
+      if (isNonAnonymous) addChapter.mutate({ seriesId, chapterId });
     }
   };
 
   return (
-    <Button
-      className="w-full justify-start"
-      isDisabled={isLoading || !data}
-      size="sm"
-      variant="tertiary"
-      onPress={handleToggleBookmark}
-    >
-      {isLoading ? (
-        <Loader2 className="animate-spin" />
-      ) : isBookmarked ? (
-        <BookmarkCheck />
-      ) : (
-        <BookmarkPlus />
-      )}
-      Bookmark
-    </Button>
+    <button onClick={handleToggleBookmark}>
+      <BookmarkIcon
+        className={cn(isBookmarked ? 'fill-current' : 'fill-none')}
+      />
+    </button>
   );
 }
