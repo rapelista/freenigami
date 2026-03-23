@@ -20,9 +20,10 @@ export default function RootLayout({
   return (
     <html className={cn('dark', inter.className)} lang="en">
       <body className="bg-background">
-        <Providers>{children}</Providers>
-
-        <Anonymous />
+        <Providers>
+          {children}
+          <Anonymous />
+        </Providers>
       </body>
     </html>
   );

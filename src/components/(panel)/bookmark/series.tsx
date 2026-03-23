@@ -5,12 +5,12 @@ import { useQueries } from '@tanstack/react-query';
 import { BookmarkX } from 'lucide-react';
 import Link from 'next/link';
 
+import { useBookmarks } from '~/hooks/use-bookmarks';
 import { BookmarkType } from '~/lib/enum';
-import { useBookmarkStore } from '~/stores/bookmark';
 import { trpc } from '~/trpc/client';
 
 export function BookmarkSeries() {
-  const bookmarks = useBookmarkStore((state) => state.bookmarks);
+  const { bookmarks, isPending } = useBookmarks();
   const seriesBookmarks = bookmarks.filter(
     (b) => b.type === BookmarkType.SERIES,
   );
@@ -20,6 +20,18 @@ export function BookmarkSeries() {
       trpc.series.detail.queryOptions({ id: series.value }),
     ),
   });
+
+  if (isPending) {
+    return (
+      <div className="grid gap-4 grid-cols-2 md:grid-cols-4 xl:grid-cols-8">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <Card key={i} className="p-0 relative aspect-5/10 overflow-hidden" variant="transparent">
+            <Skeleton className="w-full h-full" />
+          </Card>
+        ))}
+      </div>
+    );
+  }
 
   // Empty state
   if (seriesBookmarks.length === 0) {

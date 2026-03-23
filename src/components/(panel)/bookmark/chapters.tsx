@@ -6,12 +6,12 @@ import * as _ from 'lodash-es';
 import { BookmarkX, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 
+import { useBookmarks } from '~/hooks/use-bookmarks';
 import { BookmarkType } from '~/lib/enum';
-import { useBookmarkStore } from '~/stores/bookmark';
 import { trpc } from '~/trpc/client';
 
 export function BookmarkChapters() {
-  const bookmarks = useBookmarkStore((state) => state.bookmarks);
+  const { bookmarks, isPending } = useBookmarks();
   const chapterBookmarks = bookmarks.filter(
     (b) => b.type === BookmarkType.CHAPTERS,
   );
@@ -54,6 +54,14 @@ export function BookmarkChapters() {
       },
     ),
   });
+
+  if (isPending) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <Spinner />
+      </div>
+    );
+  }
 
   // Empty state
   if (chapterBookmarks.length === 0) {

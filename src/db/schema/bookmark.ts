@@ -1,23 +1,19 @@
 import { relations } from 'drizzle-orm';
-import { pgTable, text } from 'drizzle-orm/pg-core';
+import { pgTable, primaryKey, text } from 'drizzle-orm/pg-core';
 
 import { user } from './auth';
-import { chapters } from './chapter';
-import { series } from './series';
 
-export const bookmarkedSeries = pgTable('bookmarked_series', {
-  userId: text('user_id')
-    .notNull()
-    .references(() => user.id, {
-      onDelete: 'cascade',
-    }),
+export const bookmarkedSeries = pgTable(
+  'bookmarked_series',
+  {
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
 
-  seriesId: text('series_id')
-    .notNull()
-    .references(() => series.id, {
-      onDelete: 'cascade',
-    }),
-});
+    seriesId: text('series_id').notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.userId, table.seriesId] })],
+);
 
 export const bookmarkedSeriesRelations = relations(
   bookmarkedSeries,
@@ -26,26 +22,22 @@ export const bookmarkedSeriesRelations = relations(
       fields: [bookmarkedSeries.userId],
       references: [user.id],
     }),
-    series: one(series, {
-      fields: [bookmarkedSeries.seriesId],
-      references: [series.id],
-    }),
   }),
 );
 
-export const bookmarkedChapters = pgTable('bookmarked_chapters', {
-  userId: text('user_id')
-    .notNull()
-    .references(() => user.id, {
-      onDelete: 'cascade',
-    }),
+export const bookmarkedChapters = pgTable(
+  'bookmarked_chapters',
+  {
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
 
-  chapterId: text('chapter_id')
-    .notNull()
-    .references(() => chapters.id, {
-      onDelete: 'cascade',
-    }),
-});
+    seriesId: text('series_id').notNull(),
+
+    chapterId: text('chapter_id').notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.userId, table.chapterId] })],
+);
 
 export const bookmarkedChaptersRelations = relations(
   bookmarkedChapters,
@@ -53,10 +45,6 @@ export const bookmarkedChaptersRelations = relations(
     user: one(user, {
       fields: [bookmarkedChapters.userId],
       references: [user.id],
-    }),
-    chapter: one(chapters, {
-      fields: [bookmarkedChapters.chapterId],
-      references: [chapters.id],
     }),
   }),
 );

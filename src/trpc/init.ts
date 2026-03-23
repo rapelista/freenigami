@@ -63,3 +63,19 @@ export const authedProcudure = t.procedure.use(async (opts) => {
     },
   });
 });
+
+export const authedNonAnonymousProcedure = t.procedure.use(async (opts) => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session || session.user.isAnonymous) {
+    throw new TRPCError({ code: 'UNAUTHORIZED' });
+  }
+
+  return opts.next({
+    ctx: {
+      ...session,
+    },
+  });
+});

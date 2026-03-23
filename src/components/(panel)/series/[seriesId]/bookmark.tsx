@@ -6,6 +6,7 @@ import { BookmarkIcon } from 'lucide-react';
 
 import { BookmarkType } from '~/lib/enum';
 import { checkIsBookmarked, cn } from '~/lib/utils';
+import { authClient } from '~/lib/auth/client';
 import { useBookmarkStore, type Bookmark } from '~/stores/bookmark';
 import { trpc } from '~/trpc/client';
 
@@ -18,29 +19,34 @@ export function SeriesBookmark({ seriesId }: SeriesBookmarkProps) {
   const addBookmark = useBookmarkStore((state) => state.addBookmark);
   const removeBookmark = useBookmarkStore((state) => state.removeBookmark);
 
+  const { data: session } = authClient.useSession();
+  const isNonAnonymous = session?.user && !session.user.isAnonymous;
+
   const bookmark: Bookmark = { type: BookmarkType.SERIES, value: seriesId };
   const isBookmarked = checkIsBookmarked(bookmarks, bookmark);
 
-  const { mutate } = useMutation(trpc.bookmark.series.mutationOptions());
   const queryClient = useQueryClient();
-
-  const handleToggleBookmark = async () => {
-    const series = await queryClient.ensureQueryData(
-      trpc.series.detail.queryOptions({ id: seriesId }),
-    );
-
-    const { title, cover_image_url, cover_portrait_url } = series;
-
-    mutate({
-      id: seriesId,
-      title: title,
-      thumbnailUrl: cover_portrait_url || cover_image_url || '#',
+  const invalidateList = () =>
+    queryClient.invalidateQueries({
+      queryKey: trpc.bookmark.list.queryOptions().queryKey,
     });
 
+  const addSeries = useMutation({
+    ...trpc.bookmark.addSeries.mutationOptions(),
+    onSuccess: invalidateList,
+  });
+  const removeSeries = useMutation({
+    ...trpc.bookmark.removeSeries.mutationOptions(),
+    onSuccess: invalidateList,
+  });
+
+  const handleToggleBookmark = () => {
     if (isBookmarked) {
       removeBookmark(bookmark);
+      if (isNonAnonymous) removeSeries.mutate({ seriesId });
     } else {
       addBookmark(bookmark);
+      if (isNonAnonymous) addSeries.mutate({ seriesId });
     }
   };
 

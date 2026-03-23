@@ -3,14 +3,14 @@
 import { Chip, Tabs } from '@heroui/react';
 import { useQueryStates } from 'nuqs';
 
+import { useBookmarks } from '~/hooks/use-bookmarks';
 import { BookmarkType } from '~/lib/enum';
 import { bookmarkTypeParser } from '~/lib/parser';
-import { useBookmarkStore } from '~/stores/bookmark';
 
 export function BookmarkTabs() {
   const [{ type }, setParams] = useQueryStates(bookmarkTypeParser);
 
-  const bookmarks = useBookmarkStore((state) => state.bookmarks);
+  const { bookmarks } = useBookmarks();
 
   const seriesCount = bookmarks.filter(
     (b) => b.type === BookmarkType.SERIES,
