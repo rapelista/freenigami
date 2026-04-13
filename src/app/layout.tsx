@@ -1,3 +1,4 @@
+import { Analytics } from '@vercel/analytics/next';
 import { Inter } from 'next/font/google';
 
 import { Anonymous } from '~/components/anonymous';
@@ -23,6 +24,7 @@ export default function RootLayout({
         <Providers>
           {children}
           <Anonymous />
+          <Analytics />
         </Providers>
       </body>
     </html>
