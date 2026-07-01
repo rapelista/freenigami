@@ -20,6 +20,14 @@ interface SeriesChaptersProps {
   seriesId: string;
 }
 
+const formatDate = (date: string) => {
+  const formatter = new Intl.DateTimeFormat('id-ID', {
+    dateStyle: 'full',
+  });
+
+  return formatter.format(new Date(date));
+};
+
 export function SeriesChapters({ seriesId }: SeriesChaptersProps) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -85,25 +93,30 @@ export function SeriesChapters({ seriesId }: SeriesChaptersProps) {
                   );
                 }}
               >
-                  <div className="aspect-video md:max-lg:h-30 h-20 relative">
-                    {chapter.thumbnail_image_url ? (
-                      <Image
-                        fill
-                        alt={chapter.chapter_title}
-                        loading="eager"
-                        sizes="300px"
-                        src={`/api/proxy/image/${chapter.thumbnail_image_url.split('/').pop()}`}
-                      />
-                    ) : (
-                      <div className="h-full w-full bg-default" />
-                    )}
-                  </div>
+                <div className="aspect-video md:max-lg:h-30 h-20 relative">
+                  {chapter.thumbnail_image_url ? (
+                    <Image
+                      fill
+                      alt={chapter.chapter_title}
+                      loading="eager"
+                      sizes="300px"
+                      src={`/api/proxy/image/${chapter.thumbnail_image_url.split('/').pop()}`}
+                    />
+                  ) : (
+                    <div className="h-full w-full bg-default" />
+                  )}
+                </div>
 
-                  <Card.Content className="p-2">
+                <Card.Content className="p-2">
+                  <div className="grid gap-">
                     <span className="max-md:text-lg max-md:font-medium">
                       Chapter {chapter.chapter_number}
                     </span>
-                  </Card.Content>
+                    <span className="max-md:text-xs md:text-sm text-muted">
+                      {formatDate(chapter.release_date)}
+                    </span>
+                  </div>
+                </Card.Content>
               </Link>
             ))}
       </div>
