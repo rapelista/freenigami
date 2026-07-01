@@ -54,6 +54,7 @@ export const SeriesLatestSchema = generateListSchema(
     title: true,
     cover_image_url: true,
     cover_portrait_url: true,
+    user_rate: true,
   }).extend({
     chapters: z.array(
       z.object({

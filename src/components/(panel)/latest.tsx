@@ -94,6 +94,7 @@ export function Latest() {
             })
           : data?.data.map((series) => {
               const image = series.cover_image_url || series.cover_portrait_url;
+              const hasUserRate = series.user_rate > 0;
 
               return (
                 <Card
@@ -101,6 +102,15 @@ export function Latest() {
                   className="p-0 aspect-5/11 flex flex-col gap-2 justify-end rounded-b-none"
                   variant="transparent"
                 >
+                  {hasUserRate && (
+                    <div
+                      className="w-fit absolute top-2 right-2 bg-background/70 p-0.5 rounded-lg text-sm px-2 z-50"
+                      id="rating"
+                    >
+                      {series.user_rate} ⭐
+                    </div>
+                  )}
+
                   <Link
                     className="relative flex-1"
                     href={`/series/${series.manga_id}`}
@@ -143,7 +153,11 @@ export function Latest() {
                     {series.chapters.slice(0, 2).map((chapter) => (
                       <Link
                         key={chapter.chapter_id}
-                        className={buttonVariants({ variant: 'tertiary', size: 'sm', class: 'w-full' })}
+                        className={buttonVariants({
+                          variant: 'tertiary',
+                          size: 'sm',
+                          class: 'w-full',
+                        })}
                         href={`/read/${series.manga_id}/${chapter.chapter_id}`}
                         onPointerEnter={() => {
                           queryClient.prefetchQuery(
