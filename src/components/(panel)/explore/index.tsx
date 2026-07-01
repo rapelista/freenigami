@@ -71,6 +71,7 @@ export function Explore() {
             })
           : data?.data.map((series) => {
               const image = series.cover_portrait_url || series.cover_image_url;
+              const hasUserRate = series.user_rate > 0;
 
               return (
                 <Card
@@ -78,6 +79,15 @@ export function Explore() {
                   className="p-0 aspect-5/11 flex flex-col gap-2 justify-end"
                   variant="transparent"
                 >
+                  {hasUserRate && (
+                    <div
+                      className="w-fit absolute top-2 right-2 bg-background/70 p-0.5 rounded-lg text-sm px-2 z-50"
+                      id="rating"
+                    >
+                      {series.user_rate} ⭐
+                    </div>
+                  )}
+
                   <Link
                     className="flex-1 relative"
                     href={`/series/${series.manga_id}`}
