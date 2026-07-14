@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
         hostname: 'storage.shngm.id',
       },
     ],
+    unoptimized: true,
   },
 };
 
