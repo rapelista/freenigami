@@ -135,3 +135,32 @@ Expected: eventual match.
 - [ ] **Step 4: Record the matrix and decide**
 
 Read `results` from production: any variant `ok=true` → apply that header set to `request()` next; all `ok=false` → block is IP/ASN-based, escalate options to the human partner.
+
+---
+
+### Task 5 (addendum): `origin-ip` probe variant
+
+**Files:**
+- Modify: `src/services/anime/mikonime-probe.ts`
+- Modify: `docs/superpowers/specs/2026-11-21-mikonime-cloudflare-probe-design.md` (addendum above)
+
+**Interfaces:**
+- Consumes: node builtin `node:https` (no new dependency).
+- Produces: 5th `ProbeResult` with `variant: 'origin-ip'`; same shape, `headers` shows `{ host: 'api.mikonime.stream' }`.
+
+- [ ] **Step 1: Implement the origin-pinned request helper + variant**
+
+Variant list gains `['origin-ip', { host: 'api.mikonime.stream' }]` routed through `node:https` with `hostname: ORIGIN_IP` (`195.88.211.20`), `servername: 'api.mikonime.stream'`, `rejectUnauthorized: false`, `AbortSignal.timeout(8000)`; plain `fetch` keeps serving the other variants.
+
+- [ ] **Step 2: Verify locally**
+
+Run: `pnpm tsx -e "<async IIFE: probeMikonime() then console.table>"` (see Task 1 ruling for the IIFE form)
+Expected: 5 rows; `origin-ip` `ok=true`.
+
+- [ ] **Step 3: Lint + build, commit, push**
+
+Run: `pnpm lint && pnpm build && git commit && git push origin main`
+
+- [ ] **Step 4: Poll production until live, record verdict**
+
+Same loop as Task 4. Expected: `origin-ip` row decides whether direct-to-origin routing goes into `request()` (separate change).

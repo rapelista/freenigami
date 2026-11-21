@@ -63,3 +63,16 @@ egress IP. Whether header mimicking still lifts the block on a datacenter IP
 ## Left to the builder
 
 None — interface and variants are pinned in the plan.
+
+## Addendum (2026-11-21, post-verdict)
+
+Production probe (iad1) confirmed all 4 header variants 403; ACAO is
+hardcoded to `https://mikonime.stream`. Follow-up approved by the human
+partner: test a 5th variant `origin-ip` — direct-to-origin request to
+`195.88.211.20` with SNI/Host `api.mikonime.stream` and TLS verification
+disabled (origin serves a Cloudflare Origin CA cert, untrusted by design).
+Locally verified working via
+`curl -sk --resolve api.mikonime.stream:443:195.88.211.20` → 200 JSON.
+If it passes from Vercel egress, apply origin-first routing (with fallback)
+to `request()` in `src/services/anime/mikonime.ts` — that is a separate
+change, not part of this probe update.
