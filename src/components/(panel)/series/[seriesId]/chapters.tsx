@@ -3,17 +3,22 @@
 import { Skeleton } from '@heroui/react';
 import {
   keepPreviousData,
-  useQuery,
+  useInfiniteQuery,
   useQueryClient,
 } from '@tanstack/react-query';
-import { ArrowDownWideNarrow, BookOpen, Search, Sparkles } from 'lucide-react';
+import {
+  ArrowDownWideNarrow,
+  BookOpen,
+  LoaderCircle,
+  Search,
+  Sparkles,
+} from 'lucide-react';
 import Link from 'next/link';
 import { parseAsStringEnum, useQueryStates } from 'nuqs';
-import { useRef } from 'react';
+import { useDebounceValue } from 'usehooks-ts';
 
-import { Pagination, PaginationInfo } from '~/components/ui/pagination';
 import { isRecent, proxyImage, timeAgo } from '~/lib/format';
-import { paginationParser, searchParser } from '~/lib/parser';
+import { searchParser } from '~/lib/parser';
 import { cn } from '~/lib/utils';
 import { trpc } from '~/trpc/client';
 
@@ -21,6 +26,7 @@ interface SeriesChaptersProps {
   seriesId: string;
 }
 
+const PAGE_SIZE = 24;
 const DEFAULT_THUMBNAIL = 'default.jpg';
 
 function releaseLabel(date: string) {
@@ -32,44 +38,42 @@ function releaseLabel(date: string) {
 }
 
 export function SeriesChapters({ seriesId }: SeriesChaptersProps) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  const [{ page, search, order }, setParams] = useQueryStates({
-    ...paginationParser,
+  const [{ search, order }, setParams] = useQueryStates({
     ...searchParser,
     order: parseAsStringEnum(['asc', 'desc'] as const).withDefault('desc'),
   });
 
-  const { data, isLoading } = useQuery(
-    trpc.chapter.listBySeriesId.queryOptions(
+  const [debouncedSearch] = useDebounceValue(search, 400);
+
+  const {
+    data,
+    isLoading,
+    isError,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery(
+    trpc.chapter.listBySeriesId.infiniteQueryOptions(
       {
         seriesId,
-        page,
-        search,
+        page_size: PAGE_SIZE,
+        search: debouncedSearch,
         sort_order: order,
       },
       {
+        getNextPageParam: (lastPage) => lastPage.meta.next_cursor ?? undefined,
         placeholderData: keepPreviousData,
       },
     ),
   );
 
-  const totalPages = data?.meta.total_page || 1;
-  const totalRecords = data?.meta.total_record;
-
-  const scrollToTop = () => {
-    if (ref.current) {
-      const top = ref.current.getBoundingClientRect().top;
-
-      window.scrollBy({ top: top - 80, behavior: 'smooth' });
-    }
-  };
+  const chapters = data?.pages.flatMap((page) => page.data) ?? [];
+  const totalRecords = data?.pages[0]?.meta.total_record ?? null;
 
   const queryClient = useQueryClient();
 
   return (
     <section
-      ref={ref}
       aria-label="Daftar chapter"
       className="space-y-4 border-t border-border pt-6"
     >
@@ -77,7 +81,7 @@ export function SeriesChapters({ seriesId }: SeriesChaptersProps) {
         <span className="accent-gradient flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold">
           <BookOpen className="size-4" />
           Chapter
-          {totalRecords !== undefined && (
+          {totalRecords !== null && (
             <span className="text-xs font-medium opacity-70">
               {totalRecords}
             </span>
@@ -94,7 +98,7 @@ export function SeriesChapters({ seriesId }: SeriesChaptersProps) {
               inputMode="numeric"
               placeholder="Cari chapter..."
               type="search"
-              onChange={(e) => setParams({ search: e.target.value, page: 1 })}
+              onChange={(e) => setParams({ search: e.target.value })}
             />
           </label>
 
@@ -107,7 +111,7 @@ export function SeriesChapters({ seriesId }: SeriesChaptersProps) {
             className="flex h-9 items-center gap-1.5 rounded-lg bg-amber-soft px-3 text-sm font-semibold"
             type="button"
             onClick={() =>
-              setParams({ order: order === 'desc' ? 'asc' : 'desc', page: 1 })
+              setParams({ order: order === 'desc' ? 'asc' : 'desc' })
             }
           >
             <ArrowDownWideNarrow
@@ -121,6 +125,18 @@ export function SeriesChapters({ seriesId }: SeriesChaptersProps) {
         </div>
       </div>
 
+      {isError && chapters.length === 0 && (
+        <p className="py-10 text-center text-sm text-muted">
+          Gagal memuat chapter. Coba lagi nanti.
+        </p>
+      )}
+
+      {!isLoading && !isError && chapters.length === 0 && (
+        <p className="py-10 text-center text-sm text-muted">
+          Chapter tidak ditemukan.
+        </p>
+      )}
+
       <ul className="grid grid-cols-1 gap-2 md:grid-cols-2">
         {isLoading
           ? Array.from({ length: 12 }, (_, i) => (
@@ -128,7 +144,7 @@ export function SeriesChapters({ seriesId }: SeriesChaptersProps) {
                 <Skeleton className="h-20 rounded-xl" />
               </li>
             ))
-          : data?.data.map((chapter) => {
+          : chapters.map((chapter) => {
               const thumbnail =
                 chapter.thumbnail_image_url &&
                 !chapter.thumbnail_image_url.endsWith(DEFAULT_THUMBNAIL)
@@ -188,18 +204,21 @@ export function SeriesChapters({ seriesId }: SeriesChaptersProps) {
             })}
       </ul>
 
-      <div className="space-y-4 pt-2">
-        <Pagination
-          currentPage={page}
-          totalPages={totalPages}
-          onPageChange={(page) => {
-            setParams({ page });
-            scrollToTop();
-          }}
-        />
-
-        <PaginationInfo currentPage={page} totalPages={totalPages} />
-      </div>
+      {hasNextPage && (
+        <div className="flex justify-center pt-2">
+          <button
+            className="flex h-10 items-center gap-2 rounded-xl bg-amber-soft px-5 text-sm font-semibold transition-colors hover:bg-amber-soft/70 disabled:opacity-60"
+            disabled={isFetchingNextPage}
+            type="button"
+            onClick={() => fetchNextPage()}
+          >
+            {isFetchingNextPage && (
+              <LoaderCircle className="size-4 animate-spin text-accent" />
+            )}
+            Muat lebih banyak
+          </button>
+        </div>
+      )}
     </section>
   );
 }
