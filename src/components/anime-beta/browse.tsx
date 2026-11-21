@@ -10,9 +10,9 @@ import {
   TriangleAlert,
   X,
 } from 'lucide-react';
-import { useQueryStates } from 'nuqs';
+import { debounce, useQueryStates } from 'nuqs';
 import { useState } from 'react';
-import { useDebounceCallback } from 'usehooks-ts';
+import { useDebounceValue } from 'usehooks-ts';
 
 import { Pagination } from '~/components/ui/pagination';
 import {
@@ -29,6 +29,7 @@ import { trpc } from '~/trpc/client';
 import { ANIME_GRID, AnimeCardItem, AnimeCardSkeleton } from './card';
 
 const PAGE_SIZE = 24;
+const SEARCH_DELAY = 300;
 const COLLAPSED_GENRES = 18;
 
 type Params = ReturnType<typeof useQueryStates<typeof browseParsers>>[0];
@@ -50,24 +51,24 @@ export function AnimeBrowse() {
   const update = (values: Update) =>
     setParams({ ...values, page: null } as Parameters<typeof setParams>[0]);
 
-  // Typing stays local; the URL (and the query) follow after a pause.
-  const [search, setSearch] = useState(params.search);
-  const pushSearch = useDebounceCallback(
-    (value: string) =>
-      setParams({ search: value || null, page: null }, { history: 'replace' }),
-    300,
-  );
+  // The field follows every keystroke (nuqs state is immediate); the URL
+  // and the query only catch up after a pause in typing.
+  const setSearch = (value: string) =>
+    setParams(
+      { search: value || null, page: null },
+      { history: 'replace', limitUrlUpdates: debounce(SEARCH_DELAY) },
+    );
+  const [debounced] = useDebounceValue(params.search, SEARCH_DELAY);
+  // Clearing the field applies at once rather than after the pause.
+  const query = (params.search ? debounced : '').trim();
 
-  // Back/forward or a link changed the URL: mirror it in the field.
-  const [syncedSearch, setSyncedSearch] = useState(params.search);
-
-  if (params.search !== syncedSearch) {
-    setSyncedSearch(params.search);
-    setSearch(params.search);
-  }
-
+  // "relevance" only means something while searching.
   const sort: AnimeSort =
-    params.sort ?? (params.search ? 'relevance' : 'updated');
+    params.sort && (params.sort !== 'relevance' || query)
+      ? params.sort
+      : query
+        ? 'relevance'
+        : 'updated';
 
   const facets = useQuery({
     ...trpc.anime.facets.queryOptions(),
@@ -76,7 +77,7 @@ export function AnimeBrowse() {
 
   const result = useQuery({
     ...trpc.anime.browse.queryOptions({
-      search: params.search.trim() || undefined,
+      search: query || undefined,
       genres: params.genre,
       format: params.format,
       status: params.status,
@@ -144,10 +145,9 @@ export function AnimeBrowse() {
         <h1 className="text-2xl font-bold">{heading}</h1>
         {data && (
           <p aria-live="polite" className="text-sm text-muted">
-            {params.search ? (
+            {query ? (
               <>
-                {data.total} hasil untuk “
-                <span className="text-foreground">{params.search}</span>”
+                hasil untuk “<span className="text-foreground">{query}</span>”
               </>
             ) : (
               <>{data.total.toLocaleString('id-ID')} anime</>
@@ -166,25 +166,20 @@ export function AnimeBrowse() {
               enterKeyHint="search"
               placeholder="Cari judul, studio, genre, atau sinopsis…"
               type="text"
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                pushSearch(e.target.value);
-              }}
+              value={params.search}
+              onChange={(e) => setSearch(e.target.value)}
             />
-            {search && (
+            {params.search && (
               <button
                 aria-label="Hapus pencarian"
                 className="absolute top-1/2 right-2 flex size-6 -translate-y-1/2 items-center justify-center rounded-md text-muted hover:text-foreground"
                 type="button"
-                onClick={() => {
-                  setSearch('');
-                  pushSearch.cancel();
+                onClick={() =>
                   setParams(
                     { search: null, page: null },
                     { history: 'replace' },
-                  );
-                }}
+                  )
+                }
               >
                 <X className="size-4" />
               </button>
@@ -227,14 +222,14 @@ export function AnimeBrowse() {
                 selectionMode="single"
                 onAction={(key) => update({ sort: key as AnimeSort })}
               >
-                {ANIME_SORTS.filter(
-                  (s) => s !== 'relevance' || params.search,
-                ).map((s) => (
-                  <Dropdown.Item key={s} id={s} textValue={SORT_LABEL[s]}>
-                    <Label>{SORT_LABEL[s]}</Label>
-                    <Dropdown.ItemIndicator />
-                  </Dropdown.Item>
-                ))}
+                {ANIME_SORTS.filter((s) => s !== 'relevance' || query).map(
+                  (s) => (
+                    <Dropdown.Item key={s} id={s} textValue={SORT_LABEL[s]}>
+                      <Label>{SORT_LABEL[s]}</Label>
+                      <Dropdown.ItemIndicator />
+                    </Dropdown.Item>
+                  ),
+                )}
               </Dropdown.Menu>
             </Dropdown.Popover>
           </Dropdown>
