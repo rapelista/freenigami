@@ -8,7 +8,7 @@ import {
   SeriesListSchema,
   SeriesRecommendationSchema,
 } from '~/schema/series';
-import { fetchSeriesList } from '~/services/series/list';
+import { fetchMangaList, fetchSeriesList } from '~/services/series/list';
 import { fetchApi } from '~/lib/api';
 import { appProcedure, router } from '~/trpc/init';
 
@@ -49,24 +49,14 @@ export const seriesRouter = router({
         }),
     )
     .query(async ({ input }) => {
-      const url = new URL('https://api.shngm.io/v1/manga/list');
-
-      url.searchParams.set('format', input.format);
-      url.searchParams.set('page', '1');
-      url.searchParams.set('page_size', '8');
-      url.searchParams.set('is_recommended', 'true');
-      url.searchParams.set('sort', 'latest');
-      url.searchParams.set('sort_order', 'desc');
-
-      const response = await fetchApi(url);
-
-      if (!response.ok) {
-        throw new TRPCError({
-          code: 'BAD_GATEWAY',
-        });
-      }
-
-      const data = await response.json();
+      const data = await fetchMangaList({
+        format: input.format,
+        page: 1,
+        page_size: 8,
+        is_recommended: true,
+        sort: 'latest',
+        sort_order: 'desc',
+      });
 
       try {
         const results = SeriesRecommendationSchema.parse(data);
@@ -94,27 +84,12 @@ export const seriesRouter = router({
         }),
     )
     .query(async ({ input }) => {
-      const url = new URL('https://api.shngm.io/v1/manga/list');
-
-      url.searchParams.set('is_update', 'true');
-      url.searchParams.set('sort', 'latest');
-      url.searchParams.set('sort_order', 'desc');
-
-      Object.entries(input).forEach(([key, value]) => {
-        if (value) {
-          url.searchParams.set(key, String(value));
-        }
+      const data = await fetchMangaList({
+        is_update: true,
+        sort: 'latest',
+        sort_order: 'desc',
+        ...input,
       });
-
-      const response = await fetchApi(url);
-
-      if (!response.ok) {
-        throw new TRPCError({
-          code: 'BAD_GATEWAY',
-        });
-      }
-
-      const data = await response.json();
 
       try {
         const results = SeriesLatestSchema.parse(data);

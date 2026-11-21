@@ -6,6 +6,9 @@ import {
   ChevronLeft,
   ChevronRight,
   List,
+  Pause,
+  Play,
+  Settings2,
   Share2,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -13,7 +16,11 @@ import { useParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
 import { ChapterBookmark } from '~/components/read/[seriesId]/[chapterId]/bookmark';
+import { ChapterListSheet } from '~/components/read/[seriesId]/[chapterId]/chapter-list-sheet';
+import { SettingsSheet } from '~/components/read/[seriesId]/[chapterId]/settings-sheet';
+import { useReaderAutomation } from '~/components/read/[seriesId]/[chapterId]/use-reader-automation';
 import { cn } from '~/lib/utils';
+import { useReaderSettings } from '~/stores/reader';
 import { trpc } from '~/trpc/client';
 
 export default function Layout({ children }: React.PropsWithChildren) {
@@ -21,6 +28,8 @@ export default function Layout({ children }: React.PropsWithChildren) {
   const bottomBarRef = useRef<HTMLElement>(null);
   const [visible, setVisible] = useState(true);
   const [shared, setShared] = useState(false);
+  const [chapterListOpen, setChapterListOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const { seriesId, chapterId } = useParams<{
     seriesId: string;
@@ -36,6 +45,16 @@ export default function Layout({ children }: React.PropsWithChildren) {
 
   const nextChapterId = chapter?.data.next_chapter_id;
   const prevChapterId = chapter?.data.prev_chapter_id;
+  const chapterNumber = chapter?.data.chapter_number;
+  const sheetOpen = chapterListOpen || settingsOpen;
+
+  const { autoScrolling, toggleAutoScroll, countdown, cancelAdvance } =
+    useReaderAutomation({
+      chapterId,
+      ready: !!chapter,
+      nextHref: nextChapterId ? `/read/${seriesId}/${nextChapterId}` : null,
+      paused: sheetOpen,
+    });
 
   const queryClient = useQueryClient();
 
@@ -53,6 +72,13 @@ export default function Layout({ children }: React.PropsWithChildren) {
     }
   }, [nextChapterId, prevChapterId, queryClient]);
 
+  // Remember opened chapters for the "Sudah dibaca" marker.
+  const markRead = useReaderSettings((state) => state.markRead);
+
+  useEffect(() => {
+    markRead(seriesId, chapterId);
+  }, [seriesId, chapterId, markRead]);
+
   // Show the bars again whenever a new chapter opens.
   const [openedChapterId, setOpenedChapterId] = useState(chapterId);
 
@@ -68,7 +94,8 @@ export default function Layout({ children }: React.PropsWithChildren) {
       if (
         topBarRef.current?.contains(target) ||
         bottomBarRef.current?.contains(target) ||
-        (target instanceof Element && target.closest('a, button'))
+        (target instanceof Element &&
+          target.closest('a, button, input, [role="dialog"]'))
       ) {
         return;
       }
@@ -105,7 +132,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
   const handleShare = async () => {
     const url = window.location.href;
     const title = series
-      ? `${series.title} Chapter ${chapter?.data.chapter_number ?? ''}`
+      ? `${series.title} Chapter ${chapterNumber ?? ''}`
       : document.title;
 
     try {
@@ -122,7 +149,8 @@ export default function Layout({ children }: React.PropsWithChildren) {
   };
 
   const navButton =
-    'flex h-10 items-center gap-1 rounded-lg px-3 text-sm font-medium transition-colors';
+    'flex h-10 items-center gap-1.5 rounded-lg px-3 text-sm font-medium transition-colors';
+  const softButton = 'bg-amber-soft/70 hover:bg-amber-soft';
 
   return (
     <div className="relative min-h-svh bg-background">
@@ -133,7 +161,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
           !visible && '-translate-y-full',
         )}
       >
-        <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-3">
+        <div className="mx-auto flex h-14 max-w-6xl items-center gap-2 px-3">
           <Link
             aria-label="Kembali ke detail komik"
             className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-amber-soft/70 text-accent hover:bg-amber-soft"
@@ -142,7 +170,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
             <ArrowLeft className="size-4" />
           </Link>
 
-          <div className="min-w-0 flex-1">
+          <div className="ml-1 min-w-0 flex-1">
             <Link
               className="block truncate text-sm font-semibold hover:text-accent"
               href={`/series/${seriesId}`}
@@ -150,7 +178,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
               {series?.title ?? ' '}
             </Link>
             <p className="text-xs text-muted">
-              {chapter ? `Chapter ${chapter.data.chapter_number}` : ' '}
+              {chapterNumber !== undefined ? `Chapter ${chapterNumber}` : ' '}
             </p>
           </div>
 
@@ -158,10 +186,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
 
           <button
             aria-label="Bagikan"
-            className={cn(
-              navButton,
-              'h-9 bg-amber-soft/70 hover:bg-amber-soft',
-            )}
+            className={cn(navButton, softButton, 'h-9')}
             type="button"
             onClick={handleShare}
           >
@@ -170,10 +195,40 @@ export default function Layout({ children }: React.PropsWithChildren) {
               {shared ? 'Link disalin' : 'Bagikan'}
             </span>
           </button>
+
+          <button
+            aria-label="Pengaturan baca"
+            className={cn(navButton, softButton, 'h-9 px-2.5')}
+            type="button"
+            onClick={() => setSettingsOpen(true)}
+          >
+            <Settings2 className="size-4" />
+          </button>
         </div>
       </header>
 
       {children}
+
+      {countdown !== null && (
+        <div
+          aria-live="polite"
+          className="fixed inset-x-0 bottom-20 z-40 flex justify-center px-3"
+        >
+          <div className="flex items-center gap-3 rounded-xl border border-border bg-background/95 py-2 pl-4 pr-2 text-sm shadow-2xl shadow-black/60 backdrop-blur">
+            <span>
+              Lanjut ke chapter berikutnya dalam{' '}
+              <span className="font-semibold text-accent">{countdown}</span> dtk
+            </span>
+            <button
+              className="h-8 rounded-lg bg-amber-soft px-3 font-medium hover:bg-amber-soft/70"
+              type="button"
+              onClick={cancelAdvance}
+            >
+              Batal
+            </button>
+          </div>
+        </div>
+      )}
 
       <nav
         ref={bottomBarRef}
@@ -186,49 +241,102 @@ export default function Layout({ children }: React.PropsWithChildren) {
         <div className="flex items-center gap-1.5 rounded-2xl border border-border bg-background/90 p-1.5 shadow-2xl shadow-black/60 backdrop-blur">
           {prevChapterId ? (
             <Link
-              className={cn(navButton, 'bg-amber-soft/70 hover:bg-amber-soft')}
+              aria-label="Chapter sebelumnya"
+              className={cn(navButton, softButton)}
               href={`/read/${seriesId}/${prevChapterId}`}
             >
               <ChevronLeft className="size-4" />
-              <span className="max-sm:hidden">Sebelumnya</span>
+              <span className="max-md:hidden">Sebelumnya</span>
             </Link>
           ) : (
             <span
               aria-disabled
+              aria-label="Chapter sebelumnya"
               className={cn(navButton, 'bg-amber-soft/40 text-muted')}
             >
               <ChevronLeft className="size-4" />
-              <span className="max-sm:hidden">Sebelumnya</span>
+              <span className="max-md:hidden">Sebelumnya</span>
             </span>
           )}
 
-          <Link
-            className={cn(navButton, 'bg-amber-soft/70 hover:bg-amber-soft')}
-            href={`/series/${seriesId}`}
+          <button
+            aria-haspopup="dialog"
+            className={cn(navButton, softButton)}
+            type="button"
+            onClick={() => setChapterListOpen(true)}
           >
             <List className="size-4 text-accent" />
-            {chapter ? `Chapter ${chapter.data.chapter_number}` : 'Chapter'}
-          </Link>
+            {chapterNumber !== undefined ? `Ch. ${chapterNumber}` : 'Chapter'}
+          </button>
+
+          <button
+            aria-label={autoScrolling ? 'Jeda autoscroll' : 'Mulai autoscroll'}
+            aria-pressed={autoScrolling}
+            className={cn(
+              navButton,
+              autoScrolling ? 'bg-accent/20 text-accent' : softButton,
+            )}
+            type="button"
+            onClick={() => {
+              if (!autoScrolling) setVisible(false);
+              toggleAutoScroll();
+            }}
+          >
+            {autoScrolling ? (
+              <Pause className="size-4 fill-current" />
+            ) : (
+              <Play className="size-4" />
+            )}
+            <span className="max-sm:hidden">
+              {autoScrolling ? 'Jeda' : 'Auto'}
+            </span>
+          </button>
+
+          <button
+            aria-haspopup="dialog"
+            aria-label="Pengaturan baca"
+            className={cn(navButton, softButton)}
+            type="button"
+            onClick={() => setSettingsOpen(true)}
+          >
+            <Settings2 className="size-4" />
+            <span className="max-sm:hidden">Mode</span>
+          </button>
 
           {nextChapterId ? (
             <Link
+              aria-label="Chapter selanjutnya"
               className={cn(navButton, 'accent-gradient font-semibold')}
               href={`/read/${seriesId}/${nextChapterId}`}
             >
-              <span className="max-sm:hidden">Selanjutnya</span>
+              <span className="max-md:hidden">Selanjutnya</span>
               <ChevronRight className="size-4" />
             </Link>
           ) : (
             <span
               aria-disabled
+              aria-label="Chapter selanjutnya"
               className={cn(navButton, 'bg-accent/20 text-muted')}
             >
-              <span className="max-sm:hidden">Selanjutnya</span>
+              <span className="max-md:hidden">Selanjutnya</span>
               <ChevronRight className="size-4" />
             </span>
           )}
         </div>
       </nav>
+
+      <ChapterListSheet
+        chapterId={chapterId}
+        isOpen={chapterListOpen}
+        seriesId={seriesId}
+        onOpenChange={setChapterListOpen}
+      />
+
+      <SettingsSheet
+        chapterNumber={chapterNumber}
+        isOpen={settingsOpen}
+        onOpenChange={setSettingsOpen}
+      />
     </div>
   );
 }

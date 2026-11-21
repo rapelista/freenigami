@@ -37,6 +37,21 @@
 @theme inline {
   --color-amber-soft: #261d12;
   --color-amber-deep: #fea500;
+
+  --animate-fade-in: fade-in 200ms ease-out;
+  --animate-sheet-up: sheet-up 280ms cubic-bezier(0.32, 0.72, 0, 1);
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes sheet-up {
+    from {
+      transform: translateY(100%);
+    }
+  }
 }
 
 @layer components {
