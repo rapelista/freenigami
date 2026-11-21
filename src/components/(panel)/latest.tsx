@@ -37,7 +37,6 @@ export function Latest() {
 
   const [{ page, page_size, latest }, setParams] = useQueryStates({
     ...paginationParser,
-    page_size: paginationParser.page_size.withDefault(20),
     latest: parseAsStringEnum<LatestTab>([
       ...Object.values(PublishType),
       ...Object.values(SeriesType),
@@ -85,7 +84,7 @@ export function Latest() {
         }}
       />
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
         {isLoading
           ? Array.from({ length: page_size }, (_, i) => (
               <div key={i} className="overflow-hidden rounded-xl bg-surface">
