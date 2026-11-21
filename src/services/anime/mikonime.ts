@@ -1,4 +1,5 @@
 import https from 'node:https';
+import zlib from 'node:zlib';
 
 import { z } from 'zod';
 
@@ -25,6 +26,19 @@ interface OriginResponse {
   body: string;
 }
 
+function decode(body: Buffer, encoding: string | undefined) {
+  switch (encoding?.trim().toLowerCase()) {
+    case 'br':
+      return zlib.brotliDecompressSync(body);
+    case 'gzip':
+      return zlib.gunzipSync(body);
+    case 'deflate':
+      return zlib.inflateSync(body);
+    default:
+      return body;
+  }
+}
+
 function directOriginRequest(
   url: string,
   timeoutMs = 8000,
@@ -38,20 +52,34 @@ function directOriginRequest(
         path: `${pathname}${search}`,
         servername: hostname,
         rejectUnauthorized: false,
-        headers: { accept: '*/*', host: hostname },
+        // Ask for compression: the full catalog is ~7MB raw (~11s) but
+        // ~1.3MB gzipped (~2s), which keeps it inside the function limit.
+        headers: {
+          accept: '*/*',
+          'accept-encoding': 'br, gzip, deflate',
+          host: hostname,
+        },
         signal: AbortSignal.timeout(timeoutMs),
       },
       (res) => {
         const chunks: Buffer[] = [];
 
         res.on('data', (c: Buffer) => chunks.push(c));
-        res.on('end', () =>
-          resolve({
-            status: res.statusCode ?? 0,
-            contentType: res.headers['content-type'] ?? null,
-            body: Buffer.concat(chunks).toString('utf8'),
-          }),
-        );
+        res.on('error', reject);
+        res.on('end', () => {
+          try {
+            resolve({
+              status: res.statusCode ?? 0,
+              contentType: res.headers['content-type'] ?? null,
+              body: decode(
+                Buffer.concat(chunks),
+                res.headers['content-encoding'],
+              ).toString('utf8'),
+            });
+          } catch (error) {
+            reject(error);
+          }
+        });
       },
     );
 

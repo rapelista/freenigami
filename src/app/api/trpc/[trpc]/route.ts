@@ -11,3 +11,7 @@ function handler(req: Request) {
   });
 }
 export { handler as GET, handler as POST };
+
+// The anime catalog is fetched in full on a cold start (~2-3s gzipped,
+// longer when the source is slow); don't let the default 10s cut it off.
+export const maxDuration = 60;
