@@ -12,6 +12,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'cdn.shinigami.gg',
       },
+      {
+        protocol: 'https',
+        hostname: 'media.mikonime.stream',
+      },
     ],
     unoptimized: true,
   },

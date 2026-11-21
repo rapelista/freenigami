@@ -27,7 +27,20 @@ const SourceSchema = z.object({
   is_locked: z.boolean(),
 });
 
+/** Only the fields a list card needs; the API also sends heavy ones. */
+const AnimeCardSchema = z.object({
+  id: z.number(),
+  title: z.string(),
+  slug: z.string(),
+  poster: z.string().nullish(),
+  rating: z.coerce.number().nullish(),
+  year: z.coerce.string().nullish(),
+  format: z.string().nullish(),
+  airing_status: z.string().nullish(),
+});
+
 export type Episode = z.infer<typeof EpisodeSchema>;
+export type AnimeCard = z.infer<typeof AnimeCardSchema>;
 
 export interface StreamSource {
   id: number;
@@ -140,4 +153,27 @@ export async function getStreamSources(
         qualityRank(b.quality) - qualityRank(a.quality) ||
         a.server.localeCompare(b.server),
     );
+}
+
+/**
+ * One page of the anime catalog, newest first. The API pages with
+ * `limit` + `offset` (it ignores `page`); `nextCursor` is the next offset,
+ * or null once a short page shows the end was reached.
+ */
+export async function getAnimeList({
+  offset,
+  limit,
+}: {
+  offset: number;
+  limit: number;
+}) {
+  const data = await request(
+    { route: 'anime', limit: String(limit), offset: String(offset) },
+    AnimeCardSchema,
+  );
+
+  return {
+    data: data.map((anime) => ({ ...anime, poster: mediaUrl(anime.poster) })),
+    nextCursor: data.length === limit ? offset + limit : null,
+  };
 }
