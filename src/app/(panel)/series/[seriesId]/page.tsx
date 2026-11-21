@@ -11,7 +11,7 @@ export default async function Page({
   const { seriesId } = await params;
 
   return (
-    <main className="container mx-auto p-4 md:p-6 space-y-6">
+    <main className="mx-auto max-w-6xl space-y-8 px-4 py-6">
       <Suspense>
         <SeriesDetail seriesId={seriesId} />
       </Suspense>

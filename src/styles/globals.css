@@ -1,6 +1,44 @@
 @import 'tailwindcss';
 @import '@heroui/styles';
 
+/*
+ * Theme: near-black canvas, warm dark surfaces, amber accent.
+ * Unlayered so it wins over HeroUI's `@layer base` theme variables.
+ */
+.dark {
+  --radius: 0.625rem;
+
+  --background: #0a0a0a;
+  --foreground: #f5f5f4;
+
+  --surface: #1a1a1a;
+  --surface-secondary: #222120;
+  --surface-tertiary: #2a2826;
+  --overlay: #161616;
+
+  --default: #1f1d1b;
+  --default-foreground: #f5f5f4;
+
+  --muted: #8b919b;
+  --border: #262626;
+  --separator: #222222;
+
+  --field-background: #121212;
+  --field-placeholder: #8b919b;
+
+  --accent: #ffc81f;
+  --accent-foreground: #0a0a0a;
+  --focus: #ffc81f;
+  --link: #ffc81f;
+
+  --scrollbar-thumb: #2a2826;
+}
+
+@theme inline {
+  --color-amber-soft: #261d12;
+  --color-amber-deep: #fea500;
+}
+
 @layer components {
   .button {
     @apply rounded-xl;
@@ -8,5 +46,23 @@
 
   .disclosure__body {
     @apply px-0;
+  }
+
+  /* Warm-tinted card surface used across lists. */
+  .panel {
+    @apply rounded-xl bg-linear-to-tr from-amber-soft via-surface to-surface;
+  }
+
+  /* Amber gradient used for primary actions and active pills. */
+  .accent-gradient {
+    @apply bg-linear-to-r from-accent to-amber-deep text-accent-foreground;
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
   }
 }

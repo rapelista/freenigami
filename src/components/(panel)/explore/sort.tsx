@@ -18,13 +18,20 @@ export function ExploreSort() {
 
   return (
     <Dropdown>
-      <Button isIconOnly aria-label="Sort options" variant="secondary">
+      <Button
+        aria-label="Urutkan"
+        className="shrink-0 bg-amber-soft font-semibold"
+        variant="secondary"
+      >
         <ArrowDownWideNarrow
           className={cn(
-            'transition-transform duration-500 ease-in-out',
+            'size-4 text-accent transition-transform duration-500 ease-in-out',
             sort_order === 'asc' ? 'rotate-180' : '',
           )}
         />
+        <span className="max-sm:hidden">
+          {sortOptionLabelMap.get(sort as SortOption) ?? 'Urutkan'}
+        </span>
       </Button>
 
       <Dropdown.Popover placement="bottom end">

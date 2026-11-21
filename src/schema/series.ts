@@ -44,9 +44,30 @@ export const SeriesDetailSchema = SeriesSchema.pick({
   status: true,
   country_id: true,
   taxonomy: true,
-});
+}).extend(
+  SeriesSchema.pick({
+    latest_chapter_id: true,
+    latest_chapter_number: true,
+  }).partial().shape,
+);
 
 export type SeriesDetail = z.infer<typeof SeriesDetailSchema>;
+
+/**
+ * Optional card metadata from the list endpoint. Kept optional so a missing
+ * field degrades the card instead of failing the whole list.
+ */
+const SeriesCardExtraSchema = SeriesSchema.pick({
+  country_id: true,
+  rank: true,
+  bookmark_count: true,
+  description: true,
+  status: true,
+  latest_chapter_id: true,
+  latest_chapter_number: true,
+  latest_chapter_time: true,
+  taxonomy: true,
+}).partial();
 
 export const SeriesLatestSchema = generateListSchema(
   SeriesSchema.pick({
@@ -55,15 +76,17 @@ export const SeriesLatestSchema = generateListSchema(
     cover_image_url: true,
     cover_portrait_url: true,
     user_rate: true,
-  }).extend({
-    chapters: z.array(
-      z.object({
-        chapter_id: z.string(),
-        chapter_number: z.number(),
-        created_at: z.string(),
-      }),
-    ),
-  }),
+  })
+    .extend(SeriesCardExtraSchema.shape)
+    .extend({
+      chapters: z.array(
+        z.object({
+          chapter_id: z.string(),
+          chapter_number: z.number(),
+          created_at: z.string(),
+        }),
+      ),
+    }),
 );
 
 export type SeriesLatest = z.infer<typeof SeriesLatestSchema>;
@@ -74,7 +97,9 @@ export const SeriesRecommendationSchema = generateListSchema(
     title: true,
     cover_image_url: true,
     cover_portrait_url: true,
-  }),
+  })
+    .extend(SeriesCardExtraSchema.shape)
+    .extend({ user_rate: z.number().optional() }),
 );
 
 export type SeriesRecommendation = z.infer<typeof SeriesRecommendationSchema>;
@@ -86,7 +111,7 @@ export const SeriesListSchema = generateListSchema(
     cover_image_url: true,
     cover_portrait_url: true,
     user_rate: true,
-  }),
+  }).extend(SeriesCardExtraSchema.shape),
 );
 
 export type SeriesList = z.infer<typeof SeriesListSchema>;

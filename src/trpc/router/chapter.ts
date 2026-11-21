@@ -12,6 +12,7 @@ export const chapterRouter = router({
     .input(
       PaginationSchema.extend({
         search: z.string(),
+        sort_order: z.enum(['asc', 'desc']),
       })
         .partial()
         .extend({
@@ -24,7 +25,7 @@ export const chapterRouter = router({
       );
 
       url.searchParams.set('sort_by', 'chapter_number');
-      url.searchParams.set('sort_order', 'desc');
+      url.searchParams.set('sort_order', input.sort_order || 'desc');
       url.searchParams.set('page', input.page?.toString() || '1');
       url.searchParams.set('page_size', input.page_size?.toString() || '24');
       url.searchParams.set('search', input.search || '');

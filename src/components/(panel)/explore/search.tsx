@@ -27,7 +27,7 @@ export function ExploreSearch(props: ExploreSearchProps) {
 
         <InputGroup.Input
           {...props}
-          placeholder="Cari berdasarkan judul manhwa, manga, atau manhua..."
+          placeholder="Cari judul komik..."
           value={search}
           onChange={(e) => {
             setParams({ search: e.target.value });

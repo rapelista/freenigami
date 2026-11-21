@@ -12,6 +12,7 @@ export const TaxonomySchema = z.object({
   Author: z.array(TaxonomyItemSchema),
   Genre: z.array(TaxonomyItemSchema),
   Type: z.array(TaxonomyItemSchema),
+  Format: z.array(TaxonomyItemSchema),
 });
 
 export type Taxonomy = z.infer<typeof TaxonomySchema>;

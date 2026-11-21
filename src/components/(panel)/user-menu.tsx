@@ -1,7 +1,7 @@
 'use client';
 
 import { Avatar, Dropdown, Label } from '@heroui/react';
-import { LogIn } from 'lucide-react';
+import { User } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
@@ -14,11 +14,12 @@ export function UserMenu() {
 
   if (!isNonAnonymous) {
     return (
-      <Link href="/login" className="group flex items-center gap-1">
-        <LogIn />
-        <span className="group-hover:underline underline-offset-4 max-md:hidden">
-          Sign In
-        </span>
+      <Link
+        aria-label="Masuk"
+        className="flex size-10 items-center justify-center rounded-full bg-surface-secondary transition-colors hover:bg-surface-tertiary"
+        href="/login"
+      >
+        <User className="size-5" />
       </Link>
     );
   }
@@ -38,12 +39,12 @@ export function UserMenu() {
   return (
     <Dropdown>
       <Dropdown.Trigger
-        className="cursor-pointer rounded-full outline-none focus-visible:ring-2"
         aria-label={`User menu for ${session.user.name}`}
+        className="cursor-pointer rounded-full outline-none focus-visible:ring-2"
       >
         <Avatar size="sm">
           {session.user.image && (
-            <Avatar.Image src={session.user.image} alt={session.user.name} />
+            <Avatar.Image alt={session.user.name} src={session.user.image} />
           )}
           <Avatar.Fallback>{initials}</Avatar.Fallback>
         </Avatar>

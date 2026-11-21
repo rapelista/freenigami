@@ -1,21 +1,26 @@
 'use client';
 
-import { Card } from '@heroui/react';
 import { useQueries, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, ChevronLeft, ChevronRight, Home } from 'lucide-react';
+import {
+  ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
+  List,
+  Share2,
+} from 'lucide-react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
-import { useEffect, useRef } from 'react';
+import { useParams } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
 
 import { ChapterBookmark } from '~/components/read/[seriesId]/[chapterId]/bookmark';
 import { cn } from '~/lib/utils';
 import { trpc } from '~/trpc/client';
 
 export default function Layout({ children }: React.PropsWithChildren) {
-  const router = useRouter();
-
-  const topBarRef = useRef<HTMLDivElement>(null);
-  const bottomBarRef = useRef<HTMLDivElement>(null);
+  const topBarRef = useRef<HTMLElement>(null);
+  const bottomBarRef = useRef<HTMLElement>(null);
+  const [visible, setVisible] = useState(true);
+  const [shared, setShared] = useState(false);
 
   const { seriesId, chapterId } = useParams<{
     seriesId: string;
@@ -29,28 +34,8 @@ export default function Layout({ children }: React.PropsWithChildren) {
     ],
   });
 
-  const hasLoaded = !!series || !!chapter;
-
   const nextChapterId = chapter?.data.next_chapter_id;
   const prevChapterId = chapter?.data.prev_chapter_id;
-  const hasNextChapter = !!nextChapterId;
-  const hasPrevChapter = !!prevChapterId;
-
-  useEffect(() => {
-    async function makeVisible() {
-      await new Promise((resolve) => setTimeout(resolve, 300));
-
-      if (topBarRef.current) {
-        topBarRef.current.dataset.visible = 'true';
-      }
-
-      if (bottomBarRef.current) {
-        bottomBarRef.current.dataset.visible = 'true';
-      }
-    }
-
-    makeVisible();
-  }, []);
 
   const queryClient = useQueryClient();
 
@@ -68,153 +53,182 @@ export default function Layout({ children }: React.PropsWithChildren) {
     }
   }, [nextChapterId, prevChapterId, queryClient]);
 
+  // Show the bars again whenever a new chapter opens.
+  const [openedChapterId, setOpenedChapterId] = useState(chapterId);
+
+  if (openedChapterId !== chapterId) {
+    setOpenedChapterId(chapterId);
+    setVisible(true);
+  }
+
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const topBar = topBarRef.current;
-      const bottomBar = bottomBarRef.current;
+    const handleClick = (event: MouseEvent) => {
+      const target = event.target as Node;
 
       if (
-        topBar &&
-        !topBar.contains(event.target as Node) &&
-        bottomBar &&
-        !bottomBar.contains(event.target as Node)
+        topBarRef.current?.contains(target) ||
+        bottomBarRef.current?.contains(target) ||
+        (target instanceof Element && target.closest('a, button'))
       ) {
-        if (topBar.dataset.visible === 'true') {
-          topBar.dataset.visible = 'false';
-        } else {
-          topBar.dataset.visible = 'true';
-        }
-
-        if (bottomBar.dataset.visible === 'true') {
-          bottomBar.dataset.visible = 'false';
-        } else {
-          bottomBar.dataset.visible = 'true';
-        }
+        return;
       }
+
+      setVisible((value) => !value);
     };
 
     let lastScrollY = window.scrollY;
 
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
+      const nearBottom =
+        window.innerHeight + currentScrollY >=
+        document.documentElement.scrollHeight - 200;
 
-      if (currentScrollY > lastScrollY) {
-        const topBar = topBarRef.current;
-        const bottomBar = bottomBarRef.current;
-
-        if (topBar && topBar.dataset.visible === 'true') {
-          topBar.dataset.visible = 'false';
-        }
-
-        if (bottomBar && bottomBar.dataset.visible === 'true') {
-          bottomBar.dataset.visible = 'false';
-        }
+      if (nearBottom || currentScrollY < 80) {
+        setVisible(true);
+      } else if (currentScrollY > lastScrollY + 4) {
+        setVisible(false);
       }
-
-      // Use this if you want to show the bars when scrolling up
-      // else if (currentScrollY < lastScrollY) {
-      // }
 
       lastScrollY = currentScrollY;
     };
 
-    window.addEventListener('click', handleClickOutside);
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('click', handleClick);
+    window.addEventListener('scroll', handleScroll, { passive: true });
 
     return () => {
-      window.removeEventListener('click', handleClickOutside);
+      window.removeEventListener('click', handleClick);
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
 
+  const handleShare = async () => {
+    const url = window.location.href;
+    const title = series
+      ? `${series.title} Chapter ${chapter?.data.chapter_number ?? ''}`
+      : document.title;
+
+    try {
+      if (navigator.share) {
+        await navigator.share({ title, url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        setShared(true);
+        setTimeout(() => setShared(false), 2_000);
+      }
+    } catch {
+      // User cancelled the share sheet.
+    }
+  };
+
+  const navButton =
+    'flex h-10 items-center gap-1 rounded-lg px-3 text-sm font-medium transition-colors';
+
   return (
-    <div className="relative">
-      <div className={cn('fixed top-4 w-full px-4')}>
-        <Card
-          ref={topBarRef}
-          className={cn(
-            'flex-row max-w-6xl mx-auto',
-            'transition-all duration-300 ease-in-out',
-            '-translate-y-4 opacity-0',
-            'data-[visible="true"]:translate-y-0',
-            'data-[visible="true"]:opacity-100',
-          )}
-          data-visible={false}
-        >
-          <Link href={`/series/${seriesId}`}>
-            <ArrowLeft className="size-6" />
+    <div className="relative min-h-svh bg-background">
+      <header
+        ref={topBarRef}
+        className={cn(
+          'fixed inset-x-0 top-0 z-40 border-b border-border bg-background/90 backdrop-blur transition-transform duration-300',
+          !visible && '-translate-y-full',
+        )}
+      >
+        <div className="mx-auto flex h-14 max-w-6xl items-center gap-3 px-3">
+          <Link
+            aria-label="Kembali ke detail komik"
+            className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-amber-soft/70 text-accent hover:bg-amber-soft"
+            href={`/series/${seriesId}`}
+          >
+            <ArrowLeft className="size-4" />
           </Link>
 
-          <div className="flex-1 text-center">
-            <p
-              className={cn(
-                'inline-flex gap-1 items-center transition-opacity duration-300 ease-in-out',
-                hasLoaded ? 'opacity-100' : 'opacity-0',
-              )}
+          <div className="min-w-0 flex-1">
+            <Link
+              className="block truncate text-sm font-semibold hover:text-accent"
+              href={`/series/${seriesId}`}
             >
-              <Link
-                className="line-clamp-1 text-violet-600"
-                href={`/series/${seriesId}`}
-              >
-                {series?.title}
-              </Link>
-              <ChevronRight className="min-w-4 size-4 stroke-[2.5px]" />
-              <span>{chapter?.data.chapter_number}</span>
+              {series?.title ?? ' '}
+            </Link>
+            <p className="text-xs text-muted">
+              {chapter ? `Chapter ${chapter.data.chapter_number}` : ' '}
             </p>
           </div>
-
-          <Link href="/">
-            <Home className="size-6" />
-          </Link>
-        </Card>
-      </div>
-
-      {children}
-
-      <div className={cn('fixed bottom-6 w-full')}>
-        <div
-          ref={bottomBarRef}
-          className={cn(
-            'mx-auto flex w-fit justify-center gap-4',
-            '[&>button]:inline-flex [&>button]:items-center [&>button]:justify-center [&>button]:bg-surface-tertiary [&>button]:rounded-full [&>button]:size-14 [&>button>svg]:size-6 [&>button]:disabled:opacity-50 [&>button]:disabled:cursor-progress [&>button]:transition-all [&>button]:duration-300 [&>button]:hover:bg-surface-secondary [&>button]:data-[visible="false"]:opacity-0',
-            'transition-all duration-300 ease-in-out',
-            'translate-y-4 opacity-0',
-            'data-[visible="true"]:opacity-100',
-            'data-[visible="true"]:translate-0',
-          )}
-          data-visible={false}
-        >
-          <button
-            data-visible={prevChapterId !== null}
-            disabled={!hasLoaded}
-            onClick={() => {
-              if (hasPrevChapter) {
-                router.push(
-                  `/read/${seriesId}/${chapter.data.prev_chapter_id}`,
-                );
-              }
-            }}
-          >
-            <ChevronLeft />
-          </button>
 
           <ChapterBookmark chapterId={chapterId} seriesId={seriesId} />
 
           <button
-            data-visible={nextChapterId !== null}
-            disabled={!hasLoaded}
-            onClick={() => {
-              if (hasNextChapter) {
-                router.push(
-                  `/read/${seriesId}/${chapter.data.next_chapter_id}`,
-                );
-              }
-            }}
+            aria-label="Bagikan"
+            className={cn(
+              navButton,
+              'h-9 bg-amber-soft/70 hover:bg-amber-soft',
+            )}
+            type="button"
+            onClick={handleShare}
           >
-            <ChevronRight />
+            <Share2 className="size-4" />
+            <span className="max-sm:hidden">
+              {shared ? 'Link disalin' : 'Bagikan'}
+            </span>
           </button>
         </div>
-      </div>
+      </header>
+
+      {children}
+
+      <nav
+        ref={bottomBarRef}
+        aria-label="Navigasi chapter"
+        className={cn(
+          'fixed inset-x-0 bottom-4 z-40 flex justify-center px-3 transition-all duration-300',
+          !visible && 'pointer-events-none translate-y-6 opacity-0',
+        )}
+      >
+        <div className="flex items-center gap-1.5 rounded-2xl border border-border bg-background/90 p-1.5 shadow-2xl shadow-black/60 backdrop-blur">
+          {prevChapterId ? (
+            <Link
+              className={cn(navButton, 'bg-amber-soft/70 hover:bg-amber-soft')}
+              href={`/read/${seriesId}/${prevChapterId}`}
+            >
+              <ChevronLeft className="size-4" />
+              <span className="max-sm:hidden">Sebelumnya</span>
+            </Link>
+          ) : (
+            <span
+              aria-disabled
+              className={cn(navButton, 'bg-amber-soft/40 text-muted')}
+            >
+              <ChevronLeft className="size-4" />
+              <span className="max-sm:hidden">Sebelumnya</span>
+            </span>
+          )}
+
+          <Link
+            className={cn(navButton, 'bg-amber-soft/70 hover:bg-amber-soft')}
+            href={`/series/${seriesId}`}
+          >
+            <List className="size-4 text-accent" />
+            {chapter ? `Chapter ${chapter.data.chapter_number}` : 'Chapter'}
+          </Link>
+
+          {nextChapterId ? (
+            <Link
+              className={cn(navButton, 'accent-gradient font-semibold')}
+              href={`/read/${seriesId}/${nextChapterId}`}
+            >
+              <span className="max-sm:hidden">Selanjutnya</span>
+              <ChevronRight className="size-4" />
+            </Link>
+          ) : (
+            <span
+              aria-disabled
+              className={cn(navButton, 'bg-accent/20 text-muted')}
+            >
+              <span className="max-sm:hidden">Selanjutnya</span>
+              <ChevronRight className="size-4" />
+            </span>
+          )}
+        </div>
+      </nav>
     </div>
   );
 }

@@ -83,6 +83,7 @@ export const seriesRouter = router({
     .input(
       PaginationSchema.extend({
         type: z.string(),
+        format: z.string(),
       })
         .partial()
         .optional()

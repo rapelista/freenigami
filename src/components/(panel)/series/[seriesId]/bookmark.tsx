@@ -1,12 +1,11 @@
 'use client';
 
-import { Checkbox, Description, Label } from '@heroui/react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { BookmarkIcon } from 'lucide-react';
 
+import { authClient } from '~/lib/auth/client';
 import { BookmarkType } from '~/lib/enum';
 import { checkIsBookmarked, cn } from '~/lib/utils';
-import { authClient } from '~/lib/auth/client';
 import { useBookmarkStore, type Bookmark } from '~/stores/bookmark';
 import { trpc } from '~/trpc/client';
 
@@ -51,28 +50,19 @@ export function SeriesBookmark({ seriesId }: SeriesBookmarkProps) {
   };
 
   return (
-    <>
-      <Checkbox
-        className={cn(
-          'bg-surface group relative flex-col gap-4 rounded-3xl px-5 py-4 transition-all',
-          'data-[selected=true]:bg-accent/10',
-        )}
-        isSelected={isBookmarked}
-        onChange={handleToggleBookmark}
-      >
-        <Checkbox.Control className="absolute right-4 top-3 size-5 rounded-full before:rounded-full">
-          <Checkbox.Indicator />
-        </Checkbox.Control>
-        <Checkbox.Content className="flex flex-row items-start justify-start gap-4">
-          <BookmarkIcon />
-          <div className="flex flex-col gap-1">
-            <Label>Bookmark Series</Label>
-            <Description>
-              Simpan series ini ke daftar bookmark kamu untuk akses cepat
-            </Description>
-          </div>
-        </Checkbox.Content>
-      </Checkbox>
-    </>
+    <button
+      aria-pressed={isBookmarked}
+      className={cn(
+        'flex h-10 w-full items-center justify-center gap-2 rounded-xl text-sm font-semibold transition-colors',
+        isBookmarked
+          ? 'bg-accent/15 text-accent ring-1 ring-accent/40'
+          : 'bg-amber-soft hover:bg-amber-soft/70',
+      )}
+      type="button"
+      onClick={handleToggleBookmark}
+    >
+      <BookmarkIcon className={cn('size-4', isBookmarked && 'fill-current')} />
+      {isBookmarked ? 'Tersimpan' : 'Bookmark'}
+    </button>
   );
 }

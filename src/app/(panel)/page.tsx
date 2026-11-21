@@ -1,26 +1,23 @@
 import { Suspense } from 'react';
 
+import { Hero } from '~/components/(panel)/hero';
 import { Latest } from '~/components/(panel)/latest';
 import { Recommendation } from '~/components/(panel)/recommendation';
 
 export default function Home() {
   return (
-    <main className="container mx-auto p-4 md:p-6 space-y-6">
-      <div className="space-y-4">
-        <h1 className="text-2xl font-semibold">Rekomendasi</h1>
+    <main className="mx-auto max-w-6xl space-y-10 px-4 py-4 md:py-6">
+      <h1 className="sr-only">Freenigami — baca komik terbaru</h1>
 
-        <Suspense>
-          <Recommendation />
-        </Suspense>
-      </div>
+      <Hero />
 
-      <div className="space-y-4">
-        <h1 className="text-2xl font-semibold">Update Terbaru</h1>
+      <Suspense>
+        <Recommendation />
+      </Suspense>
 
-        <Suspense>
-          <Latest />
-        </Suspense>
-      </div>
+      <Suspense>
+        <Latest />
+      </Suspense>
     </main>
   );
 }

@@ -6,7 +6,9 @@ import { ExploreSort } from '~/components/(panel)/explore/sort';
 
 export default function Page() {
   return (
-    <main className="container mx-auto p-4 md:p-6 space-y-6">
+    <main className="mx-auto max-w-6xl space-y-4 px-4 py-6">
+      <h1 className="text-2xl font-bold">Daftar Komik</h1>
+
       <Suspense>
         <div className="flex gap-2">
           <ExploreSearch />
