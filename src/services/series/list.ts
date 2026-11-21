@@ -2,13 +2,14 @@ import { TRPCError } from '@trpc/server';
 import { getStatusKeyFromCode } from '@trpc/server/unstable-core-do-not-import';
 
 import { CACHE_TAGS } from '~/configs/cache';
+import { fetchApi } from '~/lib/api';
 import { generateFullUrl } from '~/utils/misc';
 
 export async function fetchSeriesList(params: object) {
   const baseUrl = 'https://api.shngm.io/v1/manga/list';
   const url = generateFullUrl(baseUrl, params);
 
-  const response = await fetch(url, {
+  const response = await fetchApi(url, {
     cache: 'force-cache',
     next: {
       revalidate: 3_600,

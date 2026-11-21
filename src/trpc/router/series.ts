@@ -9,6 +9,7 @@ import {
   SeriesRecommendationSchema,
 } from '~/schema/series';
 import { fetchSeriesList } from '~/services/series/list';
+import { fetchApi } from '~/lib/api';
 import { appProcedure, router } from '~/trpc/init';
 
 export const seriesRouter = router({
@@ -57,7 +58,7 @@ export const seriesRouter = router({
       url.searchParams.set('sort', 'latest');
       url.searchParams.set('sort_order', 'desc');
 
-      const response = await fetch(url.toString());
+      const response = await fetchApi(url);
 
       if (!response.ok) {
         throw new TRPCError({
@@ -104,7 +105,7 @@ export const seriesRouter = router({
         }
       });
 
-      const response = await fetch(url.toString());
+      const response = await fetchApi(url);
 
       if (!response.ok) {
         throw new TRPCError({
@@ -139,7 +140,7 @@ export const seriesRouter = router({
 
       const url = new URL(`https://api.shngm.io/v1/manga/detail/${input.id}`);
 
-      const response = await fetch(url.toString());
+      const response = await fetchApi(url);
 
       if (!response.ok) {
         throw new TRPCError({

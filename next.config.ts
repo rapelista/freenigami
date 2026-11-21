@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'storage.shngm.id',
       },
+      {
+        protocol: 'https',
+        hostname: 'cdn.shinigami.gg',
+      },
     ],
     unoptimized: true,
   },

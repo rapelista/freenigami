@@ -13,16 +13,27 @@ export async function GET(
     `https://assets.shngm.id/thumbnail/cover/`,
   ];
 
-  const response = await Promise.any(
-    urls.map((url) =>
-      fetch(`${url}${id}`).then((res) => {
-        if (!res.ok) {
-          throw new Error();
-        }
+  // Only tried after every URL above has failed.
+  const fallbackUrls = [
+    `https://cdn.shinigami.gg/assets/image/`,
+    `https://cdn.shinigami.gg/assets/cover/`,
+  ];
 
-        return res;
-      }),
-    ),
+  const fetchFirst = (bases: string[]) =>
+    Promise.any(
+      bases.map((url) =>
+        fetch(`${url}${id}`).then((res) => {
+          if (!res.ok) {
+            throw new Error();
+          }
+
+          return res;
+        }),
+      ),
+    );
+
+  const response = await fetchFirst(urls).catch(() =>
+    fetchFirst(fallbackUrls),
   );
 
   const blob = await response.blob();
