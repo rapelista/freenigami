@@ -9,6 +9,12 @@ const FALLBACK_HOST = 'https://api.shinigami.io';
 /** Cursor separator; fallback cursors are base64url so never contain it. */
 const SEP = '|';
 
+/** Give up on the primary host quickly so the fallback can answer. */
+const PRIMARY_TIMEOUT_MS = 6_000;
+const FALLBACK_TIMEOUT_MS = 10_000;
+/** Extra attempts for the fallback host on network/5xx/invalid-JSON errors. */
+const FALLBACK_RETRIES = 1;
+
 const PrimaryResponseSchema = z.object({
   data: z.array(ChapterSchema),
   meta: z.object({
@@ -73,7 +79,9 @@ async function fetchPrimary(
   url.searchParams.set('search', params.search || '');
 
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      signal: AbortSignal.timeout(PRIMARY_TIMEOUT_MS),
+    });
 
     if (!response.ok) return null;
 
@@ -89,6 +97,44 @@ async function fetchPrimary(
   } catch {
     return null;
   }
+}
+
+/**
+ * GET JSON from the fallback host, retrying transient failures. Network
+ * errors and non-JSON bodies used to escape as 500s; they now surface as a
+ * 502 only after the retries are spent.
+ */
+async function fetchFallbackJson(url: URL): Promise<unknown> {
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt <= FALLBACK_RETRIES; attempt++) {
+    try {
+      const response = await fetch(url, {
+        signal: AbortSignal.timeout(FALLBACK_TIMEOUT_MS),
+      });
+
+      // 4xx will not get better on retry.
+      if (response.status >= 400 && response.status < 500) {
+        throw new TRPCError({
+          code: 'BAD_GATEWAY',
+          message: `Chapter list request failed (${response.status})`,
+        });
+      }
+
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+      return await response.json();
+    } catch (error) {
+      if (error instanceof TRPCError) throw error;
+      lastError = error;
+    }
+  }
+
+  throw new TRPCError({
+    code: 'BAD_GATEWAY',
+    message: 'Failed to fetch chapter list',
+    cause: lastError,
+  });
 }
 
 async function fetchFallback(
@@ -110,16 +156,7 @@ async function fetchFallback(
   url.searchParams.set('limit', String(skip + params.pageSize));
   if (fallbackCursor) url.searchParams.set('cursor', fallbackCursor);
 
-  const response = await fetch(url);
-
-  if (!response.ok) {
-    throw new TRPCError({
-      code: 'BAD_GATEWAY',
-      message: 'Failed to fetch chapter list',
-    });
-  }
-
-  const parsed = FallbackResponseSchema.safeParse(await response.json());
+  const parsed = FallbackResponseSchema.safeParse(await fetchFallbackJson(url));
 
   if (!parsed.success) {
     throw new TRPCError({
