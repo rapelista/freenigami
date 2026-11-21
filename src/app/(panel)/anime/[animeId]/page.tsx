@@ -11,7 +11,13 @@ import {
   mediaUrl,
 } from '~/services/anime/mikonime';
 
-export const metadata: Metadata = { title: 'Anime Player Playground' };
+export const metadata: Metadata = {
+  title: 'Anime Player Playground',
+  // media.mikonime.stream 403s any request carrying a foreign Referer
+  // (Cloudflare hotlink rule); the <video poster> fetch follows the
+  // document policy, so send none.
+  referrer: 'no-referrer',
+};
 
 export default async function Page({
   params,

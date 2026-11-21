@@ -94,8 +94,10 @@ export function AnimeList() {
 }
 
 function AnimeCardItem({ anime, eager }: { anime: AnimeCard; eager: boolean }) {
-  // media.mikonime.stream refuses hotlinks from other sites (403), so the
-  // poster often fails here; fall back to a title placeholder.
+  // media.mikonime.stream 403s requests with a foreign Referer (Cloudflare
+  // hotlink rule), hence `referrerPolicy="no-referrer"` on the Image — a
+  // request without Referer passes. The fallback stays for genuinely
+  // missing files (some slugs 404).
   const [posterFailed, setPosterFailed] = useState(false);
 
   return (
@@ -110,6 +112,7 @@ function AnimeCardItem({ anime, eager }: { anime: AnimeCard; eager: boolean }) {
             alt={anime.title}
             className="object-cover transition-transform duration-300 group-hover:scale-105"
             loading={eager ? 'eager' : 'lazy'}
+            referrerPolicy="no-referrer"
             sizes="(min-width: 1024px) 200px, 45vw"
             src={anime.poster}
             onError={() => setPosterFailed(true)}
