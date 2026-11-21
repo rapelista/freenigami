@@ -1,8 +1,7 @@
 import { Suspense } from 'react';
 
 import { Explore } from '~/components/(panel)/explore';
-import { ExploreSearch } from '~/components/(panel)/explore/search';
-import { ExploreSort } from '~/components/(panel)/explore/sort';
+import { ExploreToolbar } from '~/components/(panel)/explore/toolbar';
 
 export default function Page() {
   return (
@@ -10,11 +9,7 @@ export default function Page() {
       <h1 className="text-2xl font-bold">Daftar Komik</h1>
 
       <Suspense>
-        <div className="flex gap-2">
-          <ExploreSearch />
-
-          <ExploreSort />
-        </div>
+        <ExploreToolbar />
 
         <Explore />
       </Suspense>

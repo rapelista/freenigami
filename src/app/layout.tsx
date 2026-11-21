@@ -3,6 +3,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Inter } from 'next/font/google';
 
 import { Providers } from '~/components/providers';
+import { SearchDialog } from '~/components/search-dialog';
 import { cn } from '~/lib/utils';
 
 import '~/styles/globals.css';
@@ -23,6 +24,7 @@ export default function RootLayout({
       <body className="bg-background">
         <Providers>
           {children}
+          <SearchDialog />
           <Analytics />
           <SpeedInsights />
         </Providers>

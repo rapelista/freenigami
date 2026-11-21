@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 import { cn } from '~/lib/utils';
+import { useSearchStore } from '~/stores/search';
 
 export const NAV_ITEMS = [
   { href: '/', label: 'Beranda' },
@@ -20,6 +21,7 @@ export function isActivePath(pathname: string, href: string) {
 
 export function SiteHeader() {
   const pathname = usePathname();
+  const openSearch = useSearchStore((state) => state.setOpen);
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur">
@@ -59,13 +61,18 @@ export function SiteHeader() {
         </nav>
 
         <div className="ml-auto flex items-center gap-2 md:ml-0">
-          <Link
-            aria-label="Cari"
-            className="flex size-10 items-center justify-center rounded-full transition-colors hover:bg-surface"
-            href="/explore"
+          <button
+            aria-keyshortcuts="Meta+K Control+K"
+            aria-label="Cari (Ctrl+K)"
+            className="flex h-10 items-center gap-2 rounded-full px-2.5 text-muted transition-colors hover:bg-surface hover:text-foreground"
+            type="button"
+            onClick={() => openSearch(true)}
           >
-            <Search className="size-5" />
-          </Link>
+            <Search className="size-5 text-foreground" />
+            <kbd className="hidden rounded-md border border-border px-1.5 py-0.5 font-mono text-[11px] lg:block">
+              Ctrl K
+            </kbd>
+          </button>
         </div>
       </div>
 

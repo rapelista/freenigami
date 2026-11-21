@@ -5,54 +5,38 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { Bookmark, SearchX, Star } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { parseAsString, parseAsStringEnum, useQueryStates } from 'nuqs';
+import { useQueryStates } from 'nuqs';
 import { useRef } from 'react';
 import { useDebounceValue } from 'usehooks-ts';
 
 import { Pagination, PaginationInfo } from '~/components/ui/pagination';
-import { PillTabs } from '~/components/ui/pill-tabs';
-import {
-  countryFlag,
-  formatNumber,
-  hasRank,
-  proxyImage,
-  timeAgo,
-} from '~/lib/format';
-import { SeriesType } from '~/lib/enum';
-import { paginationParser, searchParser } from '~/lib/parser';
+import { exploreParsers, SORT_OPTIONS, STATUS_LABEL } from '~/lib/explore';
+import { formatNumber, hasRank, proxyImage, timeAgo } from '~/lib/format';
 import { trpc } from '~/trpc/client';
-
-const FORMAT_TABS = [
-  { id: 'all', label: 'Semua' },
-  { id: SeriesType.MANHWA, label: 'Manhwa', prefix: countryFlag('KR') },
-  { id: SeriesType.MANHUA, label: 'Manhua', prefix: countryFlag('CN') },
-  { id: SeriesType.MANGA, label: 'Manga', prefix: countryFlag('JP') },
-] as const;
 
 export function Explore() {
   const ref = useRef<HTMLDivElement>(null);
 
-  const [{ page, page_size, search, type, sort, sort_order }, setParams] =
-    useQueryStates({
-      ...paginationParser,
-      ...searchParser,
-      type: parseAsStringEnum<SeriesType>(Object.values(SeriesType)),
-      sort: parseAsString.withDefault('latest'),
-      sort_order: parseAsString.withDefault('desc'),
-    });
+  const [params, setParams] = useQueryStates(exploreParsers);
+  const { page, page_size, search, sort } = params;
 
   const [debouncedSearch] = useDebounceValue(search, 500);
-  const format = type || undefined;
 
   const { data, isLoading } = useQuery(
     trpc.series.list.queryOptions(
       {
         page,
         page_size,
-        format,
-        q: debouncedSearch,
+        q: debouncedSearch || undefined,
+        type: params.type ?? undefined,
+        status: params.status ?? undefined,
+        format: params.format ?? undefined,
+        subformat: params.subformat ?? undefined,
+        genre: params.genre.join(',') || undefined,
+        theme: params.theme.join(',') || undefined,
+        min_chapters: params.min ?? undefined,
         sort,
-        sort_order,
+        sort_order: SORT_OPTIONS.find((option) => option.value === sort)?.order,
       },
       {
         placeholderData: keepPreviousData,
@@ -72,18 +56,6 @@ export function Explore() {
 
   return (
     <div ref={ref} className="space-y-4">
-      <PillTabs
-        items={FORMAT_TABS}
-        label="Format"
-        value={type ?? 'all'}
-        onChange={(value) =>
-          setParams({
-            type: value === 'all' ? null : (value as SeriesType),
-            page: 1,
-          })
-        }
-      />
-
       {!isLoading && data?.data.length === 0 && (
         <div className="flex flex-col items-center gap-2 py-20 text-center text-muted">
           <SearchX className="size-10" />
@@ -109,9 +81,7 @@ export function Explore() {
               const status =
                 series.status === undefined
                   ? undefined
-                  : series.status === 1
-                    ? 'Ongoing'
-                    : 'Completed';
+                  : STATUS_LABEL[series.status];
 
               return (
                 <Link

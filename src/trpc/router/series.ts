@@ -8,18 +8,28 @@ import {
   SeriesListSchema,
   SeriesRecommendationSchema,
 } from '~/schema/series';
+import { TaxonomyItemSchema } from '~/schema/taxonomy';
 import { fetchMangaList, fetchSeriesList } from '~/services/series/list';
 import { fetchApi } from '~/lib/api';
 import { appProcedure, router } from '~/trpc/init';
+
+const TaxonomyListSchema = z.object({ data: z.array(TaxonomyItemSchema) });
 
 export const seriesRouter = router({
   list: appProcedure
     .input(
       PaginationSchema.extend({
         q: z.string(),
-        format: z.string().optional(),
-        sort: z.string().optional(),
-        sort_order: z.string().optional(),
+        type: z.string(),
+        status: z.string(),
+        format: z.string(),
+        subformat: z.string(),
+        // Comma-separated slugs, e.g. "action,fantasy".
+        genre: z.string(),
+        theme: z.string(),
+        min_chapters: z.number().int().min(1),
+        sort: z.string(),
+        sort_order: z.string(),
       })
         .partial()
         .optional()
@@ -35,6 +45,21 @@ export const seriesRouter = router({
       const results = SeriesListSchema.parse(data);
 
       return results;
+    }),
+
+  taxonomy: appProcedure
+    .input(z.object({ type: z.enum(['genre', 'theme']) }))
+    .query(async ({ input }) => {
+      const response = await fetchApi(
+        `https://api.shngm.io/v1/taxonomy/list?type=${input.type}&limit=100`,
+        { next: { revalidate: 86_400 } },
+      );
+
+      if (!response.ok) {
+        throw new TRPCError({ code: 'BAD_GATEWAY' });
+      }
+
+      return TaxonomyListSchema.parse(await response.json()).data;
     }),
 
   recommendation: appProcedure
