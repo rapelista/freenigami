@@ -37,6 +37,65 @@ interface VideoPlayerProps {
   onError?: () => void;
 }
 
+/*
+ * Fullscreen across browsers. iPhone Safari has no element fullscreen at
+ * all (only the <video> itself, via `webkitEnterFullscreen`), and older
+ * Safari / iPadOS expose only the `webkit`-prefixed element API.
+ */
+type WebkitDocument = Document & {
+  webkitFullscreenElement?: Element | null;
+  webkitExitFullscreen?: () => Promise<void> | void;
+};
+type WebkitElement = HTMLElement & {
+  webkitRequestFullscreen?: () => Promise<void> | void;
+};
+type WebkitVideo = HTMLVideoElement & {
+  webkitEnterFullscreen?: () => void;
+  webkitExitFullscreen?: () => void;
+  webkitDisplayingFullscreen?: boolean;
+  webkitSupportsPresentationMode?: (mode: string) => boolean;
+  webkitPresentationMode?: string;
+  webkitSetPresentationMode?: (mode: string) => void;
+};
+
+const fullscreenElement = () =>
+  document.fullscreenElement ??
+  (document as WebkitDocument).webkitFullscreenElement ??
+  null;
+
+async function enterFullscreen(
+  container: HTMLElement,
+  video: HTMLVideoElement,
+) {
+  const el = container as WebkitElement;
+  const v = video as WebkitVideo;
+
+  try {
+    if (el.requestFullscreen) return await el.requestFullscreen();
+    if (el.webkitRequestFullscreen) return await el.webkitRequestFullscreen();
+  } catch {
+    // fall through to the native video player
+  }
+  v.webkitEnterFullscreen?.();
+}
+
+async function exitFullscreen(video: HTMLVideoElement) {
+  const doc = document as WebkitDocument;
+  const v = video as WebkitVideo;
+
+  try {
+    if (document.fullscreenElement && document.exitFullscreen) {
+      return await document.exitFullscreen();
+    }
+    if (doc.webkitFullscreenElement && doc.webkitExitFullscreen) {
+      return await doc.webkitExitFullscreen();
+    }
+    if (v.webkitDisplayingFullscreen) v.webkitExitFullscreen?.();
+  } catch {
+    // already left fullscreen
+  }
+}
+
 function formatTime(seconds: number) {
   if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
   const s = Math.floor(seconds % 60);
@@ -120,11 +179,23 @@ export function VideoPlayer({
   }, [src]);
 
   useEffect(() => {
-    const onChange = () => setFullscreen(!!document.fullscreenElement);
+    const video = videoRef.current;
+    const onChange = () =>
+      setFullscreen(
+        !!fullscreenElement() ||
+          !!(video as WebkitVideo | null)?.webkitDisplayingFullscreen,
+      );
+    const docEvents = ['fullscreenchange', 'webkitfullscreenchange'];
+    // iPhone: the native video player reports its own enter/exit.
+    const videoEvents = ['webkitbeginfullscreen', 'webkitendfullscreen'];
 
-    document.addEventListener('fullscreenchange', onChange);
+    docEvents.forEach((e) => document.addEventListener(e, onChange));
+    videoEvents.forEach((e) => video?.addEventListener(e, onChange));
 
-    return () => document.removeEventListener('fullscreenchange', onChange);
+    return () => {
+      docEvents.forEach((e) => document.removeEventListener(e, onChange));
+      videoEvents.forEach((e) => video?.removeEventListener(e, onChange));
+    };
   }, []);
 
   const showFlash = useCallback((kind: Flash) => {
@@ -199,16 +270,44 @@ export function VideoPlayer({
   }, []);
 
   const toggleFullscreen = useCallback(async () => {
-    if (document.fullscreenElement) await document.exitFullscreen();
-    else await containerRef.current?.requestFullscreen().catch(() => {});
+    const container = containerRef.current;
+    const video = videoRef.current;
+
+    if (!container || !video) return;
+    if (
+      fullscreenElement() ||
+      (video as WebkitVideo).webkitDisplayingFullscreen
+    ) {
+      await exitFullscreen(video);
+    } else {
+      await enterFullscreen(container, video);
+    }
   }, []);
 
   const togglePip = async () => {
     const video = videoRef.current;
 
     if (!video) return;
-    if (document.pictureInPictureElement) await document.exitPictureInPicture();
-    else await video.requestPictureInPicture().catch(() => {});
+    const v = video as WebkitVideo;
+
+    try {
+      if (document.pictureInPictureEnabled && video.requestPictureInPicture) {
+        if (document.pictureInPictureElement) {
+          await document.exitPictureInPicture();
+        } else {
+          await video.requestPictureInPicture();
+        }
+      } else if (v.webkitSupportsPresentationMode?.('picture-in-picture')) {
+        // Older iOS Safari: prefixed presentation modes.
+        v.webkitSetPresentationMode?.(
+          v.webkitPresentationMode === 'picture-in-picture'
+            ? 'inline'
+            : 'picture-in-picture',
+        );
+      }
+    } catch {
+      // PiP refused (e.g. not playing yet); nothing to do
+    }
   };
 
   const changeSpeed = (value: number) => {
