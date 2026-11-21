@@ -4,7 +4,7 @@ import { Skeleton } from '@heroui/react';
 import { useQuery } from '@tanstack/react-query';
 import { Star } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { proxyImage } from '~/lib/format';
 import { cn } from '~/lib/utils';
@@ -12,6 +12,13 @@ import { trpc } from '~/trpc/client';
 
 const VISIBLE_SIDE = 3;
 const AUTOPLAY_MS = 6_000;
+
+/** Horizontal distance (px) a drag must cover to count as a swipe. */
+const DRAG_THRESHOLD = 40;
+
+/** Card spacing (px); keep in sync with the `--step` classes below. */
+const stepWidth = () =>
+  window.matchMedia('(min-width: 768px)').matches ? 170 : 118;
 
 /**
  * Cover-flow style showcase of the most popular series.
@@ -41,14 +48,76 @@ export function Hero() {
     return () => clearInterval(id);
   }, [paused, items.length]);
 
+  // Pointer dragging (mouse and touch). `dragX` follows the pointer while
+  // held; on release it snaps by as many cards as were dragged past.
+  const [dragX, setDragX] = useState<number | null>(null);
+  const dragStart = useRef<number | null>(null);
+  const dragged = useRef(false);
+
+  const onPointerDown = (event: React.PointerEvent) => {
+    if (items.length < 2 || event.button !== 0) return;
+
+    dragStart.current = event.clientX;
+    dragged.current = false;
+  };
+
+  const onPointerMove = (event: React.PointerEvent) => {
+    if (dragStart.current === null) return;
+
+    const delta = event.clientX - dragStart.current;
+
+    if (!dragged.current && Math.abs(delta) < 5) return;
+
+    if (!dragged.current) {
+      dragged.current = true;
+      event.currentTarget.setPointerCapture(event.pointerId);
+    }
+
+    setDragX(delta);
+  };
+
+  const endDrag = () => {
+    if (dragStart.current === null) return;
+
+    dragStart.current = null;
+
+    if (dragX !== null && Math.abs(dragX) >= DRAG_THRESHOLD) {
+      const steps = Math.max(1, Math.round(Math.abs(dragX) / stepWidth()));
+      const direction = dragX < 0 ? 1 : -1;
+
+      setActive(
+        (index) =>
+          (((index + direction * steps) % items.length) + items.length) %
+          items.length,
+      );
+    }
+
+    setDragX(null);
+  };
+
   const current = items[active];
 
   return (
     <section
       aria-label="Komik populer"
-      className="relative h-[300px] overflow-hidden rounded-2xl bg-surface md:h-[330px]"
+      className={cn(
+        'relative h-[300px] touch-pan-y select-none overflow-hidden rounded-2xl bg-surface md:h-[330px]',
+        dragX !== null ? 'cursor-grabbing' : 'cursor-grab',
+      )}
+      onClickCapture={(event) => {
+        // A drag should not also open the card under the pointer.
+        if (dragged.current) {
+          event.preventDefault();
+          event.stopPropagation();
+          dragged.current = false;
+        }
+      }}
+      onPointerCancel={endDrag}
+      onPointerDown={onPointerDown}
       onPointerEnter={() => setPaused(true)}
       onPointerLeave={() => setPaused(false)}
+      onPointerMove={onPointerMove}
+      onPointerUp={endDrag}
     >
       {current && (
         // eslint-disable-next-line @next/next/no-img-element
@@ -72,7 +141,7 @@ export function Hero() {
         </div>
       )}
 
-      <ul className="absolute inset-x-0 top-3 h-full">
+      <ul className="absolute inset-x-0 top-1/2 h-0">
         {items.map((series, index) => {
           // Shortest circular distance from the active slide.
           let offset = index - active;
@@ -88,19 +157,21 @@ export function Hero() {
               key={series.manga_id}
               aria-hidden={hidden}
               className={cn(
-                'absolute left-1/2 top-0 w-36 transition-all duration-500 ease-out md:w-48',
+                'absolute left-1/2 top-0 w-36 -translate-y-1/2 md:w-48',
+                dragX === null && 'transition-all duration-500 ease-out',
                 '[--step:118px] md:[--step:170px]',
                 hidden && 'pointer-events-none opacity-0',
                 !hidden && !isActive && 'opacity-70 hover:opacity-100',
               )}
               style={{
-                transform: `translateX(calc(-50% + ${offset} * var(--step))) translateY(${isActive ? 0 : 36}px) scale(${isActive ? 1 : 0.8})`,
+                transform: `translateX(calc(-50% + ${offset} * var(--step) + ${dragX ?? 0}px)) scale(${isActive ? 1 : 0.8})`,
                 zIndex: 10 - Math.abs(offset),
               }}
             >
               {isActive ? (
                 <Link
                   className="relative block overflow-hidden rounded-xl bg-surface shadow-2xl shadow-black/60"
+                  draggable={false}
                   href={`/series/${series.manga_id}`}
                 >
                   <Cover series={series} />

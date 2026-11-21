@@ -18,18 +18,14 @@ export type Bookmark =
 
 export interface BookmarkStore {
   bookmarks: Array<Bookmark>;
-  syncedUserId: string | null;
-
   addBookmark: (bookmark: Bookmark) => void;
   removeBookmark: (bookmark: Bookmark) => void;
-  setSyncedUserId: (userId: string | null) => void;
 }
 
 export const useBookmarkStore = create<BookmarkStore>()(
   persist(
     (set) => ({
       bookmarks: [],
-      syncedUserId: null,
       addBookmark: (bookmark) => {
         set((state) => ({
           bookmarks: [...state.bookmarks, bookmark],
@@ -61,13 +57,12 @@ export const useBookmarkStore = create<BookmarkStore>()(
           }),
         }));
       },
-      setSyncedUserId: (userId) => {
-        set({ syncedUserId: userId });
-      },
     }),
     {
       name: 'freenigami-bookmarks',
       version: 1,
+      // Keep only bookmarks; drops the old account-sync field from storage.
+      partialize: (state) => ({ bookmarks: state.bookmarks }),
     },
   ),
 );

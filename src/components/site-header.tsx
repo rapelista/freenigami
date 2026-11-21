@@ -4,7 +4,6 @@ import { Search } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-import { UserMenu } from '~/components/(panel)/user-menu';
 import { cn } from '~/lib/utils';
 
 export const NAV_ITEMS = [
@@ -67,8 +66,6 @@ export function SiteHeader() {
           >
             <Search className="size-5" />
           </Link>
-
-          <UserMenu />
         </div>
       </div>
 

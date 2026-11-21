@@ -9,19 +9,12 @@ const GROUPS = [
       { href: '/bookmarks', label: 'Bookmark' },
     ],
   },
-  {
-    title: 'Akun',
-    links: [
-      { href: '/login', label: 'Masuk' },
-      { href: '/register', label: 'Daftar' },
-    ],
-  },
 ];
 
 export function SiteFooter() {
   return (
     <footer className="mt-16 border-t border-border">
-      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 md:grid-cols-[2fr_1fr_1fr]">
+      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 md:grid-cols-[2fr_1fr]">
         <div className="space-y-3">
           <p className="text-lg font-extrabold tracking-tight">FREENIGAMI</p>
           <p className="max-w-sm text-sm text-muted">

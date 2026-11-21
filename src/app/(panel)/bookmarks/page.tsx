@@ -1,7 +1,6 @@
 import { Bookmark } from 'lucide-react';
 import { Suspense } from 'react';
 
-import { BookmarkSyncButton } from '~/components/(panel)/bookmark/sync-button';
 import { BookmarkList } from '~/components/(panel)/bookmark/list';
 import { BookmarkTabs } from '~/components/(panel)/bookmark/tabs';
 
@@ -16,11 +15,8 @@ export default function Page() {
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Bookmark Saya</h1>
             <p className="text-sm text-foreground-secondary mt-1">
-              Series dan chapter yang kamu simpan
+              Series dan chapter yang kamu simpan di browser ini
             </p>
-          </div>
-          <div className="ml-auto">
-            <BookmarkSyncButton />
           </div>
         </div>
       </div>
