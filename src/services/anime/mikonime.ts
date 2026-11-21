@@ -84,6 +84,30 @@ export function getEpisodes(animeId: number) {
 const qualityRank = (quality: string) => Number.parseInt(quality) || 0;
 
 /**
+ * mikonime's `/v/e_*.html` embed links are wrapper pages that send
+ * `X-Frame-Options: SAMEORIGIN`, so they cannot be framed here. Each one
+ * just iframes the provider's own embed (vidhide, mega, filedon, ...),
+ * which is meant to be embedded, so frame that URL directly instead.
+ * Returns null when the wrapper has no player (server down/maintenance).
+ */
+async function resolveEmbed(url: string): Promise<string | null> {
+  if (!url.includes('mikonime.stream/v/')) return url;
+
+  try {
+    const res = await fetch(url, {
+      cache: 'no-store',
+      signal: AbortSignal.timeout(5000),
+    });
+    const html = await res.text();
+    const src = /<iframe[^>]*?\ssrc="(https:\/\/[^"]+)"/i.exec(html)?.[1];
+
+    return src && !src.includes('mikonime.stream') ? src : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Streamable sources for an episode, highest quality first, with direct
  * video files ahead of embeds. Download-only links are dropped.
  */
@@ -95,15 +119,21 @@ export async function getStreamSources(
     SourceSchema,
   );
 
-  return sources
-    .filter((s) => s.source_type === 'stream' && !s.is_locked)
-    .map<StreamSource>((s) => ({
-      id: s.id,
-      server: s.server_name,
-      quality: s.quality,
-      kind: s.format === 'embed' ? 'embed' : 'video',
-      url: s.url,
-    }))
+  const streams = await Promise.all(
+    sources
+      .filter((s) => s.source_type === 'stream' && !s.is_locked)
+      .map(async (s): Promise<StreamSource | null> => {
+        const kind = s.format === 'embed' ? 'embed' : 'video';
+        const url = kind === 'embed' ? await resolveEmbed(s.url) : s.url;
+
+        return url
+          ? { id: s.id, server: s.server_name, quality: s.quality, kind, url }
+          : null;
+      }),
+  );
+
+  return streams
+    .filter((s) => s !== null)
     .toSorted(
       (a, b) =>
         Number(a.kind === 'embed') - Number(b.kind === 'embed') ||
