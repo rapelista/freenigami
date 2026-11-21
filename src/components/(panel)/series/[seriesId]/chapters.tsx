@@ -27,6 +27,7 @@ interface SeriesChaptersProps {
 }
 
 const PAGE_SIZE = 24;
+/** API placeholder, also used when a chapter has no thumbnail at all. */
 const DEFAULT_THUMBNAIL = 'default.jpg';
 
 function releaseLabel(date: string) {
@@ -145,11 +146,9 @@ export function SeriesChapters({ seriesId }: SeriesChaptersProps) {
               </li>
             ))
           : chapters.map((chapter) => {
-              const thumbnail =
-                chapter.thumbnail_image_url &&
-                !chapter.thumbnail_image_url.endsWith(DEFAULT_THUMBNAIL)
-                  ? proxyImage(chapter.thumbnail_image_url)
-                  : null;
+              const thumbnail = proxyImage(
+                chapter.thumbnail_image_url || DEFAULT_THUMBNAIL,
+              );
 
               return (
                 <li key={chapter.chapter_id}>
@@ -165,15 +164,13 @@ export function SeriesChapters({ seriesId }: SeriesChaptersProps) {
                     }}
                   >
                     <div className="relative h-full w-32 shrink-0 overflow-hidden">
-                      {thumbnail && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          alt=""
-                          className="size-full object-cover opacity-60 transition-opacity group-hover:opacity-90"
-                          loading="lazy"
-                          src={thumbnail}
-                        />
-                      )}
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        alt=""
+                        className="size-full object-cover opacity-60 transition-opacity group-hover:opacity-90"
+                        loading="lazy"
+                        src={thumbnail}
+                      />
                       <div className="absolute inset-0 bg-linear-to-r from-transparent to-surface" />
 
                       {isRecent(chapter.release_date) && (
