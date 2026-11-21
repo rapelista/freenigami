@@ -100,13 +100,15 @@ export function Hero() {
             >
               {isActive ? (
                 <Link
-                  className="block overflow-hidden rounded-xl bg-surface shadow-2xl shadow-black/60"
+                  className="relative block overflow-hidden rounded-xl bg-surface shadow-2xl shadow-black/60"
                   href={`/series/${series.manga_id}`}
                 >
                   <Cover series={series} />
-                  <p className="line-clamp-1 bg-background/90 px-3 py-3 text-center text-sm font-semibold">
-                    {series.title}
-                  </p>
+                  <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/90 via-black/50 to-transparent px-3 pb-3 pt-12">
+                    <p className="line-clamp-2 text-center text-sm font-semibold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                      {series.title}
+                    </p>
+                  </div>
                 </Link>
               ) : (
                 <button
