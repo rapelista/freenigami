@@ -10,8 +10,23 @@ import { useSearchStore } from '~/stores/search';
 export const NAV_ITEMS = [
   { href: '/', label: 'Beranda' },
   { href: '/explore', label: 'Komik' },
+  { href: '/beta/anime', label: 'Anime', badge: 'Beta' },
   { href: '/bookmarks', label: 'Bookmark' },
-] as const;
+] as const satisfies ReadonlyArray<{
+  href: string;
+  label: string;
+  badge?: string;
+}>;
+
+function NavBadge({ item }: { item: (typeof NAV_ITEMS)[number] }) {
+  if (!('badge' in item)) return null;
+
+  return (
+    <span className="ml-1.5 rounded-md bg-accent px-1 text-[10px] leading-4 font-bold text-accent-foreground uppercase">
+      {item.badge}
+    </span>
+  );
+}
 
 export function isActivePath(pathname: string, href: string) {
   if (href === '/') return pathname === '/';
@@ -53,6 +68,7 @@ export function SiteHeader() {
                     href={item.href}
                   >
                     {item.label}
+                    <NavBadge item={item} />
                   </Link>
                 </li>
               );
@@ -78,7 +94,7 @@ export function SiteHeader() {
 
       {/* Mobile navigation */}
       <nav aria-label="Mobile" className="border-t border-border md:hidden">
-        <ul className="grid grid-cols-3">
+        <ul className="grid grid-cols-4">
           {NAV_ITEMS.map((item) => {
             const active = isActivePath(pathname, item.href);
 
@@ -94,6 +110,7 @@ export function SiteHeader() {
                   href={item.href}
                 >
                   {item.label}
+                  <NavBadge item={item} />
                 </Link>
               </li>
             );

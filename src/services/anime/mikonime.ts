@@ -25,7 +25,10 @@ interface OriginResponse {
   body: string;
 }
 
-function directOriginRequest(url: string): Promise<OriginResponse> {
+function directOriginRequest(
+  url: string,
+  timeoutMs = 8000,
+): Promise<OriginResponse> {
   return new Promise((resolve, reject) => {
     const { hostname, pathname, search } = new URL(url);
     const req = https.request(
@@ -36,10 +39,11 @@ function directOriginRequest(url: string): Promise<OriginResponse> {
         servername: hostname,
         rejectUnauthorized: false,
         headers: { accept: '*/*', host: hostname },
-        signal: AbortSignal.timeout(8000),
+        signal: AbortSignal.timeout(timeoutMs),
       },
       (res) => {
         const chunks: Buffer[] = [];
+
         res.on('data', (c: Buffer) => chunks.push(c));
         res.on('end', () =>
           resolve({
@@ -101,22 +105,37 @@ export interface StreamSource {
   url: string;
 }
 
-const responseOf = <T extends z.ZodType>(schema: T) =>
-  z.object({ status: z.literal('success'), data: z.array(schema) });
+const Envelope = z.object({ status: z.literal('success'), data: z.unknown() });
 
+const parseData = <T extends z.ZodType>(schema: T, json: unknown): z.infer<T> =>
+  schema.parse(Envelope.parse(json).data);
+
+/** One API call returning a list of `schema` items. */
 async function request<T extends z.ZodType>(
   params: Record<string, string>,
   schema: T,
 ): Promise<z.infer<T>[]> {
+  return requestData(params, z.array(schema));
+}
+
+/**
+ * One API call; `schema` describes the whole `data` field. `timeoutMs`
+ * bounds the origin-direct attempt (the full catalog takes ~10s).
+ */
+export async function requestData<T extends z.ZodType>(
+  params: Record<string, string>,
+  schema: T,
+  timeoutMs?: number,
+): Promise<z.infer<T>> {
   const url = `${API_URL}?${new URLSearchParams(params)}`;
 
   // Origin-direct first: the only path that works from datacenter egress.
   // Any failure falls through to the plain-fetch path below.
   try {
-    const res = await directOriginRequest(url);
+    const res = await directOriginRequest(url, timeoutMs);
 
     if (res.status === 200 && (res.contentType ?? '').includes('json')) {
-      return responseOf(schema).parse(JSON.parse(res.body)).data;
+      return parseData(schema, JSON.parse(res.body));
     }
   } catch {
     // fall through
@@ -129,7 +148,7 @@ async function request<T extends z.ZodType>(
     const isJson = res.headers.get('content-type')?.includes('json');
 
     if (res.ok && isJson) {
-      return responseOf(schema).parse(await res.json()).data;
+      return parseData(schema, await res.json());
     }
 
     if (attempt >= 2) {
