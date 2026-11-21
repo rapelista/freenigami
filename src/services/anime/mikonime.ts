@@ -1,3 +1,5 @@
+import https from 'node:https';
+
 import { z } from 'zod';
 
 /**
@@ -5,6 +7,54 @@ import { z } from 'zod';
  */
 const API_URL = 'https://api.mikonime.stream/backend/api/index.php';
 const MEDIA_URL = 'https://api.mikonime.stream';
+
+/**
+ * Cloudflare answers every request from datacenter egress (Vercel) with a
+ * "Just a moment…" interstitial regardless of headers, while the origin
+ * behind it serves anyone. Both vhosts (api. and www) share this origin
+ * server; we connect straight to it, keeping SNI + Host on the real
+ * hostname. Its certificate is a Cloudflare Origin CA cert — untrusted by
+ * design — so TLS verification stays off. Fragile: if the origin moves or
+ * gains an IP allowlist, drop this and use plain `fetch` again.
+ */
+const ORIGIN_IP = '195.88.211.20';
+
+interface OriginResponse {
+  status: number;
+  contentType: string | null;
+  body: string;
+}
+
+function directOriginRequest(url: string): Promise<OriginResponse> {
+  return new Promise((resolve, reject) => {
+    const { hostname, pathname, search } = new URL(url);
+    const req = https.request(
+      {
+        hostname: ORIGIN_IP,
+        port: 443,
+        path: `${pathname}${search}`,
+        servername: hostname,
+        rejectUnauthorized: false,
+        headers: { accept: '*/*', host: hostname },
+        signal: AbortSignal.timeout(8000),
+      },
+      (res) => {
+        const chunks: Buffer[] = [];
+        res.on('data', (c: Buffer) => chunks.push(c));
+        res.on('end', () =>
+          resolve({
+            status: res.statusCode ?? 0,
+            contentType: res.headers['content-type'] ?? null,
+            body: Buffer.concat(chunks).toString('utf8'),
+          }),
+        );
+      },
+    );
+
+    req.on('error', reject);
+    req.end();
+  });
+}
 
 const EpisodeSchema = z.object({
   id: z.number(),
@@ -60,6 +110,18 @@ async function request<T extends z.ZodType>(
 ): Promise<z.infer<T>[]> {
   const url = `${API_URL}?${new URLSearchParams(params)}`;
 
+  // Origin-direct first: the only path that works from datacenter egress.
+  // Any failure falls through to the plain-fetch path below.
+  try {
+    const res = await directOriginRequest(url);
+
+    if (res.status === 200 && (res.contentType ?? '').includes('json')) {
+      return responseOf(schema).parse(JSON.parse(res.body)).data;
+    }
+  } catch {
+    // fall through
+  }
+
   // Cloudflare occasionally answers with an HTML interstitial instead of
   // JSON. Not cached (a cached interstitial would stick), retried once.
   for (let attempt = 1; ; attempt++) {
@@ -107,11 +169,9 @@ async function resolveEmbed(url: string): Promise<string | null> {
   if (!url.includes('mikonime.stream/v/')) return url;
 
   try {
-    const res = await fetch(url, {
-      cache: 'no-store',
-      signal: AbortSignal.timeout(5000),
-    });
-    const html = await res.text();
+    // Same origin-direct routing: the wrapper page also sits behind the
+    // Cloudflare challenge on datacenter egress.
+    const { body: html } = await directOriginRequest(url);
     const src = /<iframe[^>]*?\ssrc="(https:\/\/[^"]+)"/i.exec(html)?.[1];
 
     return src && !src.includes('mikonime.stream') ? src : null;
