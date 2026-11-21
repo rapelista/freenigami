@@ -150,8 +150,11 @@ export function ExploreToolbar() {
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted" />
           <input
             className="h-10 w-full rounded-xl border border-border bg-(--field-background) pl-9 pr-9 text-sm outline-none placeholder:text-muted focus:border-accent"
+            enterKeyHint="search"
             placeholder="Cari judul komik..."
-            type="search"
+            // Plain text input: a "search" input adds the browser's own clear
+            // button next to ours.
+            type="text"
             value={params.search}
             onChange={(e) =>
               setParams(
