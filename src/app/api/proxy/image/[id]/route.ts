@@ -1,46 +1,67 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+/**
+ * Image file names are content-addressed (they embed an upload timestamp and
+ * random suffix), so a given id never changes: cache it for a year in the
+ * browser and on the CDN (`s-maxage`), so repeat views never reach the server.
+ */
+const CACHE_HIT = 'public, max-age=31536000, s-maxage=31536000, immutable';
+
+/** Short cache for misses so a temporarily missing image can recover. */
+const CACHE_MISS = 'public, max-age=60, s-maxage=300';
+
+const PRIMARY_BASES = [
+  'https://storage.shngm.id/thumbnail/cover/',
+  'https://storage.shngm.id/low/unsafe/filters:format(webp):quality(70)/thumbnail/image/',
+  'https://assets.shngm.id/thumbnail/image/',
+  'https://assets.shngm.id/thumbnail/cover/',
+];
+
+// Only tried after every primary base has failed.
+const FALLBACK_BASES = [
+  'https://cdn.shinigami.gg/assets/image/',
+  'https://cdn.shinigami.gg/assets/cover/',
+];
+
+function fetchFirst(bases: string[], id: string) {
+  return Promise.any(
+    bases.map((base) =>
+      fetch(`${base}${id}`).then((res) => {
+        if (!res.ok) throw new Error(`${res.status}`);
+
+        return res;
+      }),
+    ),
+  );
+}
+
 export async function GET(
   _: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
 
-  const urls = [
-    `https://storage.shngm.id/thumbnail/cover/`,
-    `https://storage.shngm.id/low/unsafe/filters:format(webp):quality(70)/thumbnail/image/`,
-    `https://assets.shngm.id/thumbnail/image/`,
-    `https://assets.shngm.id/thumbnail/cover/`,
-  ];
+  let response: Response;
 
-  // Only tried after every URL above has failed.
-  const fallbackUrls = [
-    `https://cdn.shinigami.gg/assets/image/`,
-    `https://cdn.shinigami.gg/assets/cover/`,
-  ];
-
-  const fetchFirst = (bases: string[]) =>
-    Promise.any(
-      bases.map((url) =>
-        fetch(`${url}${id}`).then((res) => {
-          if (!res.ok) {
-            throw new Error();
-          }
-
-          return res;
-        }),
-      ),
+  try {
+    response = await fetchFirst(PRIMARY_BASES, id).catch(() =>
+      fetchFirst(FALLBACK_BASES, id),
     );
+  } catch {
+    return new NextResponse(null, {
+      status: 404,
+      headers: { 'Cache-Control': CACHE_MISS },
+    });
+  }
 
-  const response = await fetchFirst(urls).catch(() =>
-    fetchFirst(fallbackUrls),
-  );
+  const headers = new Headers({ 'Cache-Control': CACHE_HIT });
 
-  const blob = await response.blob();
+  const contentType = response.headers.get('Content-Type');
+  const contentLength = response.headers.get('Content-Length');
 
-  const headers = new Headers();
+  if (contentType) headers.set('Content-Type', contentType);
+  if (contentLength) headers.set('Content-Length', contentLength);
 
-  headers.set('Content-Type', blob.type);
-
-  return new NextResponse(blob, { headers });
+  // Stream the upstream body instead of buffering it in memory.
+  return new NextResponse(response.body, { headers });
 }
