@@ -10,17 +10,20 @@ const CACHE_HIT = 'public, max-age=31536000, s-maxage=31536000, immutable';
 /** Short cache for misses so a temporarily missing image can recover. */
 const CACHE_MISS = 'public, max-age=60, s-maxage=300';
 
+// Where api.shinigami.io (the current data source) points image URLs.
 const PRIMARY_BASES = [
+  'https://cdn.shinigami.gg/assets/cover/',
+  'https://cdn.shinigami.gg/assets/image/',
+  'https://cdn.shinigami.gg/thumbnail/cover/',
+  'https://cdn.shinigami.gg/thumbnail/image/',
+];
+
+// Legacy hosts, for older ids; only tried after every primary base failed.
+const FALLBACK_BASES = [
   'https://storage.shngm.id/thumbnail/cover/',
   'https://storage.shngm.id/low/unsafe/filters:format(webp):quality(70)/thumbnail/image/',
   'https://assets.shngm.id/thumbnail/image/',
   'https://assets.shngm.id/thumbnail/cover/',
-];
-
-// Only tried after every primary base has failed.
-const FALLBACK_BASES = [
-  'https://cdn.shinigami.gg/assets/image/',
-  'https://cdn.shinigami.gg/assets/cover/',
 ];
 
 function fetchFirst(bases: string[], id: string) {
