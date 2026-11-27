@@ -30,8 +30,8 @@ export const seriesRouter = router({
         min_chapters: z.number().int().min(1),
         sort: z.string(),
         sort_order: z.string(),
-        // Page number set by `useInfiniteQuery` ("Muat lainnya").
-        cursor: z.number().int().min(1).nullish(),
+        // `meta.next_offset` of the previous page, set by `useInfiniteQuery`.
+        cursor: z.number().int().min(0).nullish(),
       })
         .partial()
         .optional()
@@ -45,7 +45,7 @@ export const seriesRouter = router({
     .query(async ({ input: { cursor, ...input } }) => {
       const data = await fetchSeriesList({
         ...input,
-        page: cursor ?? input.page,
+        offset: cursor ?? undefined,
       });
       const results = SeriesListSchema.parse(data);
 
@@ -104,8 +104,8 @@ export const seriesRouter = router({
       PaginationSchema.extend({
         type: z.string(),
         format: z.string(),
-        // Page number set by `useInfiniteQuery` ("Muat lainnya").
-        cursor: z.number().int().min(1).nullish(),
+        // `meta.next_offset` of the previous page, set by `useInfiniteQuery`.
+        cursor: z.number().int().min(0).nullish(),
       })
         .partial()
         .optional()
@@ -121,7 +121,7 @@ export const seriesRouter = router({
         sort: 'latest',
         sort_order: 'desc',
         ...input,
-        page: cursor ?? input.page,
+        offset: cursor ?? undefined,
       });
 
       try {

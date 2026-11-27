@@ -15,7 +15,7 @@ const PRIMARY_MAX_LIMIT = 100;
 type ListParams = Record<string, string | number | boolean | null | undefined>;
 
 interface PrimaryResponse {
-  data?: unknown[];
+  data?: { is_pinned?: boolean }[];
   meta?: { has_next?: boolean };
 }
 
@@ -31,6 +31,14 @@ function listError(status: number) {
  * page metadata; when it fails, fetch the same page from the legacy
  * page-based host.
  *
+ * Pass `offset` (from a previous page's `meta.next_offset`) to continue an
+ * infinite list; otherwise it is derived from `page`.
+ *
+ * The primary puts pinned series on the first page on top of `limit`, so a
+ * page can hold more than `page_size` items. Pages are trimmed back to
+ * `page_size`, and `next_offset` only advances past the regular (unpinned)
+ * items actually returned, so nothing trimmed is skipped.
+ *
  * The primary does not report totals, so `total_page` is "this page, plus
  * one more if there is a next page", which is enough for the pagination to
  * keep moving forward.
@@ -39,24 +47,32 @@ export async function fetchMangaList(
   params: ListParams,
   init?: RequestInit,
 ): Promise<unknown> {
-  const { page: rawPage, page_size: rawPageSize, ...filters } = params;
-  const page = Math.max(Number(rawPage) || 1, 1);
+  const {
+    page: rawPage,
+    page_size: rawPageSize,
+    offset: rawOffset,
+    ...filters
+  } = params;
   const pageSize = Math.min(Number(rawPageSize) || 24, PRIMARY_MAX_LIMIT);
+  const offset =
+    rawOffset === undefined || rawOffset === null
+      ? (Math.max(Number(rawPage) || 1, 1) - 1) * pageSize
+      : Math.max(Number(rawOffset) || 0, 0);
+  const page = Math.floor(offset / pageSize) + 1;
 
   try {
     const response = await fetch(
-      generateFullUrl(PRIMARY_URL, {
-        ...filters,
-        limit: pageSize,
-        offset: (page - 1) * pageSize,
-      }),
+      generateFullUrl(PRIMARY_URL, { ...filters, limit: pageSize, offset }),
       init,
     );
 
     if (response.ok) {
       const body = (await response.json()) as PrimaryResponse;
-      const data = body.data ?? [];
-      const hasNext = !!body.meta?.has_next && data.length > 0;
+      const all = body.data ?? [];
+      const data = all.slice(0, pageSize);
+      const regular = data.filter((item) => !item.is_pinned).length;
+      const hasNext =
+        all.length > pageSize || (!!body.meta?.has_next && regular > 0);
 
       return {
         data,
@@ -64,6 +80,7 @@ export async function fetchMangaList(
           page,
           page_size: pageSize,
           total_page: hasNext ? page + 1 : page,
+          next_offset: hasNext ? offset + regular : null,
         },
       };
     }
@@ -82,7 +99,19 @@ export async function fetchMangaList(
 
   if (!response.ok) throw listError(response.status);
 
-  return response.json();
+  const body = (await response.json()) as {
+    data?: unknown[];
+    meta?: { total_page?: number };
+  };
+  const hasNext = page < (body.meta?.total_page ?? page);
+
+  return {
+    ...body,
+    meta: {
+      ...body.meta,
+      next_offset: hasNext ? page * pageSize : null,
+    },
+  };
 }
 
 export async function fetchSeriesList(params: object) {

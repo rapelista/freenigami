@@ -39,11 +39,9 @@ export function Explore() {
             ?.order,
         },
         {
-          initialCursor: 1,
+          initialCursor: 0,
           getNextPageParam: (lastPage) =>
-            lastPage.meta.page < lastPage.meta.total_page
-              ? lastPage.meta.page + 1
-              : undefined,
+            lastPage.meta.next_offset ?? undefined,
           placeholderData: keepPreviousData,
         },
       ),
