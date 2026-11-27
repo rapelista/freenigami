@@ -3,21 +3,19 @@
 import { Skeleton } from '@heroui/react';
 import {
   keepPreviousData,
-  useQuery,
+  useInfiniteQuery,
   useQueryClient,
 } from '@tanstack/react-query';
 import { LayoutPanelLeft, Layers } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { parseAsStringEnum, useQueryStates } from 'nuqs';
-import { useRef } from 'react';
 
 import { FlagBadge } from '~/components/(panel)/recommendation';
-import { Pagination, PaginationInfo } from '~/components/ui/pagination';
+import { LoadMore } from '~/components/ui/load-more';
 import { PillTabs } from '~/components/ui/pill-tabs';
 import { countryFlag, proxyImage, timeAgo } from '~/lib/format';
 import { PublishType, SeriesType } from '~/lib/enum';
-import { paginationParser } from '~/lib/parser';
 import { trpc } from '~/trpc/client';
 
 type LatestTab = PublishType | SeriesType;
@@ -30,13 +28,12 @@ const TABS = [
   { id: SeriesType.MANGA, label: 'Manga', prefix: countryFlag('JP') },
 ] as const;
 
+const PAGE_SIZE = 24;
+
 const PUBLISH_TYPES = Object.values(PublishType) as string[];
 
 export function Latest() {
-  const ref = useRef<HTMLDivElement>(null);
-
-  const [{ page, page_size, latest }, setParams] = useQueryStates({
-    ...paginationParser,
+  const [{ latest }, setParams] = useQueryStates({
     latest: parseAsStringEnum<LatestTab>([
       ...Object.values(PublishType),
       ...Object.values(SeriesType),
@@ -45,28 +42,32 @@ export function Latest() {
 
   const isPublishType = PUBLISH_TYPES.includes(latest);
 
-  const { data, isLoading } = useQuery(
-    trpc.series.latest.queryOptions(
-      {
-        page,
-        page_size,
-        ...(isPublishType ? { type: latest } : { format: latest }),
-      },
-      {
-        placeholderData: keepPreviousData,
-      },
-    ),
-  );
+  const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } =
+    useInfiniteQuery(
+      trpc.series.latest.infiniteQueryOptions(
+        {
+          page_size: PAGE_SIZE,
+          ...(isPublishType ? { type: latest } : { format: latest }),
+        },
+        {
+          initialCursor: 1,
+          getNextPageParam: (lastPage) =>
+            lastPage.meta.page < lastPage.meta.total_page
+              ? lastPage.meta.page + 1
+              : undefined,
+          placeholderData: keepPreviousData,
+        },
+      ),
+    );
 
-  const totalPages = data?.meta.total_page || 1;
-
-  const scrollToTop = () => {
-    if (ref.current) {
-      const top = ref.current.getBoundingClientRect().top;
-
-      window.scrollBy({ top: top - 80, behavior: 'smooth' });
-    }
-  };
+  // Offset paging can repeat a series that got updated between loads.
+  const seen = new Set<string>();
+  const seriesList =
+    data?.pages
+      .flatMap((page) => page.data)
+      .filter(
+        (series) => !seen.has(series.manga_id) && seen.add(series.manga_id),
+      ) ?? [];
 
   const queryClient = useQueryClient();
 
@@ -74,19 +75,19 @@ export function Latest() {
     queryClient.prefetchQuery(trpc.series.detail.queryOptions({ id }));
 
   return (
-    <div ref={ref} className="space-y-4">
+    <div className="space-y-4">
       <PillTabs
         items={TABS}
         label="Update terbaru"
         value={latest}
         onChange={(value) => {
-          if (value !== latest) setParams({ latest: value, page: 1 });
+          if (value !== latest) setParams({ latest: value });
         }}
       />
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
         {isLoading
-          ? Array.from({ length: page_size }, (_, i) => (
+          ? Array.from({ length: PAGE_SIZE }, (_, i) => (
               <div key={i} className="overflow-hidden rounded-xl bg-surface">
                 <Skeleton className="aspect-[3/4] w-full rounded-none" />
                 <div className="space-y-2 p-2.5">
@@ -96,7 +97,7 @@ export function Latest() {
                 </div>
               </div>
             ))
-          : data?.data.map((series) => (
+          : seriesList.map((series) => (
               <article
                 key={series.manga_id}
                 className="flex flex-col overflow-hidden rounded-xl bg-surface"
@@ -152,18 +153,12 @@ export function Latest() {
             ))}
       </div>
 
-      <div className="space-y-4 pt-2">
-        <Pagination
-          currentPage={page}
-          totalPages={totalPages}
-          onPageChange={(page) => {
-            setParams({ page });
-            scrollToTop();
-          }}
+      {hasNextPage && (
+        <LoadMore
+          isLoading={isFetchingNextPage}
+          onPress={() => fetchNextPage()}
         />
-
-        <PaginationInfo currentPage={page} totalPages={totalPages} />
-      </div>
+      )}
     </div>
   );
 }

@@ -5,7 +5,7 @@ import {
   parseAsStringLiteral,
 } from 'nuqs';
 
-import { paginationParser, searchParser } from '~/lib/parser';
+import { searchParser } from '~/lib/parser';
 
 export interface FilterOption<T extends string | number = string> {
   value: T;
@@ -62,7 +62,6 @@ export const STATUS_LABEL: Record<number, string> = {
 
 /** URL state of the explore page (also used to build links to it). */
 export const exploreParsers = {
-  ...paginationParser,
   ...searchParser,
   type: parseAsString,
   status: parseAsString,

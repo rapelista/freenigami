@@ -30,6 +30,8 @@ export const seriesRouter = router({
         min_chapters: z.number().int().min(1),
         sort: z.string(),
         sort_order: z.string(),
+        // Page number set by `useInfiniteQuery` ("Muat lainnya").
+        cursor: z.number().int().min(1).nullish(),
       })
         .partial()
         .optional()
@@ -40,8 +42,11 @@ export const seriesRouter = router({
           sort_order: 'desc',
         }),
     )
-    .query(async ({ input }) => {
-      const data = await fetchSeriesList(input);
+    .query(async ({ input: { cursor, ...input } }) => {
+      const data = await fetchSeriesList({
+        ...input,
+        page: cursor ?? input.page,
+      });
       const results = SeriesListSchema.parse(data);
 
       return results;
@@ -99,6 +104,8 @@ export const seriesRouter = router({
       PaginationSchema.extend({
         type: z.string(),
         format: z.string(),
+        // Page number set by `useInfiniteQuery` ("Muat lainnya").
+        cursor: z.number().int().min(1).nullish(),
       })
         .partial()
         .optional()
@@ -108,12 +115,13 @@ export const seriesRouter = router({
           type: 'project',
         }),
     )
-    .query(async ({ input }) => {
+    .query(async ({ input: { cursor, ...input } }) => {
       const data = await fetchMangaList({
         is_update: true,
         sort: 'latest',
         sort_order: 'desc',
         ...input,
+        page: cursor ?? input.page,
       });
 
       try {

@@ -57,9 +57,9 @@ export function ExploreToolbar() {
   const [params, setParams] = useQueryStates(exploreParsers);
   const [open, setOpen] = useState(false);
 
-  // Every filter change starts again from the first page.
+  // Every filter change changes the query key, so the list restarts.
   const update = (values: Partial<Record<keyof Params, unknown>>) =>
-    setParams({ ...values, page: null } as Parameters<typeof setParams>[0]);
+    setParams(values as Parameters<typeof setParams>[0]);
 
   const activeCount = countFilters(params);
   const needsTaxonomy = open || activeCount > 0;
@@ -157,10 +157,7 @@ export function ExploreToolbar() {
             type="text"
             value={params.search}
             onChange={(e) =>
-              setParams(
-                { search: e.target.value, page: null },
-                { history: 'replace' },
-              )
+              setParams({ search: e.target.value }, { history: 'replace' })
             }
           />
           {params.search && (
@@ -169,7 +166,7 @@ export function ExploreToolbar() {
               className="absolute right-2 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center rounded-md text-muted hover:text-foreground"
               type="button"
               onClick={() =>
-                setParams({ search: null, page: null }, { history: 'replace' })
+                setParams({ search: null }, { history: 'replace' })
               }
             >
               <X className="size-4" />

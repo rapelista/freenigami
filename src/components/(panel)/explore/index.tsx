@@ -1,62 +1,66 @@
 'use client';
 
 import { Skeleton } from '@heroui/react';
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query';
 import { Bookmark, SearchX, Star } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useQueryStates } from 'nuqs';
-import { useRef } from 'react';
 import { useDebounceValue } from 'usehooks-ts';
 
-import { Pagination, PaginationInfo } from '~/components/ui/pagination';
+import { LoadMore } from '~/components/ui/load-more';
 import { exploreParsers, SORT_OPTIONS, STATUS_LABEL } from '~/lib/explore';
 import { formatNumber, hasRank, proxyImage, timeAgo } from '~/lib/format';
 import { trpc } from '~/trpc/client';
 
-export function Explore() {
-  const ref = useRef<HTMLDivElement>(null);
+const PAGE_SIZE = 24;
 
-  const [params, setParams] = useQueryStates(exploreParsers);
-  const { page, page_size, search, sort } = params;
+export function Explore() {
+  const [params] = useQueryStates(exploreParsers);
+  const { search, sort } = params;
 
   const [debouncedSearch] = useDebounceValue(search, 500);
 
-  const { data, isLoading } = useQuery(
-    trpc.series.list.queryOptions(
-      {
-        page,
-        page_size,
-        q: debouncedSearch || undefined,
-        type: params.type ?? undefined,
-        status: params.status ?? undefined,
-        format: params.format ?? undefined,
-        subformat: params.subformat ?? undefined,
-        genre: params.genre.join(',') || undefined,
-        theme: params.theme.join(',') || undefined,
-        min_chapters: params.min ?? undefined,
-        sort,
-        sort_order: SORT_OPTIONS.find((option) => option.value === sort)?.order,
-      },
-      {
-        placeholderData: keepPreviousData,
-      },
-    ),
-  );
+  const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } =
+    useInfiniteQuery(
+      trpc.series.list.infiniteQueryOptions(
+        {
+          page_size: PAGE_SIZE,
+          q: debouncedSearch || undefined,
+          type: params.type ?? undefined,
+          status: params.status ?? undefined,
+          format: params.format ?? undefined,
+          subformat: params.subformat ?? undefined,
+          genre: params.genre.join(',') || undefined,
+          theme: params.theme.join(',') || undefined,
+          min_chapters: params.min ?? undefined,
+          sort,
+          sort_order: SORT_OPTIONS.find((option) => option.value === sort)
+            ?.order,
+        },
+        {
+          initialCursor: 1,
+          getNextPageParam: (lastPage) =>
+            lastPage.meta.page < lastPage.meta.total_page
+              ? lastPage.meta.page + 1
+              : undefined,
+          placeholderData: keepPreviousData,
+        },
+      ),
+    );
 
-  const totalPages = data?.meta.total_page || 1;
-
-  const scrollToTop = () => {
-    if (ref.current) {
-      const top = ref.current.getBoundingClientRect().top;
-
-      window.scrollBy({ top: top - 140, behavior: 'smooth' });
-    }
-  };
+  // Offset paging can repeat a series that moved between loads.
+  const seen = new Set<string>();
+  const seriesList =
+    data?.pages
+      .flatMap((page) => page.data)
+      .filter(
+        (series) => !seen.has(series.manga_id) && seen.add(series.manga_id),
+      ) ?? [];
 
   return (
-    <div ref={ref} className="space-y-4">
-      {!isLoading && data?.data.length === 0 && (
+    <div className="space-y-4">
+      {!isLoading && seriesList.length === 0 && (
         <div className="flex flex-col items-center gap-2 py-20 text-center text-muted">
           <SearchX className="size-10" />
           <p>Komik tidak ditemukan.</p>
@@ -76,7 +80,7 @@ export function Explore() {
                 </div>
               </div>
             ))
-          : data?.data.map((series) => {
+          : seriesList.map((series) => {
               const formatName = series.taxonomy?.Format?.[0]?.name;
               const status =
                 series.status === undefined
@@ -155,18 +159,12 @@ export function Explore() {
             })}
       </div>
 
-      <div className="space-y-4 pt-2">
-        <Pagination
-          currentPage={page}
-          totalPages={totalPages}
-          onPageChange={(page) => {
-            setParams({ page });
-            scrollToTop();
-          }}
+      {hasNextPage && (
+        <LoadMore
+          isLoading={isFetchingNextPage}
+          onPress={() => fetchNextPage()}
         />
-
-        <PaginationInfo currentPage={page} totalPages={totalPages} />
-      </div>
+      )}
     </div>
   );
 }

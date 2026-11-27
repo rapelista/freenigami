@@ -6,17 +6,12 @@ import {
   useInfiniteQuery,
   useQueryClient,
 } from '@tanstack/react-query';
-import {
-  ArrowDownWideNarrow,
-  BookOpen,
-  LoaderCircle,
-  Search,
-  Sparkles,
-} from 'lucide-react';
+import { ArrowDownWideNarrow, BookOpen, Search, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { parseAsStringEnum, useQueryStates } from 'nuqs';
 import { useDebounceValue } from 'usehooks-ts';
 
+import { LoadMore } from '~/components/ui/load-more';
 import { isRecent, proxyImage, timeAgo } from '~/lib/format';
 import { searchParser } from '~/lib/parser';
 import { cn } from '~/lib/utils';
@@ -202,19 +197,11 @@ export function SeriesChapters({ seriesId }: SeriesChaptersProps) {
       </ul>
 
       {hasNextPage && (
-        <div className="flex justify-center pt-2">
-          <button
-            className="flex h-10 items-center gap-2 rounded-xl bg-amber-soft px-5 text-sm font-semibold transition-colors hover:bg-amber-soft/70 disabled:opacity-60"
-            disabled={isFetchingNextPage}
-            type="button"
-            onClick={() => fetchNextPage()}
-          >
-            {isFetchingNextPage && (
-              <LoaderCircle className="size-4 animate-spin text-accent" />
-            )}
-            Muat lebih banyak
-          </button>
-        </div>
+        <LoadMore
+          isLoading={isFetchingNextPage}
+          label="Muat lebih banyak"
+          onPress={() => fetchNextPage()}
+        />
       )}
     </section>
   );
