@@ -3,19 +3,21 @@ import { z } from 'zod';
 
 import { ChapterSchema } from '~/schema/chapter';
 
-const PRIMARY_HOST = 'https://api.shngm.io';
-const FALLBACK_HOST = 'https://api.shinigami.io';
+/** Legacy page-based host; its CDN can serve stale data. */
+const LEGACY_HOST = 'https://api.shngm.io';
+/** Fresh cursor-based host used by s1.shinigami.mx. */
+const FRESH_HOST = 'https://api.shinigami.io';
 
-/** Cursor separator; fallback cursors are base64url so never contain it. */
+/** Cursor separator; fresh-host cursors are base64url so never contain it. */
 const SEP = '|';
 
-/** Give up on the primary host quickly so the fallback can answer. */
-const PRIMARY_TIMEOUT_MS = 6_000;
-const FALLBACK_TIMEOUT_MS = 10_000;
-/** Extra attempts for the fallback host on network/5xx/invalid-JSON errors. */
-const FALLBACK_RETRIES = 1;
+/** Give up on the legacy backup quickly. */
+const LEGACY_TIMEOUT_MS = 6_000;
+const FRESH_TIMEOUT_MS = 10_000;
+/** Extra attempts for the fresh host on network/5xx/invalid-JSON errors. */
+const FRESH_RETRIES = 1;
 
-const PrimaryResponseSchema = z.object({
+const LegacyResponseSchema = z.object({
   data: z.array(ChapterSchema),
   meta: z.object({
     total_page: z.number(),
@@ -23,7 +25,7 @@ const PrimaryResponseSchema = z.object({
   }),
 });
 
-const FallbackResponseSchema = z.object({
+const FreshResponseSchema = z.object({
   data: z.array(ChapterSchema),
   meta: z.object({
     has_next: z.boolean().optional(),
@@ -43,34 +45,34 @@ export interface ChapterListParams {
 export interface ChapterListResult {
   data: z.infer<typeof ChapterSchema>[];
   meta: {
-    /** Unknown when served by the fallback host. */
+    /** Unknown when served by the fresh (cursor-based) host. */
     total_record: number | null;
     next_cursor: string | null;
   };
 }
 
 /**
- * The cursor is "<page>" or "<page>|<fallback cursor>". The page number
- * drives the primary host; the fallback cursor (when known) drives the
- * cursor-based fallback host.
+ * The cursor is "<page>" or "<page>|<fresh cursor>". The page number
+ * drives the legacy host; the fresh cursor (when known) drives the
+ * cursor-based fresh host.
  */
 function parseCursor(cursor: string | null | undefined, page: number) {
-  if (!cursor) return { page, fallbackCursor: null };
+  if (!cursor) return { page, freshCursor: null };
 
-  const [pagePart, fallbackCursor] = cursor.split(SEP);
+  const [pagePart, freshCursor] = cursor.split(SEP);
   const parsed = Number.parseInt(pagePart, 10);
 
   return {
     page: Number.isFinite(parsed) && parsed > 0 ? parsed : page,
-    fallbackCursor: fallbackCursor || null,
+    freshCursor: freshCursor || null,
   };
 }
 
-async function fetchPrimary(
+async function fetchLegacy(
   params: ChapterListParams,
   page: number,
 ): Promise<ChapterListResult | null> {
-  const url = new URL(`${PRIMARY_HOST}/v1/chapter/${params.seriesId}/list`);
+  const url = new URL(`${LEGACY_HOST}/v1/chapter/${params.seriesId}/list`);
 
   url.searchParams.set('sort_by', 'chapter_number');
   url.searchParams.set('sort_order', params.sortOrder);
@@ -80,12 +82,12 @@ async function fetchPrimary(
 
   try {
     const response = await fetch(url, {
-      signal: AbortSignal.timeout(PRIMARY_TIMEOUT_MS),
+      signal: AbortSignal.timeout(LEGACY_TIMEOUT_MS),
     });
 
     if (!response.ok) return null;
 
-    const { data, meta } = PrimaryResponseSchema.parse(await response.json());
+    const { data, meta } = LegacyResponseSchema.parse(await response.json());
 
     return {
       data,
@@ -100,17 +102,17 @@ async function fetchPrimary(
 }
 
 /**
- * GET JSON from the fallback host, retrying transient failures. Network
+ * GET JSON from the fresh host, retrying transient failures. Network
  * errors and non-JSON bodies used to escape as 500s; they now surface as a
  * 502 only after the retries are spent.
  */
-async function fetchFallbackJson(url: URL): Promise<unknown> {
+async function fetchFreshJson(url: URL): Promise<unknown> {
   let lastError: unknown;
 
-  for (let attempt = 0; attempt <= FALLBACK_RETRIES; attempt++) {
+  for (let attempt = 0; attempt <= FRESH_RETRIES; attempt++) {
     try {
       const response = await fetch(url, {
-        signal: AbortSignal.timeout(FALLBACK_TIMEOUT_MS),
+        signal: AbortSignal.timeout(FRESH_TIMEOUT_MS),
       });
 
       // 4xx will not get better on retry.
@@ -137,26 +139,26 @@ async function fetchFallbackJson(url: URL): Promise<unknown> {
   });
 }
 
-async function fetchFallback(
+async function fetchFresh(
   params: ChapterListParams,
   page: number,
-  fallbackCursor: string | null,
+  freshCursor: string | null,
 ): Promise<ChapterListResult> {
-  const url = new URL(`${FALLBACK_HOST}/v1/chapter/${params.seriesId}/list`);
+  const url = new URL(`${FRESH_HOST}/v1/chapter/${params.seriesId}/list`);
 
   url.searchParams.set('sort_by', 'chapter_number');
   url.searchParams.set('sort_order', params.sortOrder);
 
   if (params.search) url.searchParams.set('search', params.search);
 
-  // Without a fallback cursor (e.g. earlier pages came from the primary
+  // Without a fresh cursor (e.g. earlier pages came from the legacy
   // host) fetch everything up to this page and keep only its slice.
-  const skip = fallbackCursor ? 0 : (page - 1) * params.pageSize;
+  const skip = freshCursor ? 0 : (page - 1) * params.pageSize;
 
   url.searchParams.set('limit', String(skip + params.pageSize));
-  if (fallbackCursor) url.searchParams.set('cursor', fallbackCursor);
+  if (freshCursor) url.searchParams.set('cursor', freshCursor);
 
-  const parsed = FallbackResponseSchema.safeParse(await fetchFallbackJson(url));
+  const parsed = FreshResponseSchema.safeParse(await fetchFreshJson(url));
 
   if (!parsed.success) {
     throw new TRPCError({
@@ -178,20 +180,21 @@ async function fetchFallback(
 }
 
 /**
- * Chapter list that keeps paginating even when the primary host fails and
- * the cursor-based fallback host answers instead.
+ * Chapter list from the fresh cursor-based host, falling back to the legacy
+ * page-based host when the fresh one fails.
  */
 export async function fetchChapterList(
   params: ChapterListParams,
 ): Promise<ChapterListResult> {
-  const { page, fallbackCursor } = parseCursor(params.cursor, params.page);
+  const { page, freshCursor } = parseCursor(params.cursor, params.page);
 
-  // Once on the fallback cursor chain, stay on it so pages line up.
-  if (!fallbackCursor) {
-    const primary = await fetchPrimary(params, page);
+  try {
+    return await fetchFresh(params, page, freshCursor);
+  } catch (error) {
+    const legacy = await fetchLegacy(params, page);
 
-    if (primary) return primary;
+    if (legacy) return legacy;
+
+    throw error;
   }
-
-  return fetchFallback(params, page, fallbackCursor);
 }

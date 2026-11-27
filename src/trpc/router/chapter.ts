@@ -39,7 +39,9 @@ export const chapterRouter = router({
       }),
     )
     .query(async ({ input }) => {
-      const url = new URL(`https://api.shngm.io/v1/chapter/detail/${input.id}`);
+      const url = new URL(
+        `https://api.shinigami.io/v1/chapter/detail/${input.id}`,
+      );
 
       const response = await fetchApi(url);
 

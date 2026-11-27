@@ -51,7 +51,7 @@ export const seriesRouter = router({
     .input(z.object({ type: z.enum(['genre', 'theme']) }))
     .query(async ({ input }) => {
       const response = await fetchApi(
-        `https://api.shngm.io/v1/taxonomy/list?type=${input.type}&limit=100`,
+        `https://api.shinigami.io/v1/taxonomy/list?type=${input.type}&limit=100`,
         { next: { revalidate: 86_400 } },
       );
 
@@ -139,7 +139,9 @@ export const seriesRouter = router({
     .query(async ({ input }) => {
       await new Promise((resolve) => setTimeout(resolve, 1_400));
 
-      const url = new URL(`https://api.shngm.io/v1/manga/detail/${input.id}`);
+      const url = new URL(
+        `https://api.shinigami.io/v1/manga/detail/${input.id}`,
+      );
 
       const response = await fetchApi(url);
 
